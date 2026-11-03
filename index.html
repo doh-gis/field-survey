@@ -611,7 +611,7 @@ function bRow(it){var e=$('br'+it.i);if(!e)return;var ll=it.lat!=null?it.lat.toF
  else if(it.lat==null){ch=['Failed','ไม่มีพิกัด'];if(!bRun)btn='<button type="button" class="s" data-bp="'+it.i+'">ปักหมุด</button>'}
  else ch=['Pending','รอนำเข้า'];
  if(!bRun&&it.status!=='ok'&&it.status!=='skip')btn+='<button type="button" class="d" data-bx="'+it.i+'" aria-label="เอาออก">✕</button>';
- e.innerHTML='<i>'+(it.i+1)+'</i><div style="flex:1;min-width:0"><div style="overflow-wrap:anywhere">'+esc(it.name)+' · '+(it.size/1048576).toFixed(1)+' MB</div><div class="hint">'+ll+(it.at?' · '+it.at.toLocaleString('th-TH'):'')+(it.err?' · '+esc(it.err):'')+'</div></div><span class="chip '+ch[0]+'">'+esc(ch[1])+'</span>'+btn}
+ e.innerHTML='<i>'+(it.i+1)+'</i><div style="flex:1;min-width:0"><div style="overflow-wrap:anywhere">'+esc(it.name)+' · '+(it.size/1048576).toFixed(1)+' MB</div><div class="hint">'+ll+(it.at?' · '+it.at.toLocaleString('th-TH'):'')+(it.lat==null&&it.why?' · '+esc(it.why):'')+(it.err?' · '+esc(it.err):'')+'</div></div><span class="chip '+ch[0]+'">'+esc(ch[1])+'</span>'+btn}
 function bSum(){var c=bCnt(),todo=c.wait+c.fail;
  $('bsum').textContent=!c.all?'ยังไม่ได้เลือกรูป':'ทั้งหมด '+c.all+' รูป · พร้อมนำเข้า '+todo+' · ไม่มีพิกัด '+c.nog+(c.big?' · ใหญ่เกิน '+c.big:'')+' · สำเร็จ '+c.ok+(c.fail?' · ล้มเหลว '+c.fail:'');
  $('bbar').style.width=(bRun&&bTotal?Math.round(bDone*100/bTotal):0)+'%';
@@ -620,10 +620,12 @@ function bSum(){var c=bCnt(),todo=c.wait+c.fail;
  $('bclr').disabled=busy;$('bpick').disabled=$('bdir').disabled=busy}
 function bRender(){BI.forEach(function(it,i){it.i=i});
  $('bl').innerHTML=BI.map(function(it,i){return'<div class="ph" id="br'+i+'"></div>'}).join('');BI.forEach(bRow);bSum()}
-function bMeta(it){if(!window.exifr)return Promise.resolve();
- return Promise.all([exifr.gps(it.file).catch(function(){return null}),exifr.parse(it.file,['DateTimeOriginal']).catch(function(){return null})]).then(function(a){var g=a[0];
+function bMeta(it){if(!window.exifr){it.why='โหลดตัวอ่านพิกัด (exifr) ไม่ได้ ตรวจอินเทอร์เน็ตแล้วรีเฟรชหน้า';return Promise.resolve()}
+ return Promise.all([exifr.gps(it.file).catch(function(e){it.why='อ่านไฟล์ไม่ได้: '+(e&&e.message||e);return null}),exifr.parse(it.file,['DateTimeOriginal','Make','Model']).catch(function(){return null})]).then(function(a){var g=a[0],m=a[1];
   if(g&&isFinite(g.latitude)&&isFinite(g.longitude)&&vc(g.latitude,g.longitude)&&(Math.abs(g.latitude)>1e-6||Math.abs(g.longitude)>1e-6)){it.lat=g.latitude;it.lng=g.longitude}
-  if(a[1]&&a[1].DateTimeOriginal instanceof Date&&!isNaN(a[1].DateTimeOriginal))it.at=a[1].DateTimeOriginal})}
+  else if(g&&!it.why)it.why='พบค่าพิกัดแต่เป็น '+g.latitude+', '+g.longitude+' (ไม่ถูกต้อง)';
+  else if(!it.why)it.why=m&&(m.Make||m.Model||m.DateTimeOriginal)?'มี EXIF แต่ไม่มี GPS (ปิดตำแหน่งตอนถ่าย หรือถูกตัดออกตอนเลือกไฟล์)':'ไม่พบ EXIF ในไฟล์ (ถูกลบข้อมูลไปแล้ว เช่นผ่าน LINE/แชร์/ย่อภาพ)';
+  if(m&&m.DateTimeOriginal instanceof Date&&!isNaN(m.DateTimeOriginal))it.at=m.DateTimeOriginal})}
 function bAdd(list){if(!cur||bRun||bRead)return;var have={},add=[],other=0,dup=0;BI.forEach(function(it){have[it.key]=1});
  list.forEach(function(f){if(!isImg(f)){other++;return}var k='B'+hk(cur.code+'|'+f.name+'|'+f.size+'|'+f.lastModified);if(have[k]){dup++;return}have[k]=1;
   add.push({file:f,name:f.name,size:f.size,key:k,pid:'P'+k+'-1',status:'wait',lat:null,lng:null,at:null,pinned:false,read:false})});
