@@ -246,7 +246,6 @@ html.sun .stat b{font-size:2.1rem}
     <p class="hco">บริษัท คอนซัลแทนท์ ออฟ เทคโนโลยี จำกัด (COT)</p>
     <p class="hs">บันทึกจุดสำรวจ พิกัด GPS และภาพถ่ายจากพื้นที่จริง เข้าสู่ฐานข้อมูลโครงการโดยตรง</p>
     <form id="cf" autocomplete="off" style="display:flex;gap:8px"><input id="q" placeholder="กรอกรหัสโครงการ" aria-label="รหัสโครงการ" autocapitalize="characters" autocomplete="off" spellcheck="false" required style="flex:1;min-width:0"><button class="p" id="cgo" type="submit" style="background:#fff;color:#0a2260;border-radius:999px;padding:0 20px;box-shadow:0 6px 16px -4px rgba(0,0,0,.35)">เข้าสู่โครงการ</button></form>
-    <details style="margin-top:10px;font-size:.88rem"><summary style="cursor:pointer;opacity:.9">โครงการนี้ตั้งรหัสผ่านแยกจากรหัสโครงการ</summary><input id="cpi" type="password" autocomplete="off" placeholder="รหัสผ่านโครงการ" aria-label="รหัสผ่านโครงการ" style="margin-top:8px"></details>
     <p id="cm" role="alert" style="margin:10px 0 0;font-size:.9rem;font-weight:600;color:#ffd7d3"></p>
   </div>
 </section>
@@ -450,20 +449,19 @@ function applyTheme(v){var d=document.documentElement,dk=v==='dark'||(v==='auto'
  d.classList.toggle('dark',dk);d.classList.toggle('sun',v==='sun');var m=document.querySelector('meta[name=theme-color]');if(m)m.content=dk?'#060d22':v==='sun'?'#06236a':'#0a2260'}
 
 var asking=false;
-function tryLogin(c,pw){PASS=pw;cur={code:c};return api('login').then(function(r){try{if(pw&&pw!==c)localStorage.setItem('pw_'+c,pw);localStorage.setItem('last_code',c)}catch(e){}enter(r.project,r.fields)}).catch(function(e){cur=null;PASS='';throw e})}
-function enterCode(c,pw,silent){c=String(c||'').trim();if(!c||asking)return;asking=true;$('cm').textContent='';$('cgo').disabled=true;$('sub').textContent='กำลังเข้าโครงการ...';
- var l=[];if(pw)l.push(pw);else{l.push(c);try{var sv=localStorage.getItem('pw_'+c);if(sv&&sv!==c)l.push(sv)}catch(e){}}
- function fin(e){asking=false;$('cgo').disabled=false;$('sub').textContent='กรอกรหัสโครงการเพื่อเริ่มงาน';if(!silent)$('cm').textContent=(e&&e.message)||'เข้าโครงการไม่ได้'}
- (function nx(i,last){if(i>=l.length)return fin(last);
-  tryLogin(c,l[i]).then(function(){asking=false;$('cgo').disabled=false;$('cpi').value=''}).catch(function(e){if(/ไม่มีสัญญาณ|หมดเวลา|ผิดรูปแบบ|รอ 10 นาที/.test(e.message))return fin(e);nx(i+1,e)})})(0)}
-$('cf').onsubmit=function(e){e.preventDefault();enterCode($('q').value,$('cpi').value,false)};
+function tryLogin(c){PASS=c;cur={code:c};return api('login').then(function(r){try{localStorage.setItem('last_code',r.project.code)}catch(e){}enter(r.project,r.fields)}).catch(function(e){cur=null;PASS='';throw e})}
+function enterCode(c,silent){c=String(c||'').trim();if(!c||asking)return;
+ if(c.length>30||/[\s:\\\/?*\[\]'"<>|]/.test(c)){if(!silent)$('cm').textContent='รหัสโครงการต้องไม่เกิน 30 ตัวอักษร และห้ามมีช่องว่างหรืออักขระพิเศษ';return}
+ asking=true;$('cm').textContent='';$('cgo').disabled=true;$('sub').textContent='กำลังเข้าโครงการ...';
+ tryLogin(c).then(function(){asking=false;$('cgo').disabled=false}).catch(function(e){asking=false;$('cgo').disabled=false;$('sub').textContent='กรอกรหัสโครงการเพื่อเริ่มงาน';if(!silent)$('cm').textContent=(e&&e.message)||'เข้าโครงการไม่ได้'})}
+$('cf').onsubmit=function(e){e.preventDefault();enterCode($('q').value,false)};
 function enter(p,fields){cur=p;$('sub').innerHTML='<span class="pc">'+esc(p.code)+'</span><span class="pn">'+esc(p.name)+'</span>';$('nav').classList.remove('hide');$('chg').classList.remove('hide');
  $('stype').innerHTML='<option value="">ไม่ระบุ</option>'+p.types.map(function(t){return'<option>'+esc(t)+'</option>'}).join('');
  $('dyn').innerHTML=fields.map(function(f){var id='f_'+f.key,c;
   if(f.type==='select')c='<select id="'+id+'"><option value="">เลือก</option>'+f.options.map(function(o){return'<option>'+esc(o)+'</option>'}).join('')+'</select>';
   else c='<input id="'+id+'" type="'+(f.type==='number'?'number':'text')+'">';
   return'<label for="'+id+'">'+esc(f.label)+(f.required?' *':'')+'</label>'+c}).join('');
- cur.fields=fields;$('uproj').textContent=p.code+' '+p.name;if(map&&isFinite(p.lat)&&isFinite(p.lng))map.setView([p.lat,p.lng],9);
+ cur.fields=fields;$('uproj').textContent=(p.code+' '+(p.name||'')).trim();if(map&&isFinite(p.lat)&&isFinite(p.lng))map.setView([p.lat,p.lng],9);
  newSurvey();show('survey');loadSurveys()}
 function leave(forget){if(forget&&cur){try{localStorage.removeItem('pw_'+cur.code)}catch(e){}}try{localStorage.removeItem('last_code')}catch(e){}$('q').value='';$('cm').textContent='';
  homeReset();cur=null;PASS='';S=[];fitDone=false;if(layer)layer.clearLayers();$('rows').innerHTML='';$('recent').innerHTML='';
@@ -471,7 +469,7 @@ function leave(forget){if(forget&&cur){try{localStorage.removeItem('pw_'+cur.cod
 $('chg').onclick=function(){leave(false)};$('lock').onclick=function(){leave(true)};
 function loadSurveys(){if(!S.length){var k='<tr><td colspan="5"><span class="sk" style="height:16px"></span></td></tr>';$('recent').innerHTML=k+k+k;$('rows').innerHTML=k+k+k}return api('listSurveys').then(function(r){S=r.surveys.map(toRow);home();draw()}).catch(function(e){$('smsg').textContent='โหลดรายการไม่ได้: '+e.message;if(!S.length){home();draw()}})}
 
-function home(){$('hname').textContent=cur?cur.name:'';var d=S.filter(function(r){return r[3]==='Completed'}).length;
+function home(){$('hname').textContent=cur?(cur.name||cur.code):'';var d=S.filter(function(r){return r[3]==='Completed'}).length;
  countTo($('s-all'),S.length);countTo($('s-done'),d);countTo($('s-wait'),S.length-d);var pc=S.length?Math.round(d*100/S.length):0;countTo($('s-pct'),pc);
  $('s-ring').querySelector('.rf').style.strokeDashoffset=RC*(1-pc/100);$('s-ring').classList.toggle('full',S.length>0&&pc===100);spark();
  var rc=S.slice().sort(function(a,b){return(Date.parse(b[8])||0)-(Date.parse(a[8])||0)}).slice(0,5);
@@ -658,7 +656,7 @@ kv('get').then(function(v){if(v)for(var k in v)if(!pend[k])pend[k]=v[k]}).catch(
 })();
 $('yr').textContent=new Date().getFullYear();
 var LC='';try{LC=localStorage.getItem('last_code')||''}catch(e){}
-if(LC){$('q').value=LC;enterCode(LC,'',true)}
+if(LC){$('q').value=LC;enterCode(LC,true)}
 </script>
 </body>
 </html>
