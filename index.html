@@ -230,7 +230,7 @@ html.sun .stat b{font-size:2.1rem}
 </head>
 <body>
 <header>
-  <h1><small id="sub">เลือกโครงการเพื่อเริ่มงาน</small></h1>
+  <h1><small id="sub">กรอกรหัสโครงการเพื่อเริ่มงาน</small></h1>
   <button id="chg" class="hide">เปลี่ยนโครงการ</button>
 </header>
 <nav id="nav" class="hide">
@@ -245,11 +245,10 @@ html.sun .stat b{font-size:2.1rem}
     <h2>สำรวจภาคสนาม</h2>
     <p class="hco">บริษัท คอนซัลแทนท์ ออฟ เทคโนโลยี จำกัด (COT)</p>
     <p class="hs">บันทึกจุดสำรวจ พิกัด GPS และภาพถ่ายจากพื้นที่จริง เข้าสู่ฐานข้อมูลโครงการโดยตรง</p>
-    <input id="q" placeholder="ค้นหาจากรหัสหรือชื่อโครงการ" aria-label="ค้นหาโครงการ">
+    <form id="cf" autocomplete="off" style="display:flex;gap:8px"><input id="q" placeholder="กรอกรหัสโครงการ" aria-label="รหัสโครงการ" autocapitalize="characters" autocomplete="off" spellcheck="false" required style="flex:1;min-width:0"><button class="p" id="cgo" type="submit" style="background:#fff;color:#0a2260;border-radius:999px;padding:0 20px;box-shadow:0 6px 16px -4px rgba(0,0,0,.35)">เข้าสู่โครงการ</button></form>
+    <details style="margin-top:10px;font-size:.88rem"><summary style="cursor:pointer;opacity:.9">โครงการนี้ตั้งรหัสผ่านแยกจากรหัสโครงการ</summary><input id="cpi" type="password" autocomplete="off" placeholder="รหัสผ่านโครงการ" aria-label="รหัสผ่านโครงการ" style="margin-top:8px"></details>
+    <p id="cm" role="alert" style="margin:10px 0 0;font-size:.9rem;font-weight:600;color:#ffd7d3"></p>
   </div>
-  <h2>เลือกโครงการ</h2>
-  <div id="plist" class="grid g2"></div>
-  <p class="hint" id="pempty" hidden>ไม่พบโครงการที่ตรงกับคำค้น</p>
 </section>
 
 <section id="p-home" class="hide">
@@ -328,14 +327,6 @@ html.sun .stat b{font-size:2.1rem}
   <span class="logo"><img src="https://www.cot.co.th/wp-content/uploads/2023/05/Logo-40th-COT.png" alt="COT" onerror="this.parentNode.classList.add('nologo')"><b>COT</b></span>
   <p><b>บริษัท คอนซัลแทนท์ ออฟ เทคโนโลยี จำกัด (COT)</b> · Consultants of Technology Co., Ltd. · © <span id="yr"></span> สงวนลิขสิทธิ์ All rights reserved · 39 Ladprao 124 Road, Phlapphla, Wang Thonglang, Bangkok 10310 · <a href="https://www.cot.co.th/" target="_blank" rel="noopener">www.cot.co.th</a></p>
 </footer>
-
-<dialog id="pw"><form id="pwf">
-  <h2 id="pwt" style="margin-top:0"></h2>
-  <label for="pwi" style="margin-top:0">รหัสผ่านโครงการ</label><input id="pwi" type="password" autocomplete="off" required>
-  <label style="font-weight:400;margin:8px 0 0"><input type="checkbox" id="pws" style="width:auto"> แสดงรหัสผ่าน</label>
-  <p class="hint" id="pwm" role="alert" style="color:var(--fail)"></p>
-  <div class="row" style="margin-top:14px"><button type="button" class="s" id="pwx">ยกเลิก</button><button class="p" id="pwok">เข้าสู่โครงการ</button></div>
-</form></dialog>
 
 <dialog id="det"><h2 id="dt" style="margin-top:0"></h2><div id="db"></div>
   <div class="row" style="margin-top:14px"><button class="s" id="ded">แก้ไข</button><button class="d" id="ddel">ลบ</button><button class="s" id="dcl">ปิด</button></div>
@@ -458,27 +449,14 @@ function pinMode(on){pin=on?true:null;if(on)meFirst=false;$('pinbar').classList.
 function applyTheme(v){var d=document.documentElement,dk=v==='dark'||(v==='auto'&&matchMedia('(prefers-color-scheme:dark)').matches);
  d.classList.toggle('dark',dk);d.classList.toggle('sun',v==='sun');var m=document.querySelector('meta[name=theme-color]');if(m)m.content=dk?'#060d22':v==='sun'?'#06236a':'#0a2260'}
 
-function plist(){var q=$('q').value.trim().toLowerCase(),h='',n=0;
- PROJECTS.filter(function(p){return(p.code+p.name).toLowerCase().indexOf(q)>-1}).forEach(function(p){n++;
-  h+='<button class="card proj" data-c="'+esc(p.code)+'"><span class="pcode">'+esc(p.code)+'</span><span class="pname">'+esc(p.name)+pmeta(p)+'</span><span class="go" aria-hidden="true">›</span></button>'});
- $('plist').innerHTML=h;$('pempty').hidden=n>0||!PROJECTS.length;
- document.querySelectorAll('.proj').forEach(function(b){b.onclick=function(){ask(b.dataset.c)}})}
-$('q').oninput=plist;
-function loadProjects(){$('plist').innerHTML=SK;api('projects').then(function(r){PROJECTS=r.projects;plist()}).catch(function(e){
- $('plist').innerHTML='<p class="hint">โหลดรายการโครงการไม่ได้: '+esc(e.message)+'</p>'})}
-
-var pending=null,asking=false;
-function tryLogin(p,pw){PASS=pw;cur=p;return api('login').then(function(r){try{if(pw&&pw!==p.code)localStorage.setItem('pw_'+p.code,pw)}catch(e){}enter(r.project,r.fields)}).catch(function(e){cur=null;PASS='';throw e})}
-function ask(c){if(asking)return;asking=true;pending=PROJECTS.filter(function(p){return p.code===c})[0];var l=[c],last=null;try{l.push(localStorage.getItem('pw_'+c))}catch(e){}
- l=l.filter(function(x,i){return x&&l.indexOf(x)===i});$('sub').textContent='กำลังเข้าโครงการ...';
- (function nx(i){if(i>=l.length){asking=false;
-   if(last&&/ไม่มีสัญญาณ|หมดเวลา|ผิดรูปแบบ/.test(last.message)){$('sub').textContent='เข้าโครงการไม่ได้: '+last.message;return}
-   $('sub').textContent='เลือกโครงการเพื่อเริ่มงาน';$('pwt').textContent=pending.code+' '+pending.name;$('pwi').value='';$('pwi').type='password';$('pws').checked=false;$('pwm').textContent=last&&last.message?last.message:'';$('pw').showModal();$('pwi').focus();return}
-  tryLogin(pending,l[i]).then(function(){asking=false}).catch(function(e){last=e;nx(i+1)})})(0)}
-$('pwf').onsubmit=function(e){e.preventDefault();var v=$('pwi').value;if(!v)return;var b=$('pwok');b.disabled=true;$('pwm').textContent='กำลังตรวจสอบ...';
- tryLogin(pending,v).then(function(){$('pw').close()}).catch(function(err){$('pwm').textContent=err.message;$('pwi').select()}).then(function(){b.disabled=false})};
-$('pwx').onclick=function(){$('pw').close()};
-$('pws').onchange=function(){$('pwi').type=this.checked?'text':'password'};
+var asking=false;
+function tryLogin(c,pw){PASS=pw;cur={code:c};return api('login').then(function(r){try{if(pw&&pw!==c)localStorage.setItem('pw_'+c,pw);localStorage.setItem('last_code',c)}catch(e){}enter(r.project,r.fields)}).catch(function(e){cur=null;PASS='';throw e})}
+function enterCode(c,pw,silent){c=String(c||'').trim();if(!c||asking)return;asking=true;$('cm').textContent='';$('cgo').disabled=true;$('sub').textContent='กำลังเข้าโครงการ...';
+ var l=[];if(pw)l.push(pw);else{l.push(c);try{var sv=localStorage.getItem('pw_'+c);if(sv&&sv!==c)l.push(sv)}catch(e){}}
+ function fin(e){asking=false;$('cgo').disabled=false;$('sub').textContent='กรอกรหัสโครงการเพื่อเริ่มงาน';if(!silent)$('cm').textContent=(e&&e.message)||'เข้าโครงการไม่ได้'}
+ (function nx(i,last){if(i>=l.length)return fin(last);
+  tryLogin(c,l[i]).then(function(){asking=false;$('cgo').disabled=false;$('cpi').value=''}).catch(function(e){if(/ไม่มีสัญญาณ|หมดเวลา|ผิดรูปแบบ|รอ 10 นาที/.test(e.message))return fin(e);nx(i+1,e)})})(0)}
+$('cf').onsubmit=function(e){e.preventDefault();enterCode($('q').value,$('cpi').value,false)};
 function enter(p,fields){cur=p;$('sub').innerHTML='<span class="pc">'+esc(p.code)+'</span><span class="pn">'+esc(p.name)+'</span>';$('nav').classList.remove('hide');$('chg').classList.remove('hide');
  $('stype').innerHTML='<option value="">ไม่ระบุ</option>'+p.types.map(function(t){return'<option>'+esc(t)+'</option>'}).join('');
  $('dyn').innerHTML=fields.map(function(f){var id='f_'+f.key,c;
@@ -487,9 +465,9 @@ function enter(p,fields){cur=p;$('sub').innerHTML='<span class="pc">'+esc(p.code
   return'<label for="'+id+'">'+esc(f.label)+(f.required?' *':'')+'</label>'+c}).join('');
  cur.fields=fields;$('uproj').textContent=p.code+' '+p.name;if(map&&isFinite(p.lat)&&isFinite(p.lng))map.setView([p.lat,p.lng],9);
  newSurvey();show('survey');loadSurveys()}
-function leave(forget){if(forget&&cur){try{localStorage.removeItem('pw_'+cur.code)}catch(e){}}
+function leave(forget){if(forget&&cur){try{localStorage.removeItem('pw_'+cur.code)}catch(e){}}try{localStorage.removeItem('last_code')}catch(e){}$('q').value='';$('cm').textContent='';
  homeReset();cur=null;PASS='';S=[];fitDone=false;if(layer)layer.clearLayers();$('rows').innerHTML='';$('recent').innerHTML='';
- $('nav').classList.add('hide');$('chg').classList.add('hide');$('sub').textContent='เลือกโครงการเพื่อเริ่มงาน';show('pick')}
+ $('nav').classList.add('hide');$('chg').classList.add('hide');$('sub').textContent='กรอกรหัสโครงการเพื่อเริ่มงาน';show('pick')}
 $('chg').onclick=function(){leave(false)};$('lock').onclick=function(){leave(true)};
 function loadSurveys(){if(!S.length){var k='<tr><td colspan="5"><span class="sk" style="height:16px"></span></td></tr>';$('recent').innerHTML=k+k+k;$('rows').innerHTML=k+k+k}return api('listSurveys').then(function(r){S=r.surveys.map(toRow);home();draw()}).catch(function(e){$('smsg').textContent='โหลดรายการไม่ได้: '+e.message;if(!S.length){home();draw()}})}
 
@@ -678,7 +656,9 @@ kv('get').then(function(v){if(v)for(var k in v)if(!pend[k])pend[k]=v[k]}).catch(
  addEventListener('appinstalled',function(){$('inst').classList.add('hide')});
  if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})});
 })();
-$('yr').textContent=new Date().getFullYear();loadProjects();
+$('yr').textContent=new Date().getFullYear();
+var LC='';try{LC=localStorage.getItem('last_code')||''}catch(e){}
+if(LC){$('q').value=LC;enterCode(LC,'',true)}
 </script>
 </body>
 </html>
