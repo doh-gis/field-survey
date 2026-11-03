@@ -226,8 +226,8 @@ html.sun nav button{font-size:.95rem;min-height:56px}
 html.sun table{font-size:.95rem}
 html.sun .stat b{font-size:2.1rem}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
-#bl{max-height:60vh;overflow:auto;margin-top:10px}#bl .ph i{font-size:.72rem}
-#bl .ph button{padding:6px 10px;min-height:44px;min-width:44px}
+#blist{max-height:60vh;overflow:auto;margin-top:10px}#blist .ph i{font-size:.72rem}
+#blist .ph button{padding:6px 10px;min-height:44px;min-width:44px}
 .bpb{margin-top:8px}
 </style>
 </head>
@@ -314,7 +314,7 @@ html.sun .stat b{font-size:2.1rem}
     <h3 class="sh">รูปที่เลือก</h3>
     <p class="hint" id="bsum" role="status" style="margin-top:0">ยังไม่ได้เลือกรูป</p>
     <div class="bar big"><div id="bbar"></div></div>
-    <div id="bl"></div>
+    <div id="blist"></div>
     <div class="row bpb"><button type="button" class="p" id="bgo" disabled>นำเข้า</button><button type="button" class="s hide" id="bstop">หยุดหลังรูปที่กำลังส่ง</button></div>
     <div class="row bpb"><button type="button" class="s hide" id="bpinall">ปักหมุดให้รูปที่ไม่มีพิกัดทั้งหมด</button><button type="button" class="s hide" id="bcodes">ดาวน์โหลดรหัสแก้ไข (CSV)</button><button type="button" class="d" id="bclr">ล้างรายการ</button></div>
     <p class="hint" id="bmsg" role="status"></p>
@@ -645,7 +645,7 @@ function bSum(){var c=bCnt(),todo=c.wait+c.fail;
  $('bstop').classList.toggle('hide',!bRun);$('bpinall').classList.toggle('hide',busy||!c.nog);$('bcodes').classList.toggle('hide',!bCodes.length);
  $('bclr').disabled=busy;$('bpick').disabled=$('bdir').disabled=busy}
 function bRender(){BI.forEach(function(it,i){it.i=i});
- $('bl').innerHTML=BI.map(function(it,i){return'<div class="ph" id="br'+i+'"></div>'}).join('');BI.forEach(bRow);bSum()}
+ $("blist").innerHTML=BI.map(function(it,i){return'<div class="ph" id="br'+i+'"></div>'}).join('');BI.forEach(bRow);bSum()}
 function bMeta(it){var hasX=!!window.exifr;
  return Promise.all([gpsOf(it.file),dtOf(it.file),hasX?exifr.parse(it.file,['Make','Model']).catch(function(){return null}):null]).then(function(a){var g=a[0],dt=a[1],m=a[2];
   if(g&&vc(g.latitude,g.longitude)&&(Math.abs(g.latitude)>1e-6||Math.abs(g.longitude)>1e-6)){it.lat=g.latitude;it.lng=g.longitude}
@@ -692,7 +692,7 @@ $('bclr').onclick=function(){if(BI.length&&!confirm('ล้างรายกา
 $('bpick').onclick=function(){$('bfiles').click()};$('bdir').onclick=function(){$('bdirin').click()};
 $('bfiles').onchange=$('bdirin').onchange=function(){var l=[].slice.call(this.files);this.value='';bAdd(l)};
 $('tobulk').onclick=function(){show('bulk')};
-$('bl').onclick=function(e){var b=e.target.closest('button');if(!b||bRun)return;
+$("blist").onclick=function(e){var b=e.target.closest('button');if(!b||bRun)return;
  if(b.dataset.bp!=null)pinFor([BI[+b.dataset.bp]]);
  else if(b.dataset.bx!=null){BI.splice(+b.dataset.bx,1);bRender()}};
 $('bpinall').onclick=function(){pinFor(BI.filter(function(it){return it.lat==null&&it.size<=MAXF}))};
