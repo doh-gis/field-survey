@@ -2,8 +2,8 @@
    - ไฟล์ของแอป: ลองโหลดจากเน็ตก่อน (รอไม่เกิน 3.5 วินาที) ถ้าสัญญาณอ่อนใช้ที่เก็บไว้
    - ไลบรารีจาก CDN/ฟอนต์: ใช้ที่เก็บไว้ก่อน เพื่อเปิดเร็วและประหยัดสัญญาณ
    - ไม่แตะ API (Apps Script) และไม่เก็บไทล์แผนที่ */
-var V = 'cot-survey-v2';
-var SHELL = ['./', 'index.html', 'manifest.json', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png'];
+var V = 'cot-survey-v3';
+var SHELL = ['./', 'index.html', 'manifest.json', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png', 'exifr.full.umd.js', 'piexif.js'];
 var CDN = ['cdnjs.cloudflare.com', 'fonts.googleapis.com', 'fonts.gstatic.com'];
 
 self.addEventListener('install', function (e) {
