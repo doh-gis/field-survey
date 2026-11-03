@@ -226,6 +226,9 @@ html.sun nav button{font-size:.95rem;min-height:56px}
 html.sun table{font-size:.95rem}
 html.sun .stat b{font-size:2.1rem}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+#bl{max-height:60vh;overflow:auto;margin-top:10px}#bl .ph i{font-size:.72rem}
+#bl .ph button{padding:6px 10px;min-height:44px;min-width:44px}
+.bpb{margin-top:8px}
 </style>
 </head>
 <body>
@@ -264,6 +267,7 @@ html.sun .stat b{font-size:2.1rem}
 
 <section id="p-survey" class="hide">
   <h2>บันทึกการสำรวจ</h2>
+  <button type="button" class="s" id="tobulk" style="width:100%;margin-bottom:12px">นำเข้าหลายรูปทีเดียว (เลือกทั้งโฟลเดอร์)</button>
   <div class="card">
     <h3 class="sh">ข้อมูลการสำรวจ</h3>
     <label for="stype">ประเภทการสำรวจ (ไม่บังคับ)</label><select id="stype"></select>
@@ -287,6 +291,33 @@ html.sun .stat b{font-size:2.1rem}
     <input id="sid" type="hidden"><p class="hint" style="margin-top:14px">รหัสรายการ: <b id="sidv"></b></p>
     <button class="p" id="save" style="margin-top:18px;width:100%">บันทึกข้อมูล</button>
     <p class="hint" id="smsg" role="status"></p>
+  </div>
+</section>
+
+<section id="p-bulk" class="hide">
+  <h2>นำเข้าหลายรูปทีเดียว</h2>
+  <div class="card">
+    <p class="hint" style="margin-top:0">เลือกรูปหลายไฟล์หรือทั้งโฟลเดอร์ แอปอ่านพิกัดจากรูปแล้วสร้างรายการสำรวจให้ รูปละ 1 รายการ เลขรายการรันต่อกันตามเวลาถ่ายภาพ รูปที่ไม่มีพิกัดให้ปักหมุดบนแผนที่ก่อน ถ้าส่งไม่ครบกด “นำเข้า” ซ้ำได้ ระบบไม่สร้างรายการซ้ำ</p>
+    <div class="row" style="margin-top:12px"><button type="button" class="pb" id="bpick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="M21 16l-5-5-8 8"/></svg>เลือกรูปหลายไฟล์</button><button type="button" class="pb" id="bdir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h6l2 2h10v10H3z"/></svg>เลือกทั้งโฟลเดอร์</button></div>
+    <input id="bfiles" type="file" accept="image/*,.heic,.heif" multiple class="hide">
+    <input id="bdirin" type="file" webkitdirectory multiple class="hide">
+    <p class="hint">เลือกทั้งโฟลเดอร์ใช้ได้บนคอมพิวเตอร์และ Android (Chrome) ส่วน iPhone/iPad ให้ใช้ “เลือกรูปหลายไฟล์”</p>
+  </div>
+  <div class="card sec">
+    <h3 class="sh">ข้อมูลที่ใช้ร่วมกันทุกรายการ</h3>
+    <label for="btype" style="margin-top:0">ประเภทการสำรวจ (ไม่บังคับ)</label><select id="btype"></select>
+    <label for="bname">ชื่อผู้สำรวจ (ไม่บังคับ)</label><input id="bname">
+    <label for="bdesc">รายละเอียด (ใส่ให้ทุกรายการ ไม่บังคับ)</label><textarea id="bdesc"></textarea>
+    <div id="bdyn"></div>
+  </div>
+  <div class="card sec">
+    <h3 class="sh">รูปที่เลือก</h3>
+    <p class="hint" id="bsum" role="status" style="margin-top:0">ยังไม่ได้เลือกรูป</p>
+    <div class="bar big"><div id="bbar"></div></div>
+    <div id="bl"></div>
+    <div class="row bpb"><button type="button" class="p" id="bgo" disabled>นำเข้า</button><button type="button" class="s hide" id="bstop">หยุดหลังรูปที่กำลังส่ง</button></div>
+    <div class="row bpb"><button type="button" class="s hide" id="bpinall">ปักหมุดให้รูปที่ไม่มีพิกัดทั้งหมด</button><button type="button" class="s hide" id="bcodes">ดาวน์โหลดรหัสแก้ไข (CSV)</button><button type="button" class="d" id="bclr">ล้างรายการ</button></div>
+    <p class="hint" id="bmsg" role="status"></p>
   </div>
 </section>
 
@@ -354,7 +385,7 @@ html.sun .stat b{font-size:2.1rem}
 <script>
 var API_URL='https://script.google.com/macros/s/AKfycbwU1LRMxd44giEL_c4HyLVIuQJ6HNevwaP-bJtQGjlEgufpw8BRH0Lk1AdQS-AxMAL2/exec';
 var $=function(i){return document.getElementById(i)};
-var PROJECTS=[],S=[],cur=null,PASS='',map=null,layer=null,tile={},pin=null,pend={},det=null;
+var PROJECTS=[],S=[],cur=null,PASS='',map=null,layer=null,tile={},pin=null,pend={},det=null,pinTarget=null;
 var col={Completed:'#0b6e4f',Uploading:'#1b64b0',Pending:'#8a6d00',Failed:'#b3261e'};
 var TH={Completed:'ครบ',Uploading:'กำลังส่ง',Pending:'รอส่ง',Failed:'ล้มเหลว'},MAXF=40*1048576;
 function st(x){return TH[x]||x}
@@ -402,9 +433,10 @@ function csvT(v){v=String(v==null?'':v);if(/^[=+\-@\t\r]/.test(v))v="'"+v;return
 function toRow(o){return[o.id,o.type||'ไม่ระบุ',o.surveyor||'-',o.status,o.photoDone,o.lat,o.lng,o.desc||'',o.at,o.photoTotal,o.custom]}
 function fmt(t){var d=new Date(t);return isNaN(d)?'-':d.toLocaleDateString('th-TH')}
 
-function show(p){['pick','home','survey','map','user'].forEach(function(x){$('p-'+x).classList.toggle('hide',x!==p)});
- document.querySelectorAll('nav button').forEach(function(b){b.classList.toggle('on',b.dataset.p===p);b.setAttribute('aria-current',b.dataset.p===p?'page':'false')});
- if(p!=='map'){stopLoc();pinMode(false)}if(p==='map')initMap(); if(p==='home')home(); window.scrollTo(0,0)}
+function show(p){['pick','home','survey','bulk','map','user'].forEach(function(x){$('p-'+x).classList.toggle('hide',x!==p)});
+ var np=p==='bulk'?'survey':p;
+ document.querySelectorAll('nav button').forEach(function(b){b.classList.toggle('on',b.dataset.p===np);b.setAttribute('aria-current',b.dataset.p===np?'page':'false')});
+ if(p!=='map'){stopLoc();pinMode(false);pinTarget=null}if(p==='map')initMap(); if(p==='home')home(); window.scrollTo(0,0)}
 document.querySelectorAll('nav button').forEach(function(b){b.onclick=function(){show(b.dataset.p)}});
 
 /* ---------- v2 helpers ---------- */
@@ -442,7 +474,7 @@ function stampText(g,sLat,sLng,dt){if(!stampOn())return null;var la,lo,s;
 function stampDraw(x,w,h,lines){var fs=Math.max(14,Math.round(Math.min(w,h)/38)),pad=Math.round(fs*.7),lh=Math.round(fs*1.35),bh=pad*2+lh*lines.length;
  x.fillStyle='rgba(10,34,96,.78)';x.fillRect(0,h-bh,w,bh);x.fillStyle='#fff';x.textBaseline='top';
  lines.forEach(function(t,i){x.font=(i?'':'700 ')+fs+'px "Noto Sans Thai",system-ui,sans-serif';x.fillText(t,pad,h-bh+pad+i*lh,w-pad*2)})}
-function pinXY(){if(!pin||!map)return;var c=map.getCenter();$('pinxy').textContent='เป้ากลางจอ: '+c.lat.toFixed(6)+', '+c.lng.toFixed(6)}
+function pinXY(){if(!pin||!map)return;var c=map.getCenter();$('pinxy').textContent=(pinTarget?'ปักหมุดให้ '+pinTarget.length+' รูป · ':'')+'เป้ากลางจอ: '+c.lat.toFixed(6)+', '+c.lng.toFixed(6)}
 function pinMode(on){pin=on?true:null;if(on)meFirst=false;$('pinbar').classList.toggle('hide',!on);$('mapw').classList.toggle('pinning',!!on);
  if(map)setTimeout(function(){map.invalidateSize();if(on)pinXY()},60)}
 function applyTheme(v){var d=document.documentElement,dk=v==='dark'||(v==='auto'&&matchMedia('(prefers-color-scheme:dark)').matches);
@@ -461,10 +493,16 @@ function enter(p,fields){cur=p;$('sub').innerHTML='<span class="pc">'+esc(p.code
   if(f.type==='select')c='<select id="'+id+'"><option value="">เลือก</option>'+f.options.map(function(o){return'<option>'+esc(o)+'</option>'}).join('')+'</select>';
   else c='<input id="'+id+'" type="'+(f.type==='number'?'number':'text')+'">';
   return'<label for="'+id+'">'+esc(f.label)+(f.required?' *':'')+'</label>'+c}).join('');
+ $('btype').innerHTML=$('stype').innerHTML;
+ $('bdyn').innerHTML=fields.map(function(f){var id='b_'+f.key,c;
+  if(f.type==='select')c='<select id="'+id+'"><option value="">เลือก</option>'+f.options.map(function(o){return'<option>'+esc(o)+'</option>'}).join('')+'</select>';
+  else c='<input id="'+id+'" type="'+(f.type==='number'?'number':'text')+'">';
+  return'<label for="'+id+'">'+esc(f.label)+(f.required?' *':'')+'</label>'+c}).join('');
+ $('bname').value=UN;bReset();
  cur.fields=fields;$('uproj').textContent=(p.code+' '+(p.name||'')).trim();if(map&&isFinite(p.lat)&&isFinite(p.lng))map.setView([p.lat,p.lng],9);
  newSurvey();show('survey');loadSurveys()}
 function leave(forget){if(forget&&cur){try{localStorage.removeItem('pw_'+cur.code)}catch(e){}}try{localStorage.removeItem('last_code')}catch(e){}$('q').value='';$('cm').textContent='';
- homeReset();cur=null;PASS='';S=[];fitDone=false;if(layer)layer.clearLayers();$('rows').innerHTML='';$('recent').innerHTML='';
+ homeReset();bRun=false;bReset();cur=null;PASS='';S=[];fitDone=false;if(layer)layer.clearLayers();$('rows').innerHTML='';$('recent').innerHTML='';
  $('nav').classList.add('hide');$('chg').classList.add('hide');$('sub').textContent='กรอกรหัสโครงการเพื่อเริ่มงาน';show('pick')}
 $('chg').onclick=function(){leave(false)};$('lock').onclick=function(){leave(true)};
 function loadSurveys(){if(!S.length){var k='<tr><td colspan="5"><span class="sk" style="height:16px"></span></td></tr>';$('recent').innerHTML=k+k+k;$('rows').innerHTML=k+k+k}return api('listSurveys').then(function(r){S=r.surveys.map(toRow);home();draw()}).catch(function(e){$('smsg').textContent='โหลดรายการไม่ได้: '+e.message;if(!S.length){home();draw()}})}
@@ -476,8 +514,8 @@ function home(){$('hname').textContent=cur?(cur.name||cur.code):'';var d=S.filte
  $('recent').innerHTML=rc.map(function(r){return'<tr class="r" data-i="'+S.indexOf(r)+'"><td>'+esc(r[0])+'<br><span class="hint">'+fmt(r[8])+'</span></td><td>'+esc(r[1])+'</td><td>'+esc(r[2])+'</td><td><span class="chip '+r[3]+'">'+st(r[3])+'</span></td></tr>'}).join('')||'<tr><td colspan="4">ยังไม่มีรายการ</td></tr>';
  document.querySelectorAll('#recent tr.r').forEach(function(t){t.onclick=function(){detail(S[t.dataset.i])}})}
 
-function newSurvey(){$('sid').value='S-'+cur.code.replace(/[^A-Za-z0-9]/g,'')+'-'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
- $('sidv').textContent=$('sid').value;$('smsg').textContent='';$('sdesc').value='';PF=[];rp();$('lat').value=$('lng').value=$('acc').value='';accUI(NaN);
+function newSurvey(){$('sid').value='K'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+ $('sidv').textContent='ระบบรันเลขให้ตอนบันทึก';$('smsg').textContent='';$('sdesc').value='';PF=[];rp();$('lat').value=$('lng').value=$('acc').value='';accUI(NaN);
  (cur.fields||[]).forEach(function(f){$('f_'+f.key).value=''})}
 var UN='';try{UN=localStorage.getItem('uname')||''}catch(e){}
 function unameUI(){var v=$('uname').value.trim(),ok=!!v&&v===UN;$('usave').disabled=!v||ok;$('usave').classList.toggle('saved',ok);$('usave').textContent=ok?'✓ บันทึกแล้ว':'บันทึกชื่อ';
@@ -501,8 +539,9 @@ $('gps').onclick=function(){if(!navigator.geolocation){$('smsg').textContent='�
   function(){done()},{enableHighAccuracy:true,maximumAge:0,timeout:30000})};
 $('pin').onclick=function(){show('map');pinMode(true);var la=parseFloat($('lat').value),lo=parseFloat($('lng').value);
  setTimeout(function(){if(!map)return;if(vc(la,lo))map.setView([la,lo],Math.max(map.getZoom(),17));else if(me)map.setView(me.getLatLng(),Math.max(map.getZoom(),17))},120)};
-$('pinx').onclick=function(){pinMode(false)};
-$('pinok').onclick=function(){if(!map)return;var c=map.getCenter();$('lat').value=c.lat.toFixed(6);$('lng').value=c.lng.toFixed(6);$('acc').value='';accUI(NaN);pinMode(false);show('survey');$('smsg').textContent='ปักหมุดแล้ว'};
+$('pinx').onclick=function(){if(pinTarget){pinTarget=null;show('bulk');return}pinMode(false)};
+$('pinok').onclick=function(){if(!map)return;var c=map.getCenter();
+ if(pinTarget){var t=pinTarget;pinTarget=null;t.forEach(function(it){it.lat=c.lat;it.lng=c.lng;it.pinned=true});pinMode(false);show('bulk');bRender();return}$('lat').value=c.lat.toFixed(6);$('lng').value=c.lng.toFixed(6);$('acc').value='';accUI(NaN);pinMode(false);show('survey');$('smsg').textContent='ปักหมุดแล้ว'};
 $('lat').oninput=$('lng').oninput=function(){$('acc').value='';accUI(NaN)};
 
 var PF=[];
@@ -537,20 +576,102 @@ $('save').onclick=function(){
  var sid=$('sid').value;$('save').disabled=true;$('smsg').textContent='กำลังเตรียมภาพ...';
  Promise.all(files.map(function(f){return prep(f,la,lo)})).then(function(data){
   if(data.some(function(d){return d.data.length*.75>10*1048576}))throw new Error('ภาพใหญ่เกิน 10 MB แม้ย่อแล้ว กรุณาเลือกภาพอื่น');
-  var list=files.map(function(f,i){return{photoId:'P'+sid.slice(2)+'-'+(i+1),name:f.name,data:data[i].data,lat:data[i].lat,lng:data[i].lng,src:data[i].src}});
+  var list=files.map(function(f,i){return{photoId:'P'+sid+'-'+(i+1),name:f.name,data:data[i].data,lat:data[i].lat,lng:data[i].lng,src:data[i].src}});
   $('smsg').textContent='กำลังบันทึกรายการ...';
-  return api('createSurvey',{surveyId:sid,type:$('stype').value,surveyor:$('sname').value.trim(),description:$('sdesc').value.trim(),
+  return api('createSurvey',{clientKey:sid,type:$('stype').value,surveyor:$('sname').value.trim(),description:$('sdesc').value.trim(),
    lat:la,lng:lo,accuracy:$('acc').value,custom:custom,photos:list.map(function(x){return{photoId:x.photoId,name:x.name}})})
-  .then(function(r){$('smsg').textContent='กำลังอัปโหลดภาพ...';
-   return sendAll(sid,list,true).then(function(fail){
-    if(fail.length){pend[sid]=fail;savePend()}
-    okSummary(list.length,fail.length);$('sdmsg').textContent='รหัสรายการ '+sid+(fail.length?' · ส่งภาพไม่ครบ '+fail.length+' ภาพ ('+fail[0].err+') กด Retry ได้ที่หน้าแผนที่ > แตะรายการ':'');
+  .then(function(r){var rid=r.surveyId;$('smsg').textContent='กำลังอัปโหลดภาพ...';
+   return sendAll(rid,list,true).then(function(fail){
+    if(fail.length){pend[rid]=fail;savePend()}
+    okSummary(list.length,fail.length);$('sdmsg').textContent='รหัสรายการ '+rid+(fail.length?' · ส่งภาพไม่ครบ '+fail.length+' ภาพ ('+fail[0].err+') กด Retry ได้ที่หน้าแผนที่ > แตะรายการ':'');
     if(r.editCode){$('sdc').value=r.editCode;$('sdcode').classList.remove('hide')}else{$('sdc').value='';$('sdcode').classList.add('hide')}
     $('sdone').showModal();newSurvey();return loadSurveys()})})
  }).catch(function(e){$('smsg').textContent='ไม่สำเร็จ: '+e.message}).then(function(){$('save').disabled=false})};
 $('sdok').onclick=function(){$('sdc').value='';$('sdone').close()};
 $('sdone').oncancel=function(e){e.preventDefault()};
 $('sdcp').onclick=function(){var v=$('sdc');try{navigator.clipboard.writeText(v.value).then(function(){$('sdcp').textContent='คัดลอกแล้ว'})}catch(e){v.select();document.execCommand('copy');$('sdcp').textContent='คัดลอกแล้ว'}};
+
+/* ---------- นำเข้าหลายรูปทีเดียว ---------- */
+var BI=[],bCodes=[],bCustom={},bSet={},bRun=false,bRead=false,bQ=[],bNext=0,bTotal=0,bDone=0,bMux=null;
+function hk(s){var h1=0xdeadbeef,h2=0x41c6ce57,i,c;for(i=0;i<s.length;i++){c=s.charCodeAt(i);h1=Math.imul(h1^c,2654435761);h2=Math.imul(h2^c,1597334677)}
+ h1=Math.imul(h1^(h1>>>16),2246822507)^Math.imul(h2^(h2>>>13),3266489909);h2=Math.imul(h2^(h2>>>16),2246822507)^Math.imul(h1^(h1>>>13),3266489909);
+ return(4294967296*(2097151&h2)+(h1>>>0)).toString(36)}
+function isImg(f){return/^image\//.test(f.type)||/\.(jpe?g|png|heic|heif|webp)$/i.test(f.name)}
+function again(fn){return fn().catch(function(){return new Promise(function(ok){setTimeout(ok,1500)}).then(fn)})}
+function bReset(){BI=[];bCodes=[];bQ=[];bRead=false;bTotal=bDone=0;$('bmsg').textContent='';$('bdesc').value='';if(cur)(cur.fields||[]).forEach(function(f){var e=$('b_'+f.key);if(e)e.value=''});bRender()}
+function bCnt(){var c={all:BI.length,ok:0,fail:0,nog:0,big:0,wait:0,run:0};
+ BI.forEach(function(it){if(it.status==='ok'||it.status==='skip')c.ok++;else if(it.status==='run')c.run++;else if(it.size>MAXF)c.big++;else if(it.lat==null)c.nog++;else if(it.status==='fail')c.fail++;else c.wait++});return c}
+function bRow(it){var e=$('br'+it.i);if(!e)return;var ll=it.lat!=null?it.lat.toFixed(5)+', '+it.lng.toFixed(5)+(it.pinned?' (ปักหมุด)':''):'ไม่มีพิกัด',ch,btn='';
+ if(it.status==='run')ch=['Uploading','กำลังนำเข้า'];
+ else if(it.status==='ok')ch=['Completed','เลข '+it.surveyId];
+ else if(it.status==='skip')ch=['Completed','นำเข้าไว้แล้ว เลข '+it.surveyId];
+ else if(it.status==='fail')ch=['Failed','ล้มเหลว'];
+ else if(!it.read)ch=['Pending','กำลังอ่านพิกัด'];
+ else if(it.size>MAXF)ch=['Failed','ไฟล์ใหญ่เกินไป'];
+ else if(it.lat==null){ch=['Failed','ไม่มีพิกัด'];if(!bRun)btn='<button type="button" class="s" data-bp="'+it.i+'">ปักหมุด</button>'}
+ else ch=['Pending','รอนำเข้า'];
+ if(!bRun&&it.status!=='ok'&&it.status!=='skip')btn+='<button type="button" class="d" data-bx="'+it.i+'" aria-label="เอาออก">✕</button>';
+ e.innerHTML='<i>'+(it.i+1)+'</i><div style="flex:1;min-width:0"><div style="overflow-wrap:anywhere">'+esc(it.name)+' · '+(it.size/1048576).toFixed(1)+' MB</div><div class="hint">'+ll+(it.at?' · '+it.at.toLocaleString('th-TH'):'')+(it.err?' · '+esc(it.err):'')+'</div></div><span class="chip '+ch[0]+'">'+esc(ch[1])+'</span>'+btn}
+function bSum(){var c=bCnt(),todo=c.wait+c.fail;
+ $('bsum').textContent=!c.all?'ยังไม่ได้เลือกรูป':'ทั้งหมด '+c.all+' รูป · พร้อมนำเข้า '+todo+' · ไม่มีพิกัด '+c.nog+(c.big?' · ใหญ่เกิน '+c.big:'')+' · สำเร็จ '+c.ok+(c.fail?' · ล้มเหลว '+c.fail:'');
+ $('bbar').style.width=(bRun&&bTotal?Math.round(bDone*100/bTotal):0)+'%';
+ var busy=bRun||bRead;$('bgo').disabled=busy||!todo;$('bgo').textContent=bRun?'กำลังนำเข้า '+bDone+'/'+bTotal+'…':(c.fail?'ลองใหม่ '+todo+' รูป':'นำเข้า '+todo+' รูป');
+ $('bstop').classList.toggle('hide',!bRun);$('bpinall').classList.toggle('hide',busy||!c.nog);$('bcodes').classList.toggle('hide',!bCodes.length);
+ $('bclr').disabled=busy;$('bpick').disabled=$('bdir').disabled=busy}
+function bRender(){BI.forEach(function(it,i){it.i=i});
+ $('bl').innerHTML=BI.map(function(it,i){return'<div class="ph" id="br'+i+'"></div>'}).join('');BI.forEach(bRow);bSum()}
+function bMeta(it){if(!window.exifr)return Promise.resolve();
+ return Promise.all([exifr.gps(it.file).catch(function(){return null}),exifr.parse(it.file,['DateTimeOriginal']).catch(function(){return null})]).then(function(a){var g=a[0];
+  if(g&&isFinite(g.latitude)&&isFinite(g.longitude)&&vc(g.latitude,g.longitude)&&(Math.abs(g.latitude)>1e-6||Math.abs(g.longitude)>1e-6)){it.lat=g.latitude;it.lng=g.longitude}
+  if(a[1]&&a[1].DateTimeOriginal instanceof Date&&!isNaN(a[1].DateTimeOriginal))it.at=a[1].DateTimeOriginal})}
+function bAdd(list){if(!cur||bRun||bRead)return;var have={},add=[],other=0,dup=0;BI.forEach(function(it){have[it.key]=1});
+ list.forEach(function(f){if(!isImg(f)){other++;return}var k='B'+hk(cur.code+'|'+f.name+'|'+f.size+'|'+f.lastModified);if(have[k]){dup++;return}have[k]=1;
+  add.push({file:f,name:f.name,size:f.size,key:k,pid:'P'+k+'-1',status:'wait',lat:null,lng:null,at:null,pinned:false,read:false})});
+ if(!add.length){$('bmsg').textContent=(other?'ไม่ใช่ไฟล์ภาพ '+other+' ไฟล์ ':'')+(dup?'ซ้ำกับที่เลือกแล้ว '+dup+' ไฟล์':'')||'ไม่พบไฟล์ภาพ';return}
+ BI=BI.concat(add);bRead=true;bRender();var i=0,n=add.length,fin=0;
+ function one(){if(i>=n)return Promise.resolve();var it=add[i++];return bMeta(it).catch(function(){}).then(function(){it.read=true;fin++;bRow(it);$('bmsg').textContent='กำลังอ่านพิกัด '+fin+'/'+n}).then(one)}
+ Promise.all([one(),one(),one(),one()]).then(function(){bRead=false;
+  BI.sort(function(a,b){var x=a.at?a.at.getTime():0,y=b.at?b.at.getTime():0;return x-y||a.name.localeCompare(b.name,undefined,{numeric:true})});
+  bRender();var c=bCnt();$('bmsg').textContent='อ่านพิกัดเสร็จ เพิ่ม '+n+' รูป'+(c.nog?' · '+c.nog+' รูปไม่มีพิกัด ต้องปักหมุดก่อนนำเข้า':'')+(dup?' · ข้ามที่ซ้ำ '+dup:'')+(other?' · ข้ามที่ไม่ใช่ภาพ '+other:'')})}
+function bCreate(it){return again(function(){return api('createSurvey',{clientKey:it.key,surveyedAt:it.at?it.at.toISOString():'',type:bSet.type,surveyor:bSet.surveyor,description:bSet.desc,
+  lat:+it.lat.toFixed(6),lng:+it.lng.toFixed(6),accuracy:'',custom:bCustom,photos:[{photoId:it.pid,name:it.name}]})})
+ .then(function(r){it.surveyId=r.surveyId;it.skip=!!(r.replayed&&r.status==='Completed');if(r.editCode)bCodes.push({id:r.surveyId,code:r.editCode,name:it.name,lat:it.lat,lng:it.lng})})}
+// เตรียมภาพขนานกัน แต่สร้างรายการเรียงตามลำดับ เพื่อให้เลขรันเรียงตามเวลาถ่าย
+function bItem(it){it.status='run';it.err='';bRow(it);
+ var pr=prep(it.file,it.lat,it.lng).then(function(d){if(d.data.length*.75>10*1048576)throw new Error('ภาพใหญ่เกิน 10 MB แม้ย่อแล้ว');return d});pr.catch(function(){});
+ var c;if(it.surveyId)c=pr;
+ else{c=bMux.then(function(){return pr}).then(function(d){return bCreate(it).then(function(){return d})});bMux=c.then(null,function(){})}
+ return c.then(function(d){if(it.skip)return;return again(function(){return api('uploadPhoto',{surveyId:it.surveyId,photoId:it.pid,data:d.data,photoLat:d.lat,photoLng:d.lng,gpsSource:d.src})})})
+  .then(function(){it.status=it.skip?'skip':'ok'},function(e){it.status='fail';it.err=String(e&&e.message||e)})
+  .then(function(){bDone++;bRow(it);bSum()})}
+function bWorker(){if(!bRun||bNext>=bQ.length)return Promise.resolve();var it=bQ[bNext++];return bItem(it).then(bWorker)}
+function bFinish(){bRun=false;BI.forEach(bRow);bSum();var c=bCnt();
+ $('bmsg').textContent='เสร็จแล้ว สำเร็จ '+c.ok+' รูป'+(c.fail?' · ล้มเหลว '+c.fail+' รูป กด “ลองใหม่” เพื่อส่งเฉพาะที่ค้าง':'')+(bCodes.length?' · รหัสแก้ไขแสดงครั้งเดียว กรุณาดาวน์โหลดเก็บไว้':'');
+ try{if(navigator.vibrate)navigator.vibrate(c.fail?[60,40,60]:[18,50,30])}catch(x){}loadSurveys()}
+$('bgo').onclick=function(){if(bRun||bRead||!cur)return;
+ var todo=BI.filter(function(it){return it.lat!=null&&it.size<=MAXF&&it.status!=='ok'&&it.status!=='skip'});if(!todo.length)return;
+ var miss=(cur.fields||[]).filter(function(f){return f.required&&!String($('b_'+f.key).value).trim()});
+ if(miss.length){$('bmsg').textContent='กรุณากรอก: '+miss.map(function(f){return f.label}).join(', ');$('b_'+miss[0].key).focus();return}
+ var nog=bCnt().nog;
+ if(!confirm('สร้างรายการสำรวจ '+todo.length+' รายการ (รูปละ 1 รายการ)'+(nog?'\nข้ามรูปที่ไม่มีพิกัด '+nog+' รูป':'')+'\nเริ่มเลยหรือไม่?'))return;
+ bCustom={};(cur.fields||[]).forEach(function(f){bCustom[f.key]=$('b_'+f.key).value});
+ bSet={type:$('btype').value,surveyor:$('bname').value.trim(),desc:$('bdesc').value.trim()};
+ bRun=true;bQ=todo;bNext=0;bTotal=todo.length;bDone=0;bMux=Promise.resolve();$('bmsg').textContent='กำลังนำเข้า อย่าปิดหน้านี้จนกว่าจะเสร็จ';
+ BI.forEach(bRow);bSum();Promise.all([bWorker(),bWorker(),bWorker()]).then(bFinish)};
+$('bstop').onclick=function(){bRun=false;$('bmsg').textContent='กำลังหยุดหลังรูปที่ส่งอยู่ …'};
+$('bclr').onclick=function(){if(BI.length&&!confirm('ล้างรายการที่เลือกไว้ทั้งหมด? (รายการที่สร้างไปแล้วในโครงการไม่หาย)'))return;
+ if(bCodes.length&&!confirm('ยังไม่ได้ดาวน์โหลดรหัสแก้ไข ล้างต่อหรือไม่?'))return;bReset()};
+$('bpick').onclick=function(){$('bfiles').click()};$('bdir').onclick=function(){$('bdirin').click()};
+$('bfiles').onchange=$('bdirin').onchange=function(){var l=[].slice.call(this.files);this.value='';bAdd(l)};
+$('tobulk').onclick=function(){show('bulk')};
+$('bl').onclick=function(e){var b=e.target.closest('button');if(!b||bRun)return;
+ if(b.dataset.bp!=null)pinFor([BI[+b.dataset.bp]]);
+ else if(b.dataset.bx!=null){BI.splice(+b.dataset.bx,1);bRender()}};
+$('bpinall').onclick=function(){pinFor(BI.filter(function(it){return it.lat==null&&it.size<=MAXF}))};
+function pinFor(list){if(!list.length)return;show('map');pinTarget=list;pinMode(true);
+ var ref=null,k;for(k=list[0].i;k>=0&&!ref;k--)if(BI[k].lat!=null)ref=BI[k];if(!ref)ref=BI.filter(function(x){return x.lat!=null})[0]||null;
+ setTimeout(function(){if(!map)return;if(ref)map.setView([ref.lat,ref.lng],Math.max(map.getZoom(),17));else if(me)map.setView(me.getLatLng(),Math.max(map.getZoom(),17))},120)}
+$('bcodes').onclick=function(){dl('edit-codes.csv',[['id','edit_code','file','lat','lng'].map(csvT).join(',')].concat(bCodes.map(function(x){return[csvT(x.id),csvT(x.code),csvT(x.name),x.lat,x.lng].join(',')})).join('\n'),'text/csv')};
 
 var me=null,meAcc=null,meW=null,meFirst=true,fitDone=false;
 function stopLoc(){if(meW!=null){navigator.geolocation.clearWatch(meW);meW=null}}
@@ -617,7 +738,7 @@ $('esv').onclick=function(){var code=$('ecode').value.trim();if(!code){$('em').t
  var custom={};(cur.fields||[]).forEach(function(f){custom[f.key]=$('e_'+f.key).value});
  var sid=det[0];$('esv').disabled=true;$('em').textContent='กำลังบันทึก...';
  Promise.all(files.map(function(f){return prep(f,la,lo)})).then(function(data){
-  var add=files.map(function(f,i){return{photoId:'P'+sid.slice(2)+'-e'+Date.now().toString(36)+i,name:f.name,data:data[i].data,lat:data[i].lat,lng:data[i].lng,src:data[i].src}});
+  var add=files.map(function(f,i){return{photoId:'P'+sid+'-e'+Date.now().toString(36)+i,name:f.name,data:data[i].data,lat:data[i].lat,lng:data[i].lng,src:data[i].src}});
   return api('updateSurvey',{surveyId:sid,editCode:code,type:$('etype').value,surveyor:$('esur').value.trim(),description:$('edesc').value.trim(),
    lat:la,lng:lo,custom:custom,removePhotoIds:rm,addPhotos:add.map(function(x){return{photoId:x.photoId,name:x.name}})})
   .then(function(){if(pend[sid]){pend[sid]=pend[sid].filter(function(x){return rm.indexOf(x.photoId)<0});if(!pend[sid].length)delete pend[sid];savePend()}return sendAll(sid,add,false)}).then(function(fail){
