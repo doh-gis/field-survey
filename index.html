@@ -618,7 +618,7 @@ $('sdone').oncancel=function(e){e.preventDefault()};
 $('sdcp').onclick=function(){var v=$('sdc');try{navigator.clipboard.writeText(v.value).then(function(){$('sdcp').textContent='คัดลอกแล้ว'})}catch(e){v.select();document.execCommand('copy');$('sdcp').textContent='คัดลอกแล้ว'}};
 
 /* ---------- นำเข้าหลายรูปทีเดียว ---------- */
-var BI=[],bCodes=[],bCustom={},bSet={},bRun=false,bRead=false,bQ=[],bNext=0,bTotal=0,bDone=0,bMux=null;
+var BI=[],bCodes=[],bCustom={},bSet={},bRun=false,bRead=false,bQ=[],bNext=0,bTotal=0,bDone=0,bMux=null,bConsec=0,bAuto=false;
 function hk(s){var h1=0xdeadbeef,h2=0x41c6ce57,i,c;for(i=0;i<s.length;i++){c=s.charCodeAt(i);h1=Math.imul(h1^c,2654435761);h2=Math.imul(h2^c,1597334677)}
  h1=Math.imul(h1^(h1>>>16),2246822507)^Math.imul(h2^(h2>>>13),3266489909);h2=Math.imul(h2^(h2>>>16),2246822507)^Math.imul(h1^(h1>>>13),3266489909);
  return(4294967296*(2097151&h2)+(h1>>>0)).toString(36)}
@@ -670,11 +670,11 @@ function bItem(it){it.status='run';it.err='';bRow(it);
  var c;if(it.surveyId)c=pr;
  else{c=bMux.then(function(){return pr}).then(function(d){return bCreate(it).then(function(){return d})});bMux=c.then(null,function(){})}
  return c.then(function(d){if(it.skip)return;return again(function(){return api('uploadPhoto',{surveyId:it.surveyId,photoId:it.pid,data:d.data,photoLat:d.lat,photoLng:d.lng,gpsSource:d.src})})})
-  .then(function(){it.status=it.skip?'skip':'ok'},function(e){it.status='fail';it.err=String(e&&e.message||e)})
+  .then(function(){it.status=it.skip?'skip':'ok';bConsec=0},function(e){it.status='fail';it.err=String(e&&e.message||e);bConsec++;if(bConsec>=4&&bRun){bRun=false;bAuto=true}})
   .then(function(){bDone++;bRow(it);bSum()})}
 function bWorker(){if(!bRun||bNext>=bQ.length)return Promise.resolve();var it=bQ[bNext++];return bItem(it).then(bWorker)}
-function bFinish(){bRun=false;BI.forEach(bRow);bSum();var c=bCnt();
- $('bmsg').textContent='เสร็จแล้ว สำเร็จ '+c.ok+' รูป'+(c.fail?' · ล้มเหลว '+c.fail+' รูป กด “ลองใหม่” เพื่อส่งเฉพาะที่ค้าง':'')+(bCodes.length?' · รหัสแก้ไขแสดงครั้งเดียว กรุณาดาวน์โหลดเก็บไว้':'');
+function bFinish(){bRun=false;BI.forEach(bRow);bSum();var c=bCnt(),ff=BI.filter(function(x){return x.status==='fail'})[0];
+ $('bmsg').textContent=(bAuto?'หยุดอัตโนมัติ เพราะล้มเหลวติดกัน 4 รูป · ':'เสร็จแล้ว · ')+'สำเร็จ '+c.ok+' รูป'+(c.fail?' · ล้มเหลว '+c.fail+' รูป · ข้อความผิดพลาด: '+(ff&&ff.err||'-')+' · แก้สาเหตุแล้วกด “ลองใหม่” (ส่งเฉพาะที่ค้าง)':'')+(bCodes.length?' · รหัสแก้ไขแสดงครั้งเดียว กรุณาดาวน์โหลดเก็บไว้':'');
  try{if(navigator.vibrate)navigator.vibrate(c.fail?[60,40,60]:[18,50,30])}catch(x){}loadSurveys()}
 $('bgo').onclick=function(){if(bRun||bRead||!cur)return;
  var todo=BI.filter(function(it){return it.lat!=null&&it.size<=MAXF&&it.status!=='ok'&&it.status!=='skip'});if(!todo.length)return;
@@ -684,7 +684,7 @@ $('bgo').onclick=function(){if(bRun||bRead||!cur)return;
  if(!confirm('สร้างรายการสำรวจ '+todo.length+' รายการ (รูปละ 1 รายการ)'+(nog?'\nข้ามรูปที่ไม่มีพิกัด '+nog+' รูป':'')+'\nเริ่มเลยหรือไม่?'))return;
  bCustom={};(cur.fields||[]).forEach(function(f){bCustom[f.key]=$('b_'+f.key).value});
  bSet={type:$('btype').value,surveyor:$('bname').value.trim(),desc:$('bdesc').value.trim()};
- bRun=true;bQ=todo;bNext=0;bTotal=todo.length;bDone=0;bMux=Promise.resolve();$('bmsg').textContent='กำลังนำเข้า อย่าปิดหน้านี้จนกว่าจะเสร็จ';
+ bRun=true;bAuto=false;bConsec=0;bQ=todo;bNext=0;bTotal=todo.length;bDone=0;bMux=Promise.resolve();$('bmsg').textContent='กำลังนำเข้า อย่าปิดหน้านี้จนกว่าจะเสร็จ';
  BI.forEach(bRow);bSum();Promise.all([bWorker(),bWorker(),bWorker()]).then(bFinish)};
 $('bstop').onclick=function(){bRun=false;$('bmsg').textContent='กำลังหยุดหลังรูปที่ส่งอยู่ …'};
 $('bclr').onclick=function(){if(BI.length&&!confirm('ล้างรายการที่เลือกไว้ทั้งหมด? (รายการที่สร้างไปแล้วในโครงการไม่หาย)'))return;
