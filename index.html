@@ -380,8 +380,8 @@ html.sun .stat b{font-size:2.1rem}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/exifr/7.1.3/full.umd.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/piexifjs/1.0.6/piexif.min.js"></script>
+<script src="exifr.full.umd.js"></script>
+<script src="piexif.js"></script>
 <script>
 var API_URL='https://script.google.com/macros/s/AKfycbwU1LRMxd44giEL_c4HyLVIuQJ6HNevwaP-bJtQGjlEgufpw8BRH0Lk1AdQS-AxMAL2/exec';
 var $=function(i){return document.getElementById(i)};
@@ -419,7 +419,7 @@ function gpsExif(la,lo){var G=piexif.GPSIFD,g={};g[G.GPSVersionID]=[2,2,0,0];
  g[G.GPSLongitudeRef]=lo<0?'W':'E';g[G.GPSLongitude]=piexif.GPSHelper.degToDmsRational(Math.abs(lo));return{GPS:g}}
 // อ่าน EXIF ต้นฉบับ -> แปลง HEIC -> ย่อภาพ -> เขียน EXIF กลับ (canvas ทำ EXIF หาย)
 function prep(file,sLat,sLng){var gps=null,dt=null;
- return Promise.resolve().then(function(){if(!window.exifr)return null;return Promise.all([exifr.gps(file).catch(function(){return null}),stampOn()?exifr.parse(file,['DateTimeOriginal']).catch(function(){return null}):null]).then(function(a){dt=a[1]&&a[1].DateTimeOriginal instanceof Date?a[1].DateTimeOriginal:null;return a[0]})})
+ return Promise.resolve().then(function(){return Promise.all([gpsOf(file),stampOn()?dtOf(file):null]).then(function(a){dt=a[1];return a[0]})})
  .then(function(g){gps=g&&isFinite(g.latitude)&&isFinite(g.longitude)?g:null;if(!isHeic(file))return file;
   return lazy('https://cdnjs.cloudflare.com/ajax/libs/heic2any/0.0.4/heic2any.min.js','heic2any').then(function(){
    return heic2any({blob:file,toType:'image/jpeg',quality:.9})}).then(function(b){return Array.isArray(b)?b[0]:b})})
@@ -429,6 +429,32 @@ function prep(file,sLat,sLng){var gps=null,dt=null;
   if(src!=='None'&&window.piexif){try{url=piexif.insert(piexif.dump(gpsExif(la,lo)),url)}catch(e){if(src==='Camera')src='None'}}
   else if(src!=='None')src='None';
   return{data:url.split(',')[1],lat:la,lng:lo,src:src}})}
+/* ---------- อ่านพิกัด/เวลาถ่ายจาก EXIF: exifr เป็นหลัก มีตัวอ่าน JPEG สำรองที่เขียนเอง ---------- */
+function headBuf(file){return new Promise(function(ok,no){var r=new FileReader();r.onload=function(){ok(r.result)};r.onerror=function(){no(r.error)};r.readAsArrayBuffer(file.slice(0,262144))})}
+function miniExif(file){return headBuf(file).then(function(buf){try{
+ var v=new DataView(buf),n=v.byteLength,o=2;if(n<12||v.getUint16(0)!==0xFFD8)return null;
+ while(o+4<n){var m=v.getUint16(o);if(m===0xFFDA||m<0xFF00)break;var len=v.getUint16(o+2);
+  if(m===0xFFE1&&v.getUint32(o+4)===0x45786966)return tiffRead(v,o+10,Math.min(o+2+len,n));o+=2+len}
+ return null}catch(e){return null}})}
+function tiffRead(v,b,end){var le=v.getUint16(b)===0x4949,SZ={1:1,2:1,3:2,4:4,5:8,7:1};
+ function u16(p){return v.getUint16(p,le)}function u32(p){return v.getUint32(p,le)}
+ function ifd(off){var out={},p=b+off,c,i;if(off<8||p+2>end)return out;c=u16(p);p+=2;
+  for(i=0;i<c&&p+12<=end;i++,p+=12){var ty=u16(p+2),cn=u32(p+4),sz=cn*(SZ[ty]||1);out[u16(p)]={ty:ty,cn:cn,vo:sz<=4?p+8:b+u32(p+8)}}return out}
+ function rat(p){var d=u32(p+4);return d?u32(p)/d:NaN}
+ function dms(e){if(!e||e.ty!==5||e.cn<3)return null;var x=rat(e.vo)+rat(e.vo+8)/60+rat(e.vo+16)/3600;return isFinite(x)?x:null}
+ function chr(e,d){return e?String.fromCharCode(v.getUint8(e.vo)):d}
+ var i0=ifd(u32(b+4)),res={lat:null,lng:null,dt:null},ex,g,la,lo,i,t,k;
+ if(i0[0x8769]){ex=ifd(u32(i0[0x8769].vo));if(ex[0x9003]){t='';for(k=0;k<19;k++)t+=String.fromCharCode(v.getUint8(ex[0x9003].vo+k));
+  i=/(\d{4}):(\d\d):(\d\d) (\d\d):(\d\d):(\d\d)/.exec(t);if(i)res.dt=new Date(+i[1],i[2]-1,+i[3],+i[4],+i[5],+i[6])}}
+ if(i0[0x8825]){g=ifd(u32(i0[0x8825].vo));la=dms(g[2]);lo=dms(g[4]);
+  if(la!=null&&lo!=null){res.lat=chr(g[1],'N')==='S'?-la:la;res.lng=chr(g[3],'E')==='W'?-lo:lo}}
+ return res}
+function gpsOf(file){var a=window.exifr?exifr.gps(file).catch(function(){return null}):Promise.resolve(null);
+ return a.then(function(g){if(g&&isFinite(g.latitude)&&isFinite(g.longitude))return{latitude:g.latitude,longitude:g.longitude};
+  return miniExif(file).then(function(m){return m&&m.lat!=null?{latitude:m.lat,longitude:m.lng}:null}).catch(function(){return null})})}
+function dtOf(file){var a=window.exifr?exifr.parse(file,['DateTimeOriginal']).catch(function(){return null}):Promise.resolve(null);
+ return a.then(function(m){if(m&&m.DateTimeOriginal instanceof Date&&!isNaN(m.DateTimeOriginal))return m.DateTimeOriginal;
+  return miniExif(file).then(function(x){return x&&x.dt||null}).catch(function(){return null})})}
 function csvT(v){v=String(v==null?'':v);if(/^[=+\-@\t\r]/.test(v))v="'"+v;return'"'+v.replace(/"/g,'""')+'"'}
 function toRow(o){return[o.id,o.type||'ไม่ระบุ',o.surveyor||'-',o.status,o.photoDone,o.lat,o.lng,o.desc||'',o.at,o.photoTotal,o.custom]}
 function fmt(t){var d=new Date(t);return isNaN(d)?'-':d.toLocaleDateString('th-TH')}
@@ -620,12 +646,12 @@ function bSum(){var c=bCnt(),todo=c.wait+c.fail;
  $('bclr').disabled=busy;$('bpick').disabled=$('bdir').disabled=busy}
 function bRender(){BI.forEach(function(it,i){it.i=i});
  $('bl').innerHTML=BI.map(function(it,i){return'<div class="ph" id="br'+i+'"></div>'}).join('');BI.forEach(bRow);bSum()}
-function bMeta(it){if(!window.exifr){it.why='โหลดตัวอ่านพิกัด (exifr) ไม่ได้ ตรวจอินเทอร์เน็ตแล้วรีเฟรชหน้า';return Promise.resolve()}
- return Promise.all([exifr.gps(it.file).catch(function(e){it.why='อ่านไฟล์ไม่ได้: '+(e&&e.message||e);return null}),exifr.parse(it.file,['DateTimeOriginal','Make','Model']).catch(function(){return null})]).then(function(a){var g=a[0],m=a[1];
-  if(g&&isFinite(g.latitude)&&isFinite(g.longitude)&&vc(g.latitude,g.longitude)&&(Math.abs(g.latitude)>1e-6||Math.abs(g.longitude)>1e-6)){it.lat=g.latitude;it.lng=g.longitude}
-  else if(g&&!it.why)it.why='พบค่าพิกัดแต่เป็น '+g.latitude+', '+g.longitude+' (ไม่ถูกต้อง)';
-  else if(!it.why)it.why=m&&(m.Make||m.Model||m.DateTimeOriginal)?'มี EXIF แต่ไม่มี GPS (ปิดตำแหน่งตอนถ่าย หรือถูกตัดออกตอนเลือกไฟล์)':'ไม่พบ EXIF ในไฟล์ (ถูกลบข้อมูลไปแล้ว เช่นผ่าน LINE/แชร์/ย่อภาพ)';
-  if(m&&m.DateTimeOriginal instanceof Date&&!isNaN(m.DateTimeOriginal))it.at=m.DateTimeOriginal})}
+function bMeta(it){var hasX=!!window.exifr;
+ return Promise.all([gpsOf(it.file),dtOf(it.file),hasX?exifr.parse(it.file,['Make','Model']).catch(function(){return null}):null]).then(function(a){var g=a[0],dt=a[1],m=a[2];
+  if(g&&vc(g.latitude,g.longitude)&&(Math.abs(g.latitude)>1e-6||Math.abs(g.longitude)>1e-6)){it.lat=g.latitude;it.lng=g.longitude}
+  else if(g)it.why='พบค่าพิกัดแต่เป็น '+g.latitude+', '+g.longitude+' (ไม่ถูกต้อง)';
+  else it.why=m&&(m.Make||m.Model)||dt?'มี EXIF แต่ไม่มี GPS (ปิดตำแหน่งตอนถ่าย หรือถูกตัดออกตอนเลือกไฟล์)':(hasX?'ไม่พบ EXIF ในไฟล์ (ถูกลบข้อมูลไปแล้ว เช่นผ่าน LINE/แชร์/ย่อภาพ)':'ไม่พบพิกัดในไฟล์ (ตัวอ่านหลัก exifr โหลดไม่ได้ ใช้ตัวสำรองแล้ว) ถ้าเป็น HEIC ต้องให้ exifr โหลดได้');
+  if(dt)it.at=dt})}
 function bAdd(list){if(!cur||bRun||bRead)return;var have={},add=[],other=0,dup=0;BI.forEach(function(it){have[it.key]=1});
  list.forEach(function(f){if(!isImg(f)){other++;return}var k='B'+hk(cur.code+'|'+f.name+'|'+f.size+'|'+f.lastModified);if(have[k]){dup++;return}have[k]=1;
   add.push({file:f,name:f.name,size:f.size,key:k,pid:'P'+k+'-1',status:'wait',lat:null,lng:null,at:null,pinned:false,read:false})});
