@@ -1,182 +1,684 @@
 <!DOCTYPE html>
-<html lang="th"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Field Survey</title>
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<base target="_top">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>COT Field Survey | บริษัท คอนซัลแทนท์ ออฟ เทคโนโลยี จำกัด</title>
+<meta name="theme-color" content="#0a2260">
+<meta name="application-name" content="COT Survey">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="COT Survey">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<script>(function(){try{var t=localStorage.getItem('theme')||'light',d=document.documentElement;if(t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme:dark)').matches))d.classList.add('dark');if(t==='sun')d.classList.add('sun')}catch(e){}})()</script>
+<link rel="icon" href="https://www.cot.co.th/wp-content/uploads/2023/05/Logo-40th-COT.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;600;700&display=swap">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.min.css">
 <style>
-:root{--g:#0f3d2e;--g2:#1f6b46;--gl:#e3f1e8;--bg:#eef2ee;--c:#fff;--t:#14201a;--m:#5d6d63;--b:#dbe3dd;--r:#b42318;--o:#b45309;--a:#f2b01e}
-*{box-sizing:border-box}body{margin:0;font:16px/1.55 Sarabun,sans-serif;background:var(--bg);color:var(--t);-webkit-tap-highlight-color:transparent}
-.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
-header{background:var(--g);color:#fff;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:1000;height:56px}
-header b{font-size:19px;display:flex;gap:8px;align-items:center;letter-spacing:.2px}header small{display:block;opacity:.8;font-size:12px;line-height:1.2;max-width:62vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#hu{font-size:13px;text-align:right;opacity:.9}
-nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--b);display:flex;z-index:1000;padding-bottom:env(safe-area-inset-bottom)}
-nav button{flex:1;border:0;background:none;padding:8px 2px 7px;font:inherit;font-size:12px;color:var(--m);display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer}
-nav button.on{color:var(--g);font-weight:700}nav button.on .i{stroke-width:2.6}nav button.on:before{content:"";position:absolute;margin-top:-8px;width:28px;height:3px;border-radius:3px;background:var(--a)}
-nav button.go{color:var(--g)}
-main{padding:14px 14px 96px;max-width:1080px;margin:auto}
-.hero{background:var(--g) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='220' fill='none' stroke='%23fff' stroke-opacity='.1'%3E%3Cellipse cx='330' cy='110' rx='42' ry='24'/%3E%3Cellipse cx='330' cy='110' rx='84' ry='48'/%3E%3Cellipse cx='330' cy='110' rx='130' ry='76'/%3E%3Cellipse cx='330' cy='110' rx='185' ry='106'/%3E%3Cellipse cx='330' cy='110' rx='250' ry='140'/%3E%3C/svg%3E") right center/cover;color:#fff;border-radius:20px;padding:22px 20px;margin-bottom:14px}
-.hero small{opacity:.8}.hero h1{font-size:24px;line-height:1.3;margin:4px 0 10px;font-weight:700}.hero .tag{background:#ffffff22;color:#fff}.hero .row{margin-top:16px}
-.card{background:var(--c);border:1px solid var(--b);border-radius:16px;padding:16px;margin-bottom:12px}
-.card h3{margin:0 0 6px;font-size:18px;color:var(--g)}
-.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
-.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}@media(min-width:700px){.stats{grid-template-columns:repeat(4,1fr)}}
-.stats .card{margin:0;padding:12px 14px}.stat{font-size:30px;font-weight:700;color:var(--g);line-height:1.1}.stats .lb{font-size:13px;color:var(--m)}
-.tiles{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
-.tile{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--b);border-radius:16px;padding:14px;font:inherit;font-weight:600;color:var(--t);cursor:pointer;text-align:left;min-height:64px}
-.tile .i{width:36px;height:36px;padding:7px;border-radius:12px;background:var(--gl);color:var(--g2)}.tile:active,.proj:active{transform:scale(.98)}
-button.p,button.s,button.a{border:0;border-radius:14px;padding:12px 18px;font:inherit;font-weight:700;cursor:pointer;min-height:48px;display:inline-flex;gap:8px;align-items:center;justify-content:center}
-button.p{background:var(--g);color:#fff}button.a{background:var(--a);color:#2a1d00}button.s{background:var(--gl);color:var(--g)}
-button.d{background:#fde8e6;color:var(--r);border:0;border-radius:10px;padding:8px 12px;font:inherit;font-weight:600}button:disabled{opacity:.5}
-input,select,textarea{width:100%;padding:12px;border:1.5px solid var(--b);border-radius:12px;font:inherit;background:#fff;color:var(--t)}
-input:focus,select:focus,textarea:focus,button:focus-visible{outline:3px solid #f2b01e88;border-color:var(--g2)}textarea{min-height:80px}
-label{display:block;font-weight:600;margin:12px 0 4px;font-size:15px}.req:after{content:" *";color:var(--r)}
-.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.row>*{flex:1}
-.row>label.s{display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;font-weight:700;min-height:58px;background:var(--gl);color:var(--g);border-radius:14px;margin:0!important}
-.tag{display:inline-block;padding:2px 10px;border-radius:99px;font-size:13px;background:var(--gl);color:var(--g);font-weight:600}.tag.w{background:#fef0d5;color:var(--o)}
-.proj{cursor:pointer;border-left:5px solid var(--g2)}.proj:hover{border-color:var(--a);border-left-color:var(--a)}.proj h4{margin:8px 0 4px;font-size:17px;line-height:1.35}
-.ph{display:flex;gap:12px;border:1px solid var(--b);border-radius:14px;padding:10px;margin:10px 0;background:#fbfcfb}.ph img{width:92px;height:92px;object-fit:cover;border-radius:10px}
-#map{height:62vh;border-radius:16px;border:1px solid var(--b)}
-table{width:100%;border-collapse:collapse}th{background:var(--gl);color:var(--g);text-align:left}td,th{padding:10px 8px;border-bottom:1px solid var(--b);font-size:14px}tr:hover td{background:#f6faf7}
-.bar{height:8px;background:var(--b);border-radius:9px;overflow:hidden;margin-top:6px}.bar i{display:block;height:100%;background:var(--g2);width:0;transition:width .3s}
-#toast{position:fixed;top:66px;left:50%;transform:translateX(-50%);background:#14201a;color:#fff;padding:12px 18px;border-radius:14px;z-index:3000;display:none;max-width:90%;box-shadow:0 8px 24px #0004}
-#load{position:fixed;inset:0;background:#fffc;display:none;place-items:center;z-index:2500;font-weight:700;color:var(--g)}
-.err{color:var(--r)}.muted{color:var(--m);font-size:14px}
-@media(min-width:800px){nav{top:56px;bottom:0;right:auto;width:200px;flex-direction:column;justify-content:flex-start;border-top:0;border-right:1px solid var(--b);padding:10px}nav button{flex:0;flex-direction:row;gap:12px;font-size:15px;padding:12px 14px;border-radius:12px}nav button.on{background:var(--gl)}nav button.on:before{display:none}main{margin-left:210px;padding-bottom:30px}.hero h1{font-size:30px}}
-@media(prefers-reduced-motion:no-preference){.view{animation:f .25s}@keyframes f{from{opacity:0;transform:translateY(6px)}}}
-</style></head><body>
-<svg width="0" height="0" style="position:absolute"><defs>
-<symbol id="i-home" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></symbol>
-<symbol id="i-folder" viewBox="0 0 24 24"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></symbol>
-<symbol id="i-plus" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></symbol>
-<symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></symbol>
-<symbol id="i-map" viewBox="0 0 24 24"><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3z"/><path d="M9 3v15M15 6v15"/></symbol>
-<symbol id="i-camera" viewBox="0 0 24 24"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="13" r="3"/></symbol>
-<symbol id="i-image" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L6 21"/></symbol>
-<symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></symbol>
-</defs></svg>
-<header><div><b><svg class="i"><use href="#i-pin"/></svg>Field Survey</b><small id="hp">เลือกโครงการเพื่อเริ่มงาน</small></div><div id="hu" class="muted" style="color:#fff"></div></header>
-<main id="app" class="view"></main>
-<nav id="nav"><button data-v="home"><svg class="i"><use href="#i-home"/></svg><span>หน้าหลัก</span></button><button data-v="projects"><svg class="i"><use href="#i-folder"/></svg><span>โครงการ</span></button><button data-v="form"><svg class="i"><use href="#i-plus"/></svg><span>สำรวจ</span></button><button data-v="list"><svg class="i"><use href="#i-list"/></svg><span>รายการ</span></button><button data-v="map"><svg class="i"><use href="#i-map"/></svg><span>แผนที่</span></button></nav>
-<div id="toast"></div><div id="load">กำลังทำงาน…</div>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
+:root{--g:#1d4ba3;--gd:#0f2f73;--gl:#e5ecf8;--paper:#f4f7fb;--ink:#14223a;--mut:#56657a;--line:#d0d9e6;--card:#fff;
+--ok:#0b7a4f;--up:#2f6fd0;--pend:#8a6d00;--fail:#b3261e}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.55 "Noto Sans Thai",system-ui,sans-serif;padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
+header{background:linear-gradient(120deg,#0a2260,#1d4ba3);color:#fff;padding:12px 16px;padding-top:calc(12px + env(safe-area-inset-top,0px));display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:1000}
+header h1{font-size:1rem;margin:0;flex:1;min-width:0}
+header small{display:block;font-weight:400;font-size:.95rem;line-height:1.35;overflow-wrap:anywhere}header .pc{display:block;font-weight:700;font-size:1.05rem}
+header .pn{display:block;font-size:.85rem;opacity:.92}
+#chg{background:rgba(255,255,255,.18);color:#fff;border:0;border-radius:6px;padding:7px 11px;font:inherit;font-size:.85rem;cursor:pointer}
+nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;z-index:1000;padding-bottom:env(safe-area-inset-bottom,0px)}
+nav button{flex:1;border:0;background:none;padding:10px 4px 9px;font:inherit;font-size:.9rem;color:var(--mut);cursor:pointer;border-top:3px solid transparent}
+nav button.on{color:var(--g);font-weight:700;border-top-color:var(--g);background:var(--gl)}
+main{max-width:980px;margin:0 auto;padding:16px}
+.demo{background:#fff6d6;border:1px solid #ecd98a;color:#5b4a00;border-radius:6px;padding:8px 12px;font-size:.84rem;margin-bottom:14px}
+h2{font-size:1.15rem;margin:4px 0 12px}
+.grid{display:grid;gap:12px}.g3{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}.g2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px}
+.stat b{display:block;font-size:1.9rem;line-height:1.1;color:var(--g)}.stat span{color:var(--mut);font-size:.85rem}
+.chip{display:inline-block;padding:2px 9px;border-radius:99px;font-size:.78rem;font-weight:600;border:1px solid currentColor}
+.Completed{color:var(--ok)}.Uploading{color:var(--up)}.Pending{color:var(--pend)}.Failed{color:var(--fail)}
+label{display:block;font-weight:600;margin:14px 0 5px}
+input,select,textarea{width:100%;padding:11px;font:inherit;font-size:16px;color:inherit;background:#fff;border:1px solid var(--line);border-radius:6px}
+textarea{min-height:84px}
+:focus-visible{outline:3px solid #f2b705;outline-offset:1px}
+button.p,button.s{font:inherit;font-weight:600;border:0;border-radius:6px;padding:11px 16px;cursor:pointer}
+button.p{background:var(--g);color:#fff}button.s{background:var(--gl);color:var(--gd)}button.d{background:#fbe7e5;color:var(--fail);border:0;border-radius:6px;padding:11px 16px;font:inherit;font-weight:600;cursor:pointer}
+button:disabled{opacity:.55}
+.row{display:flex;gap:10px;flex-wrap:wrap}.row>*{flex:1;min-width:130px}
+.proj{cursor:pointer;text-align:left;width:100%;font:inherit;color:inherit}
+.proj:hover{border-color:var(--g)}.proj b{color:var(--g)}
+.hint{color:var(--mut);font-size:.84rem;margin:5px 0 0}
+#map{height:360px;border-radius:8px;border:1px solid var(--line)}
+table{width:100%;border-collapse:collapse;font-size:.88rem}th,td{text-align:left;padding:8px;border-bottom:1px solid var(--line)}
+th{color:var(--mut);font-weight:600}tr.r{cursor:pointer}tr.r:hover{background:var(--gl)}
+.tw{overflow-x:auto}
+.ph{display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+.ph i{width:48px;height:48px;border-radius:6px;background:var(--gl);flex:none;display:grid;place-items:center;color:var(--g);font-style:normal;font-size:.75rem}
+.bar{height:6px;background:var(--gl);border-radius:3px;overflow:hidden;margin-top:5px}.bar div{height:100%;width:0;background:var(--g);transition:width .25s}
+dialog{border:0;border-radius:10px;padding:18px;max-width:440px;width:92%}dialog::backdrop{background:rgba(0,0,0,.4)}
+.th{width:112px;height:112px;object-fit:cover;border-radius:6px;display:block}
+.hide{display:none}
+@media(min-width:760px){nav{position:static;border:0;background:var(--gd);justify-content:center}nav button{flex:none;color:#cfdcf3;padding:11px 22px;border-top:0;border-bottom:3px solid transparent}nav button.on{background:none;color:#fff;border-bottom-color:#f2b705}body{padding-bottom:0}header{position:static}}
+button.pb{font:inherit;font-weight:600;background:#fff;color:var(--g);border:2px dashed var(--g);border-radius:10px;padding:16px 10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px}
+button.pb svg{width:30px;height:30px}button.pb:active{background:var(--gl)}
+.okbox{background:var(--gl);color:var(--gd);border:1px solid var(--g);border-radius:6px;padding:8px 12px;font-size:.88rem;margin:12px 0 0;font-weight:600}
+button.p.saved:disabled{opacity:1;background:var(--gd)}
+input[readonly]{background:#eef3f0;color:var(--mut)}
+#pinbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 10px}#pinbar.hide{display:none}
+#pinbar button{flex:none;padding:8px 14px}
+#sdone .row input{min-width:0}
+@media(max-width:600px){table{font-size:.8rem}th,td{padding:8px 5px}td:first-child{word-break:break-all}}
+
+/* ---- COT look ---- */
+.hero input::placeholder{color:#6b7a90}
+:root{--dk:#0a2260}
+body{background:radial-gradient(1200px 400px at 100% -80px,#dce6f6 0,transparent 70%),var(--paper);background-attachment:fixed}
+.logo{flex:none;background:#fff;border-radius:10px;padding:4px 9px;display:grid;place-items:center;min-width:46px;height:46px;box-shadow:0 1px 4px rgba(0,0,0,.25)}
+.logo img{display:block;height:34px;width:auto;max-width:120px}
+.logo b{display:none;color:var(--g);font-weight:700;letter-spacing:.04em}
+.logo.nologo img{display:none}.logo.nologo b{display:block}
+header h1{font-weight:400}
+.co{display:block;font-size:.78rem;opacity:.78;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:560px){.co{display:none}}
+#chg{border:1px solid rgba(255,255,255,.3)}
+.hero{position:relative;overflow:hidden;border-radius:20px;padding:28px 22px 22px;margin-bottom:22px;color:#fff;background:linear-gradient(135deg,#0a2260 0%,#1d4ba3 68%,#3a74d6 100%);box-shadow:0 14px 30px -18px rgba(10,34,96,.7)}
+.hero .topo{position:absolute;right:-30px;top:-20px;height:140%;width:80%;pointer-events:none}
+.hero>*:not(.topo){position:relative}
+.hero h2{font-size:1.75rem;line-height:1.25;margin:0 0 4px;font-weight:700}
+.hero .hco{margin:0 0 6px;font-weight:600;font-size:.95rem}
+.hero .hs{margin:0 0 18px;opacity:.88;font-size:.92rem;max-width:34em}
+.hero input{color:var(--ink);border:0;border-radius:999px;padding:14px 20px;box-shadow:0 6px 16px -4px rgba(0,0,0,.35)}
+.card{border-radius:14px;box-shadow:0 1px 2px rgba(10,34,96,.06),0 10px 24px -14px rgba(10,34,96,.22)}
+.sec{margin-top:12px}
+h3.sh{font-size:1rem;margin:0 0 2px;border-left:4px solid var(--g);padding-left:10px;line-height:1.3}
+.proj{display:flex;align-items:center;gap:12px;padding:14px 16px;transition:transform .15s,box-shadow .15s,border-color .15s}
+.proj:hover,.proj:focus-visible{transform:translateY(-2px);box-shadow:0 12px 26px -12px rgba(10,34,96,.4)}
+.proj .pcode{flex:none;background:var(--gl);color:var(--gd);font-weight:700;border-radius:8px;padding:5px 10px;font-size:.85rem}
+.proj .pname{flex:1;min-width:0;overflow-wrap:anywhere}
+.proj .go{color:var(--g);font-size:1.6rem;line-height:1}
+.stat{border-top:4px solid var(--line)}
+.stat.al{border-top-color:var(--up)}.stat.al b{color:var(--up)}
+.stat.ok{border-top-color:var(--ok)}.stat.ok b{color:var(--ok)}
+.stat.wt{border-top-color:#e0b100}.stat.wt b{color:var(--pend)}
+.stat b{font-variant-numeric:tabular-nums}
+.pg{display:flex;justify-content:space-between;align-items:baseline}.pg b{color:var(--g);font-size:1.2rem}
+.bar.big{height:10px;border-radius:5px}
+.Completed.chip{background:#e4f1ea}.Uploading.chip{background:#e3eefa}.Pending.chip{background:#fbf3d0}.Failed.chip{background:#fbe7e5}
+button.p{background:linear-gradient(180deg,#2557b8,#1d4ba3);box-shadow:0 4px 12px -4px rgba(29,75,163,.6)}
+button.p:active{transform:translateY(1px)}
+button.p.saved:disabled{background:var(--gd)}
+button.s,button.p,button.d{border-radius:10px}
+dialog{border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.35)}
+nav button{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.82rem}
+nav button svg{width:22px;height:22px}
+@media(min-width:760px){nav button{flex-direction:row;gap:8px;font-size:.92rem}nav button svg{width:18px;height:18px}}
+footer{max-width:980px;margin:8px auto 0;padding:16px 16px 26px;border-top:1px solid var(--line);color:var(--mut);font-size:.72rem;line-height:1.6}footer p{margin:0}footer .logo{display:inline-grid;height:34px;min-width:0;padding:3px 8px;margin-bottom:8px}footer .logo img{height:26px}
+footer b{color:var(--ink)}footer a{color:var(--g)}
+footer .logo{box-shadow:none;border:1px solid var(--line)}
+.g3{grid-template-columns:repeat(3,1fr)}
+@media(max-width:480px){.g3{gap:8px}.stat{padding:12px 10px}.stat b{font-size:1.6rem}.stat span{font-size:.78rem}}
+header .pn{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+/* ================= v2: ลูกเล่น + โหมดแสดงผล ================= */
+/* 1 hero: เส้นชั้นความสูงขยับช้า + parallax เบา (ตัวแปร --py ตั้งจาก JS) */
+.hero .topo{translate:0 var(--py,0px);animation:drift 28s ease-in-out infinite alternate;will-change:transform}
+@keyframes drift{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(-18px,8px,0) scale(1.04)}}
+/* 2 วงแหวนความคืบหน้า + sparkline */
+.hp{display:flex;align-items:center;gap:16px;margin-top:12px}
+.ringw{position:relative;width:112px;height:112px;flex:none}
+.ring{width:100%;height:100%;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:10}
+.ring .rt{stroke:var(--gl)}
+.ring .rf{stroke:var(--g);stroke-linecap:round;stroke-dasharray:326.73;stroke-dashoffset:326.73;transition:stroke-dashoffset .9s cubic-bezier(.2,.8,.2,1),stroke .3s}
+.ring.full .rf{stroke:var(--ok)}
+.rc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1}
+.rc b{font-size:1.5rem;color:var(--g);font-variant-numeric:tabular-nums}.rc>span{font-size:.72rem;color:var(--mut)}
+.hpr{flex:1;min-width:0}.hpr .hl{font-size:.85rem;color:var(--mut);margin-bottom:2px}
+#spark{width:100%;height:56px;display:block;color:var(--g)}
+#spark .sl{fill:none;stroke:currentColor;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+#spark .sa{fill:currentColor;opacity:.12}
+#spark circle{fill:currentColor}
+/* การ์ดโครงการ: จำนวนรายการ + ความคืบหน้าเล็ก ๆ */
+.pm{display:flex;align-items:center;gap:8px;margin-top:4px;font-size:.78rem;color:var(--mut)}
+.pmb{flex:0 0 70px;height:5px;background:var(--gl);border-radius:3px;overflow:hidden}
+.pmb i{display:block;height:100%;background:var(--g)}
+/* 4 ปุ่ม GPS แบบเรดาร์ + วงความแม่นยำ */
+#gps{position:relative}
+#gps.scan::before,#gps.scan::after{content:"";position:absolute;inset:0;border-radius:10px;border:2px solid var(--g);opacity:0;pointer-events:none;animation:wave 1.8s ease-out infinite}
+#gps.scan::after{animation-delay:.9s}
+#gps.scan:disabled{opacity:1}
+@keyframes wave{0%{transform:scale(1);opacity:.7}100%{transform:scale(1.4,1.9);opacity:0}}
+.accq{display:flex;align-items:center;gap:12px;margin-top:10px;padding:9px 14px;border-radius:10px;border:1px solid currentColor;font-weight:600;font-size:.9rem}
+.accq.hide{display:none}
+.accq .dot{width:12px;height:12px;border-radius:50%;background:currentColor;position:relative;flex:none}
+.accq .dot::after{content:"";position:absolute;inset:-5px;border-radius:50%;border:2px solid currentColor;opacity:.5;animation:wave2 1.6s ease-out infinite}
+@keyframes wave2{from{transform:scale(.6);opacity:.8}to{transform:scale(1.6);opacity:0}}
+.accq.g{color:var(--ok);background:rgba(11,122,79,.1)}
+.accq.y{color:var(--pend);background:rgba(224,177,0,.14)}
+.accq.r{color:var(--fail);background:rgba(179,38,30,.1)}
+/* 5 เครื่องหมายถูกวาดเส้น + แถบสรุป */
+.okmark{display:block;margin:0 auto 8px;width:72px;height:72px}
+.okmark circle{fill:none;stroke:var(--ok);stroke-width:4;stroke-dasharray:176;stroke-dashoffset:0;transform-box:fill-box;transform-origin:center;transform:rotate(-90deg);animation:draw1 .55s ease-out}
+.okmark path{fill:none;stroke:var(--ok);stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:44;stroke-dashoffset:0;animation:draw2 .4s .45s ease-out backwards}
+@keyframes draw1{from{stroke-dashoffset:176}}
+@keyframes draw2{from{stroke-dashoffset:44}}
+.okbox.gr{background:rgba(11,122,79,.12);color:var(--ok);border-color:var(--ok)}
+.okbox.am{background:rgba(224,177,0,.16);color:var(--pend);border-color:var(--pend)}
+/* 7 หมุดกลางจอ */
+#mapw{position:relative;isolation:isolate}
+#xh{position:absolute;left:50%;top:50%;width:56px;height:56px;margin:-28px 0 0 -28px;z-index:900;pointer-events:none;display:none}
+#xh svg{width:100%;height:100%;filter:drop-shadow(0 1px 2px rgba(0,0,0,.5))}
+#mapw.pinning #xh{display:block}
+#mapw.pinning #map{height:58vh;min-height:320px}
+#pinbar{flex-wrap:wrap}
+#pinbar .pbb{display:flex;gap:8px}
+/* 8 หมุดตามสถานะ + popup การ์ด + cluster */
+.pinic{background:none;border:0}
+.pinic svg{width:30px;height:40px;filter:drop-shadow(0 2px 2px rgba(0,0,0,.4))}
+.leaflet-popup-content-wrapper{border-radius:14px}
+.leaflet-popup-content{margin:12px 14px;font:14px/1.45 "Noto Sans Thai",system-ui,sans-serif}
+.pu{min-width:170px}.pu b{color:var(--g);font-size:1rem}.pu .r1{margin:4px 0}.pu .r2{color:var(--mut);font-size:.82rem}
+.pu .pu-go{margin-top:8px;width:100%;padding:9px;font:inherit;font-weight:600;font-size:.88rem;border:0;border-radius:8px;background:var(--g);color:#fff;cursor:pointer}
+.marker-cluster-small,.marker-cluster-medium,.marker-cluster-large{background:rgba(29,75,163,.28)}
+.marker-cluster-small div,.marker-cluster-medium div,.marker-cluster-large div{background:#1d4ba3;color:#fff;font-weight:700}
+/* 10 ทรานซิชัน + skeleton */
+main>section:not(.hide){animation:pgin .22s ease-out}
+@keyframes pgin{from{opacity:0;transform:translateY(8px)}}
+dialog[open]{animation:dpop .18s ease-out}
+@keyframes dpop{from{opacity:0;transform:translateY(10px) scale(.98)}}
+.sk{display:block;position:relative;overflow:hidden;background:var(--gl);border-radius:8px}
+.sk::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);transform:translateX(-100%);animation:shim 1.3s infinite}
+@keyframes shim{to{transform:translateX(100%)}}
+/* 11 โหมดมืด */
+html.dark{color-scheme:dark;--g:#6c9bff;--gd:#cfe0ff;--gl:#1b2b4a;--paper:#0b1220;--ink:#e8eef9;--mut:#9fb2cc;--line:#26364f;--card:#121c30;--ok:#3ccf91;--up:#6aa5ff;--pend:#e8c547;--fail:#ff7f76}
+html.dark body{background:radial-gradient(1200px 400px at 100% -80px,#15244a 0,transparent 70%),var(--paper);background-attachment:fixed}
+html.dark header{background:linear-gradient(120deg,#060d22,#123377)}
+html.dark nav{background:#0f182b}
+@media(min-width:760px){html.dark nav{background:#0a2260}}
+html.dark input,html.dark select,html.dark textarea{background:#0e1627;color:var(--ink);border-color:var(--line)}
+html.dark input[readonly]{background:#16213a;color:var(--mut)}
+html.dark .hero input{background:#fff;color:#14223a}
+html.dark button.pb{background:var(--card)}
+html.dark dialog{background:var(--card);color:var(--ink)}
+html.dark .Completed.chip{background:rgba(60,207,145,.14)}
+html.dark .Uploading.chip{background:rgba(106,165,255,.15)}
+html.dark .Pending.chip{background:rgba(232,197,71,.14)}
+html.dark .Failed.chip{background:rgba(255,127,118,.15)}
+html.dark button.d{background:rgba(255,127,118,.16)}
+html.dark button.p.saved:disabled{background:#0f2f73}
+html.dark .sk::after{background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent)}
+html.dark #map:not(.sat) .leaflet-tile-pane{filter:invert(.92) hue-rotate(180deg) brightness(.92) contrast(.88)}
+html.dark .leaflet-popup-content-wrapper,html.dark .leaflet-popup-tip{background:var(--card);color:var(--ink)}
+/* 11 โหมดกลางแดด: ตัดกันสูง ตัวใหญ่ ปุ่มใหญ่ */
+html.sun{--ink:#000;--mut:#1c2636;--line:#4a5b75;--g:#0b3a96;--gd:#06236a;--gl:#dbe6fb;--paper:#fff;--ok:#005c36;--up:#0a47a8;--pend:#6b5000;--fail:#9b1c15}
+html.sun body{background:#fff;font-size:17px;font-weight:600}
+html.sun header,html.sun .hero{background:#06236a;box-shadow:none}
+html.sun .card{border:2px solid var(--line);box-shadow:none}
+html.sun input,html.sun select,html.sun textarea{font-size:18px;border:2px solid #1c2636;padding:13px}
+html.sun button.p,html.sun button.s,html.sun button.d{min-height:52px;font-size:1.05rem}
+html.sun button.s{border:2px solid var(--gd)}
+html.sun button.p{background:var(--gd);box-shadow:none}
+html.sun .chip{font-weight:700;border-width:2px}
+html.sun .hint{color:#1c2636;font-size:.92rem}
+html.sun nav button{font-size:.95rem;min-height:56px}
+html.sun table{font-size:.95rem}
+html.sun .stat b{font-size:2.1rem}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <h1><small id="sub">เลือกโครงการเพื่อเริ่มงาน</small></h1>
+  <button id="chg" class="hide">เปลี่ยนโครงการ</button>
+</header>
+<nav id="nav" class="hide">
+  <button data-p="home" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span>หน้าหลัก</span></button><button data-p="survey"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4h6v3H9z"/><path d="M7 5.5H5V21h14V5.5h-2"/><path d="M9 12h6M9 16h4"/></svg><span>สำรวจ</span></button><button data-p="map"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4l6 2 6-2v14l-6 2-6-2-6 2V6z"/><path d="M9 4v14M15 6v14"/></svg><span>แผนที่</span></button><button data-p="user"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg><span>ผู้ใช้งาน</span></button>
+</nav>
+<main>
+
+<section id="p-pick">
+  <div class="hero" id="hero">
+    <svg class="topo" viewBox="0 0 420 220" preserveAspectRatio="xMaxYMid slice" aria-hidden="true"><defs><path id="bl" vector-effect="non-scaling-stroke" d="M60 8C102 -4 142 28 136 70S92 132 50 122 -2 82 10 46 22 18 60 8z"/></defs>
+      <g fill="none" stroke="#fff" stroke-opacity=".16" stroke-width="1.2"><g transform="translate(240 -6) scale(1.7)"><use href="#bl" transform="translate(70 65) scale(1) translate(-70 -65)"/><use href="#bl" transform="translate(70 65) scale(.84) translate(-70 -65)"/><use href="#bl" transform="translate(70 65) scale(.68) translate(-70 -65)"/><use href="#bl" transform="translate(70 65) scale(.52) translate(-70 -65)"/><use href="#bl" transform="translate(70 65) scale(.37) translate(-70 -65)"/><use href="#bl" transform="translate(70 65) scale(.23) translate(-70 -65)"/></g><g transform="translate(120 100) scale(1.1) rotate(25 70 65)" stroke-opacity=".1"><use href="#bl" transform="translate(70 65) scale(1) translate(-70 -65)"/><use href="#bl" transform="translate(70 65) scale(.78) translate(-70 -65)"/><use href="#bl" transform="translate(70 65) scale(.56) translate(-70 -65)"/><use href="#bl" transform="translate(70 65) scale(.34) translate(-70 -65)"/></g></g></svg>
+    <h2>สำรวจภาคสนาม</h2>
+    <p class="hco">บริษัท คอนซัลแทนท์ ออฟ เทคโนโลยี จำกัด (COT)</p>
+    <p class="hs">บันทึกจุดสำรวจ พิกัด GPS และภาพถ่ายจากพื้นที่จริง เข้าสู่ฐานข้อมูลโครงการโดยตรง</p>
+    <input id="q" placeholder="ค้นหาจากรหัสหรือชื่อโครงการ" aria-label="ค้นหาโครงการ">
+  </div>
+  <h2>เลือกโครงการ</h2>
+  <div id="plist" class="grid g2"></div>
+  <p class="hint" id="pempty" hidden>ไม่พบโครงการที่ตรงกับคำค้น</p>
+</section>
+
+<section id="p-home" class="hide">
+  <h2 id="hname"></h2>
+  <div class="grid g3">
+    <div class="card stat al"><b id="s-all">0</b><span>รายการสำรวจ</span></div>
+    <div class="card stat ok"><b id="s-done">0</b><span>ส่งครบแล้ว</span></div>
+    <div class="card stat wt"><b id="s-wait">0</b><span>รอ / ส่งไม่ครบ</span></div>
+  </div>
+  <div class="card hp"><div class="ringw"><svg class="ring" id="s-ring" viewBox="0 0 120 120" aria-hidden="true"><circle class="rt" cx="60" cy="60" r="52"/><circle class="rf" cx="60" cy="60" r="52"/></svg><div class="rc"><b><span id="s-pct">0</span>%</b><span>ส่งครบ</span></div></div><div class="hpr"><div class="hl">ความคืบหน้าการส่งข้อมูล · 7 วันล่าสุด</div><svg id="spark" viewBox="0 0 200 56" role="img" aria-label="กราฟจำนวนรายการสำรวจ 7 วันล่าสุด"></svg><div class="hint" id="sptx"></div></div></div>
+  <h2 style="margin-top:20px">รายการล่าสุด</h2>
+  <div class="card tw"><table><thead><tr><th>รหัส</th><th>ประเภท</th><th>ผู้สำรวจ</th><th>สถานะ</th></tr></thead><tbody id="recent"></tbody></table></div>
+</section>
+
+<section id="p-survey" class="hide">
+  <h2>บันทึกการสำรวจ</h2>
+  <div class="card">
+    <h3 class="sh">ข้อมูลการสำรวจ</h3>
+    <label for="stype">ประเภทการสำรวจ (ไม่บังคับ)</label><select id="stype"></select>
+    <label for="sname">ชื่อผู้สำรวจ (ไม่บังคับ)</label><input id="sname">
+    <label for="sdesc">รายละเอียด</label><textarea id="sdesc"></textarea>
+    <div id="dyn"></div>
+    </div>
+  <div class="card sec">
+    <h3 class="sh">พิกัดจุดสำรวจ</h3>
+    <div class="row"><button type="button" class="s" id="gps">ดึงพิกัดปัจจุบัน</button><button type="button" class="s" id="pin">ปักหมุดบนแผนที่</button></div>
+    <div class="row" style="margin-top:10px"><input id="lat" inputmode="decimal" placeholder="ละติจูด" aria-label="ละติจูด"><input id="lng" inputmode="decimal" placeholder="ลองจิจูด" aria-label="ลองจิจูด"></div>
+    <label for="acc">ความแม่นยำ GPS (ม.)</label><input id="acc" readonly placeholder="ได้จากปุ่มดึงพิกัดปัจจุบัน">
+    <div id="accq" class="accq hide" role="status"><span class="dot"></span><span id="accqt"></span></div>
+    </div>
+  <div class="card sec">
+    <h3 class="sh">ภาพถ่าย <span class="hint" style="display:inline;font-weight:400">(<span id="pcount">0/5</span> · ระบบย่อภาพให้อัตโนมัติ)</span></h3>
+    <div class="row"><button type="button" class="pb" id="bcam"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>ถ่ายภาพ</button><button type="button" class="pb" id="bup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="M21 16l-5-5-8 8"/></svg>อัปโหลดภาพ</button></div>
+    <input id="cam" type="file" accept="image/*" capture="environment" class="hide">
+    <input id="files" type="file" accept="image/*,.heic,.heif" multiple class="hide">
+    <div id="plistph"></div>
+    <input id="sid" type="hidden"><p class="hint" style="margin-top:14px">รหัสรายการ: <b id="sidv"></b></p>
+    <button class="p" id="save" style="margin-top:18px;width:100%">บันทึกข้อมูล</button>
+    <p class="hint" id="smsg" role="status"></p>
+  </div>
+</section>
+
+<section id="p-map" class="hide">
+  <h2>แผนที่และรายการสำรวจ</h2>
+  <div class="row" style="margin-bottom:10px">
+    <select id="base" aria-label="ชั้นแผนที่"><option value="osm">OpenStreetMap</option><option value="esri">ภาพถ่ายดาวเทียม (Esri)</option></select>
+    <select id="fst" aria-label="กรองสถานะ"><option value="">ทุกสถานะ</option><option value="Completed">ครบ</option><option value="Uploading">กำลังส่ง</option><option value="Pending">รอส่ง</option><option value="Failed">ล้มเหลว</option></select>
+    <input id="fq" placeholder="ค้นหารหัสหรือรายละเอียด" aria-label="ค้นหารายการ">
+  </div>
+  <div id="pinbar" class="okbox hide" role="status"><span id="pinxy">ลากแผนที่ให้เป้ากลางจอตรงจุดสำรวจ</span><span class="pbb"><button type="button" class="s" id="pinx">ยกเลิก</button><button type="button" class="p" id="pinok">ยืนยันตำแหน่ง</button></span></div>
+  <div id="mapw"><div id="map"></div><div id="xh" aria-hidden="true"><svg viewBox="0 0 56 56"><g fill="none" stroke-linecap="round"><g stroke="#fff" stroke-width="5"><circle cx="28" cy="28" r="12"/><path d="M28 2v14M28 40v14M2 28h14M40 28h14"/></g><g stroke="#d4262b" stroke-width="2"><circle cx="28" cy="28" r="12"/><path d="M28 2v14M28 40v14M2 28h14M40 28h14"/></g></g><circle cx="28" cy="28" r="2.2" fill="#d4262b"/></svg></div></div>
+  <div class="row" style="margin:12px 0"><button class="s" id="loc">ไปยังตำแหน่งของฉัน</button><button class="s" id="csv">Export CSV</button><button class="s" id="gj">Export GeoJSON</button></div>
+  <div class="card tw"><table><thead><tr><th>รหัส</th><th>ประเภท</th><th>วันที่</th><th>ภาพ</th><th>สถานะ</th></tr></thead><tbody id="rows"></tbody></table></div>
+</section>
+
+<section id="p-user" class="hide">
+  <h2>ผู้ใช้งาน</h2>
+  <div class="card">
+    <p style="margin:0 0 4px"><b>โครงการปัจจุบัน</b></p><p id="uproj" style="margin:0 0 14px"></p>
+    <label for="uname" style="margin-top:0">ชื่อผู้สำรวจที่ใช้เป็นค่าเริ่มต้น</label><input id="uname" placeholder="เช่น สมชาย ใจดี">
+    <p class="hint">ชื่อนี้กรอกเอง ไม่ได้ยืนยันตัวตน และจะเติมให้ในหน้าสำรวจอัตโนมัติ</p>
+    <div class="row" style="margin-top:14px"><button class="p" id="usave">บันทึกชื่อ</button><button class="d" id="lock">ออกจากโครงการ</button></div>
+    <p class="hint" id="umsg" role="status"></p>
+  </div>
+  <div class="card sec">
+    <h3 class="sh">การแสดงผลและภาพถ่าย</h3>
+    <label for="theme">โหมดหน้าจอ</label>
+    <select id="theme"><option value="light">สว่าง (ปกติ)</option><option value="sun">กลางแดด · ตัดกันสูง ตัวใหญ่</option><option value="dark">มืด · ใช้กลางคืน</option><option value="auto">ตามระบบของเครื่อง</option></select>
+    <label style="font-weight:400;margin:16px 0 0"><input type="checkbox" id="ustamp" style="width:auto;margin-right:6px"> ประทับตรา COT + พิกัด + วันเวลา บนภาพที่ส่ง</label>
+    <p class="hint">ปิดไว้เป็นค่าเริ่มต้น เมื่อเปิด ภาพที่อัปโหลดเข้าโครงการจะมีแถบตราประทับที่มุมล่าง ภาพต้นฉบับในเครื่องไม่ถูกแก้ไข และภาพที่ส่งไปแล้วก่อนหน้านี้ไม่เปลี่ยน</p>
+    <div id="inst" class="hide" style="margin-top:16px"><h3 class="sh">ติดตั้งเป็นแอป</h3><p class="hint" id="insth">เพิ่มไอคอนไว้บนหน้าจอ เปิดเต็มจอ ไม่มีแถบเบราว์เซอร์</p><button type="button" class="p hide" id="instb" style="margin-top:8px">ติดตั้งแอป</button></div>
+  </div>
+</section>
+</main>
+<footer>
+  <span class="logo"><img src="https://www.cot.co.th/wp-content/uploads/2023/05/Logo-40th-COT.png" alt="COT" onerror="this.parentNode.classList.add('nologo')"><b>COT</b></span>
+  <p><b>บริษัท คอนซัลแทนท์ ออฟ เทคโนโลยี จำกัด (COT)</b> · Consultants of Technology Co., Ltd. · © <span id="yr"></span> สงวนลิขสิทธิ์ All rights reserved · 39 Ladprao 124 Road, Phlapphla, Wang Thonglang, Bangkok 10310 · <a href="https://www.cot.co.th/" target="_blank" rel="noopener">www.cot.co.th</a></p>
+</footer>
+
+<dialog id="pw"><form id="pwf">
+  <h2 id="pwt" style="margin-top:0"></h2>
+  <label for="pwi" style="margin-top:0">รหัสผ่านโครงการ</label><input id="pwi" type="password" autocomplete="off" required>
+  <label style="font-weight:400;margin:8px 0 0"><input type="checkbox" id="pws" style="width:auto"> แสดงรหัสผ่าน</label>
+  <p class="hint" id="pwm" role="alert" style="color:var(--fail)"></p>
+  <div class="row" style="margin-top:14px"><button type="button" class="s" id="pwx">ยกเลิก</button><button class="p" id="pwok">เข้าสู่โครงการ</button></div>
+</form></dialog>
+
+<dialog id="det"><h2 id="dt" style="margin-top:0"></h2><div id="db"></div>
+  <div class="row" style="margin-top:14px"><button class="s" id="ded">แก้ไข</button><button class="d" id="ddel">ลบ</button><button class="s" id="dcl">ปิด</button></div>
+  <p class="hint" id="dm" role="status"></p></dialog>
+
+<dialog id="ed" style="max-height:90vh;overflow:auto"><h2 style="margin-top:0">แก้ไขรายการ</h2>
+  <label for="ecode" style="margin-top:0">รหัสแก้ไข</label><input id="ecode" autocomplete="off">
+  <label for="etype">ประเภทการสำรวจ (ไม่บังคับ)</label><select id="etype"></select>
+  <label for="esur">ชื่อผู้สำรวจ</label><input id="esur">
+  <label for="edesc">รายละเอียด</label><textarea id="edesc"></textarea>
+  <div id="edyn"></div>
+  <label>พิกัด</label><div class="row"><input id="elat" aria-label="ละติจูด"><input id="elng" aria-label="ลองจิจูด"></div>
+  <label>ภาพถ่าย (ติ๊กภาพที่ต้องการลบ)</label><div id="eph"></div>
+  <label for="efiles">เพิ่มภาพ (รวมไม่เกิน 5 ภาพ)</label><input id="efiles" type="file" accept="image/*,.heic,.heif" multiple>
+  <div class="row" style="margin-top:14px"><button class="s" id="ecl">ยกเลิก</button><button class="p" id="esv">บันทึกการแก้ไข</button></div>
+  <p class="hint" id="em" role="status"></p></dialog>
+
+<dialog id="sdone"><svg class="okmark" viewBox="0 0 72 72" aria-hidden="true"><circle cx="36" cy="36" r="28"/><path d="M22 37l10 10 19-21"/></svg><h2 style="margin-top:0;text-align:center">บันทึกแล้ว</h2><div class="okbox gr" id="sdsum" role="status"></div><p id="sdmsg" style="margin:0 0 10px;overflow-wrap:anywhere"></p>
+  <div id="sdcode" class="hide"><label style="margin-top:0" for="sdc">รหัสแก้ไข (แสดงครั้งเดียว กรุณาจดไว้)</label><div class="row"><input id="sdc" readonly><button class="s" id="sdcp" type="button">คัดลอก</button></div></div>
+  <div class="row" style="margin-top:14px"><button class="p" id="sdok" type="button">รับทราบ เริ่มรายการใหม่</button></div></dialog>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exifr/7.1.3/full.umd.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/piexifjs/1.0.6/piexif.min.js"></script>
 <script>
-const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-/* ===== ตั้งค่า 2 ค่านี้ก่อนนำขึ้น GitHub ===== */
-const GAS_URL='https://script.google.com/macros/library/d/1IQMu3X0sT3BGaeO28tGHL1pmlsvJnQOehoxKRpxO42p2x-cFzPzK1BvT/3',CLIENT_ID='701822225875-h0aqqgisafopadmsd9ud7sdpolhm53s2.apps.googleusercontent.com';
-let TOKEN=sessionStorage.getItem('tk')||'';
-const api=async(fn,...a)=>{const r=await fetch(GAS_URL,{method:'POST',body:JSON.stringify({fn,args:a,token:TOKEN})});const j=await r.json();if(!j.ok){if(/^AUTH/.test(j.error)){TOKEN='';sessionStorage.removeItem('tk');login()}throw new Error(j.error)}return j.data};
-function login(){$('#app').innerHTML='<div class="card"><h3>เข้าสู่ระบบด้วยบัญชี Google</h3><p class="muted">ใช้อีเมลที่ลงทะเบียนในชีต Users</p><div id="gb"></div></div>';google.accounts.id.initialize({client_id:CLIENT_ID,callback:r=>{TOKEN=r.credential;sessionStorage.setItem('tk',TOKEN);init()}});google.accounts.id.renderButton($('#gb'),{theme:'filled_green_black',size:'large',locale:'th'})}
-const S={user:null,projects:[],proj:null,cfg:[],photos:[],gps:null,rid:null,sid:null,view:'home',map:null};
-let tt;function toast(m,bad){const t=$('#toast');t.textContent=m;t.style.background=bad?'#b91c1c':'#111';t.style.display='block';clearTimeout(tt);tt=setTimeout(()=>t.style.display='none',4500)}
-async function run(fn,...a){$('#load').style.display='grid';try{return await api(fn,...a)}catch(e){toast(e.message,1);throw e}finally{$('#load').style.display='none'}}
-const uid=()=>crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random().toString(16).slice(2);
-const thDate=d=>{const m=/^(\d{4})-(\d\d)-(\d\d)/.exec(d||'');return m?`${+m[3]}/${+m[2]}/${+m[1]+543}`:esc(d)};
-const nowLocal=()=>{const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,16)};
+var API_URL='https://script.google.com/macros/s/AKfycbwU1LRMxd44giEL_c4HyLVIuQJ6HNevwaP-bJtQGjlEgufpw8BRH0Lk1AdQS-AxMAL2/exec';
+var $=function(i){return document.getElementById(i)};
+var PROJECTS=[],S=[],cur=null,PASS='',map=null,layer=null,tile={},pin=null,pend={},det=null;
+var col={Completed:'#0b6e4f',Uploading:'#1b64b0',Pending:'#8a6d00',Failed:'#b3261e'};
+var TH={Completed:'ครบ',Uploading:'กำลังส่ง',Pending:'รอส่ง',Failed:'ล้มเหลว'},MAXF=40*1048576;
+function st(x){return TH[x]||x}
+function vc(la,lo){la=parseFloat(la);lo=parseFloat(lo);return isFinite(la)&&isFinite(lo)&&Math.abs(la)<=90&&Math.abs(lo)<=180}
+function isoD(t){var d=new Date(t);return isNaN(d)?'':d.toISOString()}
 
-function go(v){S.view=v;document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
- $('#hp').textContent=S.proj?`${S.proj.ProjectName} (${S.proj.ProjectCode})`:'เลือกโครงการเพื่อเริ่มงาน';
- if(v!=='home'&&v!=='projects'&&!S.proj){toast('กรุณาเลือกโครงการก่อน',1);v='projects'}
- ({home,projects,form,list,map:mapV,detail:()=>{}})[v]()}
-$('#nav').onclick=e=>{const b=e.target.closest('button');b&&go(b.dataset.v)};
+function api(a,d){
+ if(API_URL.indexOf('https://')!==0)return Promise.reject(new Error('ยังไม่ได้ตั้งค่า API_URL ใน index.html'));
+ d=d||{};d.action=a;if(cur){d.project=cur.code;d.passcode=PASS}
+ var ac=window.AbortController?new AbortController():null,t=ac?setTimeout(function(){ac.abort()},90000):null;
+ return fetch(API_URL,{method:'POST',body:JSON.stringify(d),signal:ac?ac.signal:undefined}).then(function(r){return r.text()}).then(function(tx){
+  var j;try{j=JSON.parse(tx)}catch(e){throw new Error('เซิร์ฟเวอร์ตอบกลับผิดรูปแบบ ลองใหม่อีกครั้ง')}
+  if(!j.ok)throw new Error(j.message||'เกิดข้อผิดพลาด');return j})
+ .catch(function(e){if(e&&e.name==='AbortError')throw new Error('หมดเวลาเชื่อมต่อ ตรวจสัญญาณแล้วลองใหม่');if(e instanceof TypeError)throw new Error('ไม่มีสัญญาณอินเทอร์เน็ต');throw e})
+ .then(function(j){clearTimeout(t);return j},function(e){clearTimeout(t);throw e})}
 
-async function init(){if(!TOKEN)return login();try{const d=await run('getInitialData');S.user=d.user;S.projects=d.projects;$('#hu').textContent=d.user.name+' ('+d.user.role+')';go('home')}catch(e){if(/^AUTH/.test(e.message))return;$('#app').innerHTML=`<div class="card err">${esc(e.message)}</div>`}}
-function home(){const P=S.projects,sum=k=>P.reduce((a,p)=>a+p[k],0),pr=S.proj,T=(i,t,f)=>`<button class="tile" onclick="${f}"><svg class="i"><use href="#i-${i}"/></svg><span>${t}</span></button>`;
- $('#app').innerHTML=`<section class="hero"><small>สวัสดี ${esc(S.user.name)}</small><h1>${pr?esc(pr.ProjectName):'เลือกโครงการเพื่อเริ่มงานภาคสนาม'}</h1>${pr?`<span class="tag">${esc(pr.ProjectCode)}</span> <span class="tag">สำรวจ ${pr.total} · สำเร็จ ${pr.done} · รออัปโหลด ${pr.pending}</span>`:''}
- <div class="row"><button class="a" onclick="go(S.proj?'form':'projects')"><svg class="i"><use href="#i-plus"/></svg>${pr?'เริ่มสำรวจ':'เลือกโครงการ'}</button></div></section>
- <div class="stats"><div class="card"><div class="stat">${P.length}</div><div class="lb">โครงการ Active</div></div><div class="card"><div class="stat">${sum('total')}</div><div class="lb">รายการสำรวจ</div></div><div class="card"><div class="stat">${sum('done')}</div><div class="lb">สำเร็จ</div></div><div class="card"><div class="stat" style="color:var(--o)">${sum('pending')}</div><div class="lb">รออัปโหลด</div></div></div>
- <div class="tiles">${T('folder','เลือกโครงการ',"go('projects')")}${T('list','รายการสำรวจ',"go('list')")}${T('map','แผนที่ WebGIS',"go('map')")}</div>`}
-function projects(){$('#app').innerHTML=`<input id="q" placeholder="ค้นหารหัสหรือชื่อโครงการ"><div id="pl" class="grid" style="margin-top:12px"></div>`;
- const draw=()=>{const q=$('#q').value.toLowerCase();$('#pl').innerHTML=S.projects.filter(p=>(p.ProjectCode+p.ProjectName).toLowerCase().includes(q)).map(p=>`<div class="card proj" data-c="${esc(p.ProjectCode)}"><span class="tag">${esc(p.ProjectCode)}</span><h4 style="margin:8px 0">${esc(p.ProjectName)}</h4><span class="muted">${esc(p.ResponsiblePerson)}</span></div>`).join('')||'<p class="muted">ไม่พบโครงการ</p>'};
- $('#q').oninput=draw;draw();$('#pl').onclick=e=>{const c=e.target.closest('.proj');if(c){S.proj=S.projects.find(p=>p.ProjectCode===c.dataset.c);S.sid=null;S.photos=[];S.rid=null;go('home')}}}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+var DB=null;
+function idb(){return DB||(DB=new Promise(function(ok,no){var q=indexedDB.open('fieldsurvey',1);q.onupgradeneeded=function(){q.result.createObjectStore('kv')};q.onsuccess=function(){ok(q.result)};q.onerror=function(){no(q.error)}}))}
+function kv(m,v){return idb().then(function(d){return new Promise(function(ok,no){var s=d.transaction('kv',m==='get'?'readonly':'readwrite').objectStore('kv'),r=m==='get'?s.get('pend'):s.put(v,'pend');r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}})})}
+function savePend(){try{kv('put',pend).catch(function(){})}catch(e){}}
+function lazy(u,t){return window[t]?Promise.resolve():new Promise(function(ok,no){var s=document.createElement('script');s.src=u;s.onload=ok;s.onerror=function(){no(new Error('โหลดไลบรารีแปลง HEIC ไม่ได้'))};document.head.appendChild(s)})}
+function isHeic(f){return/hei[cf]/i.test(f.type)||/\.hei[cf]$/i.test(f.name)}
+function gb(p){if(p.status!=='Completed')return'';var d=p.d!=null?' ('+p.d+' ม.)':'';
+ if(p.ok)return' <span class="chip Completed">พิกัดภาพตรง'+d+'</span>';
+ if(p.gps==='Camera')return' <span class="chip Failed">พิกัดภาพตรวจไม่ผ่าน'+d+'</span>';
+ if(p.gps==='Survey')return' <span class="chip Uploading">ใช้พิกัดจุดสำรวจ</span>';
+ return' <span class="chip Pending">ไม่มีพิกัด</span>'}
+function gpsExif(la,lo){var G=piexif.GPSIFD,g={};g[G.GPSVersionID]=[2,2,0,0];
+ g[G.GPSLatitudeRef]=la<0?'S':'N';g[G.GPSLatitude]=piexif.GPSHelper.degToDmsRational(Math.abs(la));
+ g[G.GPSLongitudeRef]=lo<0?'W':'E';g[G.GPSLongitude]=piexif.GPSHelper.degToDmsRational(Math.abs(lo));return{GPS:g}}
+// อ่าน EXIF ต้นฉบับ -> แปลง HEIC -> ย่อภาพ -> เขียน EXIF กลับ (canvas ทำ EXIF หาย)
+function prep(file,sLat,sLng){var gps=null,dt=null;
+ return Promise.resolve().then(function(){if(!window.exifr)return null;return Promise.all([exifr.gps(file).catch(function(){return null}),stampOn()?exifr.parse(file,['DateTimeOriginal']).catch(function(){return null}):null]).then(function(a){dt=a[1]&&a[1].DateTimeOriginal instanceof Date?a[1].DateTimeOriginal:null;return a[0]})})
+ .then(function(g){gps=g&&isFinite(g.latitude)&&isFinite(g.longitude)?g:null;if(!isHeic(file))return file;
+  return lazy('https://cdnjs.cloudflare.com/ajax/libs/heic2any/0.0.4/heic2any.min.js','heic2any').then(function(){
+   return heic2any({blob:file,toType:'image/jpeg',quality:.9})}).then(function(b){return Array.isArray(b)?b[0]:b})})
+ .then(function(blob){return resize(blob,file.name,stampText(gps,sLat,sLng,dt))})
+ .then(function(url){var src='None',la=null,lo=null,a=parseFloat(sLat),b=parseFloat(sLng);
+  if(gps){src='Camera';la=gps.latitude;lo=gps.longitude}else if(isFinite(a)&&isFinite(b)){src='Survey';la=a;lo=b}
+  if(src!=='None'&&window.piexif){try{url=piexif.insert(piexif.dump(gpsExif(la,lo)),url)}catch(e){if(src==='Camera')src='None'}}
+  else if(src!=='None')src='None';
+  return{data:url.split(',')[1],lat:la,lng:lo,src:src}})}
+function csvT(v){v=String(v==null?'':v);if(/^[=+\-@\t\r]/.test(v))v="'"+v;return'"'+v.replace(/"/g,'""')+'"'}
+function toRow(o){return[o.id,o.type||'ไม่ระบุ',o.surveyor||'-',o.status,o.photoDone,o.lat,o.lng,o.desc||'',o.at,o.photoTotal,o.custom]}
+function fmt(t){var d=new Date(t);return isNaN(d)?'-':d.toLocaleDateString('th-TH')}
 
-/* ---------- form ---------- */
-async function form(){S.cfg=await run('getFormConfig',S.proj.ProjectCode);S.rid=S.rid||uid();
- const secs={};S.cfg.forEach(f=>(secs[f.section]=secs[f.section]||[]).push(f));
- const fld=f=>{const n='x_'+f.name,r=f.required?'req':'';let h;
-  if(f.type==='Textarea')h=`<textarea id="${n}" placeholder="${esc(f.placeholder)}"></textarea>`;
-  else if(f.type==='Dropdown')h=`<select id="${n}"><option value="">— เลือก —</option>${f.options.map(o=>`<option>${esc(o)}</option>`).join('')}</select>`;
-  else if(f.type==='Radio')h=f.options.map(o=>`<label style="font-weight:400"><input type="radio" style="width:auto" name="${n}" value="${esc(o)}"> ${esc(o)}</label>`).join('');
-  else if(f.type==='Checkbox')h=f.options.map(o=>`<label style="font-weight:400"><input type="checkbox" style="width:auto" name="${n}" value="${esc(o)}"> ${esc(o)}</label>`).join('');
-  else if(f.type==='GPS'||f.type==='Photo')return'';
-  else h=`<input id="${n}" type="${f.type==='Number'?'number':f.type==='Date'?'date':'text'}" placeholder="${esc(f.placeholder)}">`;
-  return`<label class="${r}">${esc(f.label)}</label>${h}`};
- $('#app').innerHTML=`<div class="card"><h3>ข้อมูลทั่วไป</h3><label class="req">วันที่และเวลาสำรวจ</label><input id="sd" type="datetime-local" value="${nowLocal()}"><label class="req">ผู้สำรวจ</label><input id="sv" value="${esc(S.user.name)}"><label class="req">ประเภทการสำรวจ</label><select id="st">${S.proj.SurveyTypes.map(t=>`<option>${esc(t)}</option>`).join('')}</select><label>รายละเอียด</label><textarea id="ds"></textarea>
- ${Object.keys(secs).map(k=>`<h3>${esc(k)}</h3>`+secs[k].map(fld).join('')).join('')}</div>
- <div class="card"><h3>ตำแหน่งสำรวจ</h3><div id="gps" class="muted">ยังไม่ได้ระบุ</div><div class="row" style="margin-top:8px"><button class="s" onclick="getGPS()"><svg class="i"><use href="#i-pin"/></svg>อ่านตำแหน่ง GPS</button><button class="s" onclick="manual('s')">กรอกพิกัดเอง</button></div></div>
- <div class="card"><h3>ภาพถ่าย (สูงสุด 5 ภาพ, ≤10 MB)</h3><div class="row"><label class="s"><svg class="i"><use href="#i-camera"/></svg>ถ่ายภาพ<input type="file" accept="image/*" capture="environment" hidden onchange="addPhoto(this,'cam')"></label><label class="s"><svg class="i"><use href="#i-image"/></svg>แกลเลอรี<input type="file" accept="image/jpeg" multiple hidden onchange="addPhoto(this,'gal')"></label></div><div id="pl2"></div></div>
- <div class="card"><div id="rv" class="muted"></div><button class="a" style="width:100%" id="sb" onclick="submit()">ตรวจสอบและบันทึก</button><div id="ec"></div></div>`;
- drawGps();drawPh()}
-function drawGps(){const g=S.gps;if($('#gps'))$('#gps').innerHTML=g?`Lat ${g.lat.toFixed(6)}, Lng ${g.lng.toFixed(6)} <span class="tag">±${g.acc??'-'} ม.</span>`:'ยังไม่ได้ระบุ'}
-const geo=()=>new Promise((ok,ko)=>navigator.geolocation?navigator.geolocation.getCurrentPosition(p=>ok({lat:p.coords.latitude,lng:p.coords.longitude,acc:Math.round(p.coords.accuracy)}),e=>ko(new Error('อ่าน GPS ไม่ได้: '+e.message)),{enableHighAccuracy:true,timeout:20000,maximumAge:0}):ko(new Error('อุปกรณ์ไม่รองรับ GPS')));
-async function getGPS(){try{S.gps=await geo();drawGps()}catch(e){toast(e.message,1)}}
-function ask(t){const v=prompt(t+'\nรูปแบบ: ละติจูด,ลองจิจูด เช่น 13.7563,100.5018');if(!v)return null;const m=v.split(',').map(Number);if(m.length!==2||m.some(isNaN)||Math.abs(m[0])>90||Math.abs(m[1])>180){toast('พิกัดไม่ถูกต้อง',1);return null}return{lat:m[0],lng:m[1],acc:null}}
-function manual(){const g=ask('พิกัดตำแหน่งสำรวจ');if(g){S.gps=g;drawGps()}}
+function show(p){['pick','home','survey','map','user'].forEach(function(x){$('p-'+x).classList.toggle('hide',x!==p)});
+ document.querySelectorAll('nav button').forEach(function(b){b.classList.toggle('on',b.dataset.p===p);b.setAttribute('aria-current',b.dataset.p===p?'page':'false')});
+ if(p!=='map'){stopLoc();pinMode(false)}if(p==='map')initMap(); if(p==='home')home(); window.scrollTo(0,0)}
+document.querySelectorAll('nav button').forEach(function(b){b.onclick=function(){show(b.dataset.p)}});
 
-/* ---------- EXIF ---------- */
-const dms=(d)=>{d=Math.abs(d);const D=Math.floor(d),m=(d-D)*60,M=Math.floor(m),s=Math.round((m-M)*60*1e4);return[[D,1],[M,1],[s,1e4]]};
-const fromDms=(a,r)=>{if(!a)return null;const v=a[0][0]/a[0][1]+a[1][0]/a[1][1]/60+a[2][0]/a[2][1]/3600;return(r==='S'||r==='W')?-v:v};
-const rd=f=>new Promise((ok,ko)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=ko;r.readAsDataURL(f)});
-const img=u=>new Promise((ok,ko)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=()=>ko(new Error('อ่านภาพไม่ได้'));i.src=u});
-function readGps(url){try{const e=piexif.load(url),g=e.GPS;const la=fromDms(g[piexif.GPSIFD.GPSLatitude],g[piexif.GPSIFD.GPSLatitudeRef]),lo=fromDms(g[piexif.GPSIFD.GPSLongitude],g[piexif.GPSIFD.GPSLongitudeRef]);return la==null||lo==null||isNaN(la)?null:{lat:la,lng:lo,dt:e.Exif[piexif.ExifIFD.DateTimeOriginal]}}catch(e){return null}}
-async function addPhoto(inp,mode){const files=[...inp.files];inp.value='';
- for(const f of files){if(S.photos.length>=5){toast('ครบ 5 ภาพแล้ว',1);break}
-  if(f.type!=='image/jpeg'){toast(f.name+': รองรับเฉพาะ JPEG',1);continue}if(f.size>10*1048576){toast(f.name+': เกิน 10 MB',1);continue}
-  try{let loc,src,dt=new Date();
-   if(mode==='cam'){loc=await geo();src='Camera GPS'}
-   else{const o=readGps(await rd(f));if(o){loc={lat:o.lat,lng:o.lng,acc:null};src='Original EXIF';if(o.dt){const m=/(\d+):(\d+):(\d+) (\d+):(\d+):(\d+)/.exec(o.dt);if(m)dt=new Date(m[1],m[2]-1,m[3],m[4],m[5],m[6])}}
-    else{toast(f.name+' ไม่มีพิกัดใน EXIF — กรุณากำหนดตำแหน่งเอง');loc=ask('พิกัดถ่ายภาพ '+f.name);if(!loc)continue;src='Manually Assigned'}}
-   const i=await img(await rd(f)),k=Math.min(1,2048/Math.max(i.width,i.height)),c=document.createElement('canvas');c.width=Math.round(i.width*k);c.height=Math.round(i.height*k);c.getContext('2d').drawImage(i,0,0,c.width,c.height);
-   const ts=dt.getFullYear()+':'+String(dt.getMonth()+1).padStart(2,'0')+':'+String(dt.getDate()).padStart(2,'0')+' '+dt.toTimeString().slice(0,8),u=dt.toISOString();
-   const ex={'0th':{},Exif:{[piexif.ExifIFD.DateTimeOriginal]:ts},GPS:{[piexif.GPSIFD.GPSLatitudeRef]:loc.lat<0?'S':'N',[piexif.GPSIFD.GPSLatitude]:dms(loc.lat),[piexif.GPSIFD.GPSLongitudeRef]:loc.lng<0?'W':'E',[piexif.GPSIFD.GPSLongitude]:dms(loc.lng),[piexif.GPSIFD.GPSDateStamp]:u.slice(0,10).replace(/-/g,':')}};
-   const out=piexif.insert(piexif.dump(ex),c.toDataURL('image/jpeg',.88)),chk=readGps(out);
-   if(!chk||Math.abs(chk.lat-loc.lat)>1e-4||Math.abs(chk.lng-loc.lng)>1e-4){toast(f.name+': เขียน/ตรวจ EXIF GPS ไม่ผ่าน จะไม่อัปโหลดภาพนี้',1);continue}
-   S.photos.push({cid:uid(),name:f.name,dataUrl:out,lat:loc.lat,lng:loc.lng,acc:loc.acc,dt:u,source:src,status:'Pending',exif:true,kb:Math.round(out.length*.75/1024)});drawPh()
-  }catch(e){toast(e.message,1)}}}
-function drawPh(){const el=$('#pl2');if(!el)return;el.innerHTML=S.photos.map((p,i)=>`<div class="ph"><img src="${p.dataUrl}"><div style="flex:1"><b>${esc(p.name)}</b> <span class="tag ${p.status==='Failed'?'w':''}">${p.status}</span><div class="muted">${p.lat.toFixed(6)}, ${p.lng.toFixed(6)} · ${esc(p.source)}${p.acc?' ±'+p.acc+'ม.':''}<br>${new Date(p.dt).toLocaleString('th-TH')} · EXIF ✓ · ${p.kb} KB</div><div class="bar"><i style="width:${p.status==='Completed'?100:p.status==='Uploading'?50:0}%"></i></div>${p.err?`<div class="err">${esc(p.err)}</div>`:''}<div class="row" style="margin-top:6px"><button class="s" onclick="showMap(${p.lat},${p.lng})">ดูตำแหน่ง</button>${p.status!=='Completed'?`<button class="d" onclick="S.photos.splice(${i},1);drawPh()">ลบ</button>`:''}</div></div></div>`).join('')}
-function showMap(la,lo){window.open(`https://www.openstreetmap.org/?mlat=${la}&mlon=${lo}#map=18/${la}/${lo}`,'_blank')}
+/* ---------- v2 helpers ---------- */
+var RM=matchMedia('(prefers-reduced-motion:reduce)').matches,RC=326.73;
+var SK=(function(){var s='',i;for(i=0;i<4;i++)s+='<div class="card proj" aria-hidden="true"><span class="sk" style="width:62px;height:28px"></span><span class="sk" style="flex:1;height:18px"></span></div>';return s})();
+function pmeta(p){var t=parseFloat(p.total);if(!isFinite(t))return'';var dn=parseFloat(p.done)||0,pc=t?Math.round(dn*100/t):0;
+ return'<span class="pm"><span class="pmb"><i style="width:'+pc+'%"></i></span>'+t+' รายการ · ส่งครบ '+pc+'%</span>'}
+function countTo(el,to){var from=el._v||0,tk=el._tk=(el._tk||0)+1;el._v=to;if(RM||from===to){el.textContent=to;return}
+ var t0=performance.now();(function f(t){if(el._tk!==tk)return;var k=Math.min(1,(t-t0)/650),e=1-Math.pow(1-k,3);el.textContent=Math.round(from+(to-from)*e);if(k<1)requestAnimationFrame(f)})(t0)}
+function homeReset(){['s-all','s-done','s-wait','s-pct'].forEach(function(i){var e=$(i);e._tk=(e._tk||0)+1;e._v=0;e.textContent='0'});
+ $('s-ring').querySelector('.rf').style.strokeDashoffset='';$('s-ring').classList.remove('full');$('spark').innerHTML='';$('sptx').textContent=''}
+function spark(){var n=7,day=864e5,t0=new Date();t0.setHours(0,0,0,0);var base=t0.getTime()-(n-1)*day,c=[0,0,0,0,0,0,0];
+ S.forEach(function(r){var t=new Date(r[8]).getTime();if(isNaN(t))return;var k=Math.floor((t-base)/day);if(k>=0&&k<n)c[k]++});
+ var mx=Math.max.apply(null,c.concat(1)),pts=c.map(function(v,i){return[8+i*(184/(n-1)),46-v/mx*36]}),
+  ln=pts.map(function(p){return p[0].toFixed(1)+','+p[1].toFixed(1)}).join(' '),tot=c.reduce(function(a,b){return a+b},0);
+ $('spark').innerHTML='<path class="sa" d="M'+pts[0][0].toFixed(1)+',50 L'+ln.replace(/ /g,' L')+' L'+pts[n-1][0].toFixed(1)+',50Z"/><polyline class="sl" points="'+ln+'"/>'+
+  pts.map(function(p,i){return'<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="'+(i===n-1?4:2.4)+'"/>'}).join('');
+ $('sptx').textContent='7 วันล่าสุด '+tot+' รายการ · วันนี้ '+c[n-1]+' รายการ'}
+function accUI(a){var e=$('accq');a=parseFloat(a);if(!isFinite(a)){e.className='accq hide';return}
+ var k=a<=20?'g':a<=50?'y':'r',t=a<=20?'แม่นยำดี':a<=50?'พอใช้':'แม่นยำต่ำ ควรออกที่โล่ง';
+ e.className='accq '+k;$('accqt').textContent='±'+Math.round(a)+' ม. · '+t}
+function okSummary(n,f){var e=$('sdsum');e.className='okbox '+(f?'am':'gr');
+ e.textContent=f?'✓ บันทึกจุดสำรวจแล้ว · ส่งภาพสำเร็จ '+(n-f)+'/'+n+' (ค้าง '+f+' ภาพ)':'✓ บันทึกจุดสำรวจแล้ว'+(n?' · ส่งภาพครบ '+n+' ภาพ':' · ไม่มีภาพถ่าย');
+ try{if(navigator.vibrate)navigator.vibrate(f?[60,40,60]:[18,50,30])}catch(x){}}
+function pinSvg(c){return'<svg viewBox="0 0 30 40" aria-hidden="true"><path d="M15 39C15 39 2 24.5 2 14.5a13 13 0 0 1 26 0C28 24.5 15 39 15 39z" fill="'+c+'" stroke="#fff" stroke-width="2"/><circle cx="15" cy="14.5" r="5" fill="#fff"/></svg>'}
+function mk(r,la,lo){var m=L.marker([la,lo],{icon:L.divIcon({className:'pinic',html:pinSvg(col[r[3]]||'#1d4ba3'),iconSize:[30,40],iconAnchor:[15,38],popupAnchor:[0,-34]}),title:r[0]});
+ m.bindPopup('<div class="pu"><b>'+esc(r[0])+'</b><div class="r1"><span class="chip '+esc(r[3])+'">'+st(r[3])+'</span></div><div class="r2">'+esc(r[1])+' · '+fmt(r[8])+'<br>ภาพ '+r[4]+'/'+r[9]+' · '+esc(r[2])+'</div><button type="button" class="pu-go">ดูรายละเอียด</button></div>');
+ m.on('popupopen',function(e){var b=e.popup.getElement().querySelector('.pu-go');if(b)b.onclick=function(){m.closePopup();detail(r)}});return m}
+function stampOn(){try{return localStorage.getItem('stamp')==='1'}catch(e){return false}}
+function p2(n){return(n<10?'0':'')+n}
+function stampText(g,sLat,sLng,dt){if(!stampOn())return null;var la,lo,s;
+ if(g){la=g.latitude;lo=g.longitude;s='PHOTO GPS'}else{la=parseFloat(sLat);lo=parseFloat(sLng);s='SURVEY PT'}
+ var d=dt||new Date(),t=d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())+' '+p2(d.getHours())+':'+p2(d.getMinutes());
+ return['COT · '+(cur?cur.code:''),isFinite(la)&&isFinite(lo)?la.toFixed(6)+', '+lo.toFixed(6)+' · '+s:'NO GPS',t+(dt?'':' (sent)')]}
+function stampDraw(x,w,h,lines){var fs=Math.max(14,Math.round(Math.min(w,h)/38)),pad=Math.round(fs*.7),lh=Math.round(fs*1.35),bh=pad*2+lh*lines.length;
+ x.fillStyle='rgba(10,34,96,.78)';x.fillRect(0,h-bh,w,bh);x.fillStyle='#fff';x.textBaseline='top';
+ lines.forEach(function(t,i){x.font=(i?'':'700 ')+fs+'px "Noto Sans Thai",system-ui,sans-serif';x.fillText(t,pad,h-bh+pad+i*lh,w-pad*2)})}
+function pinXY(){if(!pin||!map)return;var c=map.getCenter();$('pinxy').textContent='เป้ากลางจอ: '+c.lat.toFixed(6)+', '+c.lng.toFixed(6)}
+function pinMode(on){pin=on?true:null;if(on)meFirst=false;$('pinbar').classList.toggle('hide',!on);$('mapw').classList.toggle('pinning',!!on);
+ if(map)setTimeout(function(){map.invalidateSize();if(on)pinXY()},60)}
+function applyTheme(v){var d=document.documentElement,dk=v==='dark'||(v==='auto'&&matchMedia('(prefers-color-scheme:dark)').matches);
+ d.classList.toggle('dark',dk);d.classList.toggle('sun',v==='sun');var m=document.querySelector('meta[name=theme-color]');if(m)m.content=dk?'#060d22':v==='sun'?'#06236a':'#0a2260'}
 
-/* ---------- submit ---------- */
-function collect(){const x={};S.cfg.forEach(f=>{const n='x_'+f.name;if(f.type==='Radio'){const c=document.querySelector(`input[name="${n}"]:checked`);x[f.name]=c?c.value:''}else if(f.type==='Checkbox')x[f.name]=[...document.querySelectorAll(`input[name="${n}"]:checked`)].map(c=>c.value).join(', ');else if($('#'+n))x[f.name]=$('#'+n).value});return x}
-async function submit(){const ex=collect(),miss=S.cfg.filter(f=>f.required&&!['GPS','Photo'].includes(f.type)&&!String(ex[f.name]||'').trim());
- if(!$('#sd').value||miss.length||!S.gps){toast(!S.gps?'กรุณาระบุตำแหน่งสำรวจ':'กรุณากรอก: '+(miss[0]?miss[0].label:'วันที่สำรวจ'),1);return}
- $('#sb').disabled=true;
- try{if(!S.sid){const r=await run('saveSurvey',S.proj.ProjectCode,{clientRequestId:S.rid,surveyDate:$('#sd').value,surveyor:$('#sv').value,surveyType:$('#st').value,description:$('#ds').value,lat:S.gps.lat,lng:S.gps.lng,acc:S.gps.acc??'',photoCount:S.photos.length,extra:ex});S.sid=r.surveyId;if(r.editCode)$('#ec').innerHTML=`<div class="card" style="background:var(--gl)"><b>${r.surveyId}</b><br>Edit Code: <b style="font-size:22px">${r.editCode}</b><br><span class="muted">จดไว้ — ใช้แก้ไข/ลบ และจะไม่แสดงอีก</span></div>`}
-  let fail=0;for(const p of S.photos){if(p.status==='Completed')continue;p.status='Uploading';p.err='';drawPh();
-   try{await api('uploadPhoto',S.proj.ProjectCode,S.sid,{clientPhotoId:p.cid,dataUrl:p.dataUrl,lat:p.lat,lng:p.lng,acc:p.acc??'',dt:p.dt,source:p.source,exifVerified:true});p.status='Completed';p.dataUrl=p.dataUrl}catch(e){p.status='Failed';p.err=e.message;fail++}drawPh()}
-  if(fail){$('#sb').textContent='Retry เฉพาะภาพที่ไม่สำเร็จ ('+fail+')';toast('บันทึกข้อมูลแล้ว แต่ภาพไม่ครบ (Pending Upload)',1)}
-  else{toast('บันทึกสำเร็จ '+S.sid);$('#sb').style.display='none';S.rid=null;S.sid=null;S.photos=[];refresh()}
- }catch(e){}$('#sb').disabled=false}
-async function refresh(){const d=await api('getInitialData');S.projects=d.projects;S.proj=d.projects.find(p=>p.ProjectCode===S.proj.ProjectCode)||S.proj}
+function plist(){var q=$('q').value.trim().toLowerCase(),h='',n=0;
+ PROJECTS.filter(function(p){return(p.code+p.name).toLowerCase().indexOf(q)>-1}).forEach(function(p){n++;
+  h+='<button class="card proj" data-c="'+esc(p.code)+'"><span class="pcode">'+esc(p.code)+'</span><span class="pname">'+esc(p.name)+pmeta(p)+'</span><span class="go" aria-hidden="true">›</span></button>'});
+ $('plist').innerHTML=h;$('pempty').hidden=n>0||!PROJECTS.length;
+ document.querySelectorAll('.proj').forEach(function(b){b.onclick=function(){ask(b.dataset.c)}})}
+$('q').oninput=plist;
+function loadProjects(){$('plist').innerHTML=SK;api('projects').then(function(r){PROJECTS=r.projects;plist()}).catch(function(e){
+ $('plist').innerHTML='<p class="hint">โหลดรายการโครงการไม่ได้: '+esc(e.message)+'</p>'})}
 
-/* ---------- list ---------- */
-async function list(){const R=await run('getSurveyRecords',S.proj.ProjectCode);
- $('#app').innerHTML=`<div class="row"><input id="lq" placeholder="ค้นหา SurveyID / รายละเอียด"><select id="lt"><option value="">ทุกประเภท</option>${S.proj.SurveyTypes.map(t=>`<option>${esc(t)}</option>`).join('')}</select><select id="ls"><option value="">ทุกสถานะ</option><option>Completed</option><option>Pending Upload</option></select><input id="ld" type="date"></div><div class="card" style="margin-top:10px;overflow:auto"><table><thead><tr><th>SurveyID</th><th>วันที่</th><th>ประเภท</th><th>รายละเอียด</th><th>สถานะ</th><th></th></tr></thead><tbody id="lb"></tbody></table></div>`;
- const draw=()=>{const q=$('#lq').value.toLowerCase(),t=$('#lt').value,s=$('#ls').value,d=$('#ld').value;
-  $('#lb').innerHTML=R.filter(r=>(!q||(r.SurveyID+r.Description).toLowerCase().includes(q))&&(!t||r.SurveyType===t)&&(!s||r.PhotoStatus===s)&&(!d||r.SurveyDate.startsWith(d))).map(r=>`<tr><td>${r.SurveyID}</td><td>${thDate(r.SurveyDate)}</td><td>${esc(r.SurveyType)}</td><td>${esc(r.Description).slice(0,60)}</td><td><span class="tag ${r.PhotoStatus!=='Completed'?'w':''}">${r.PhotoStatus}</span></td><td style="white-space:nowrap"><button class="s" onclick="detail('${r.SurveyID}')">ดู</button> <button class="s" onclick="edit('${r.SurveyID}')">แก้</button> <button class="d" onclick="del('${r.SurveyID}')">ลบ</button></td></tr>`).join('')||'<tr><td colspan=6 class="muted">ไม่มีรายการ</td></tr>'};
- ['lq','lt','ls','ld'].forEach(i=>$('#'+i).oninput=draw);draw();S.rec=R}
-async function detail(id){const r=S.rec.find(x=>x.SurveyID===id),ph=await run('getPhotoMetadata',S.proj.ProjectCode,id);
- $('#app').innerHTML=`<button class="s" onclick="go('list')">← กลับ</button><div class="card" style="margin-top:10px"><h3>${id}</h3>${thDate(r.SurveyDate)} · ${esc(r.Surveyor)} · ${esc(r.SurveyType)}<p>${esc(r.Description)}</p><p class="muted">ตำแหน่งสำรวจ ${r.Latitude}, ${r.Longitude} <a href="#" onclick="showMap(${r.Latitude},${r.Longitude});return false">ดูแผนที่</a></p><pre class="muted" style="white-space:pre-wrap">${esc(JSON.stringify(JSON.parse(r.ExtraJSON||'{}'),null,1))}</pre></div>${ph.map(p=>`<div class="ph"><div><b>${p.PhotoID}</b> <span class="tag">${p.UploadStatus}</span><div class="muted">${p.Latitude}, ${p.Longitude} · ${esc(p.CoordinateSource)}<br><a target="_blank" href="${esc(p.DriveURL)}">เปิดภาพใน Drive</a> · <a href="#" onclick="showMap(${p.Latitude},${p.Longitude});return false">ดูตำแหน่ง</a></div></div></div>`).join('')}`}
-async function edit(id){const c=prompt('Edit Code');if(c==null)return;const r=S.rec.find(x=>x.SurveyID===id),d=prompt('รายละเอียดใหม่',r.Description);if(d==null)return;try{await run('updateSurvey',S.proj.ProjectCode,id,c,{description:d});toast('แก้ไขแล้ว');list()}catch(e){}}
-async function del(id){const c=prompt('Edit Code เพื่อยืนยันการลบ '+id);if(c==null)return;try{await run('deleteSurvey',S.proj.ProjectCode,id,c);toast('ลบแล้ว');await refresh();list()}catch(e){}}
+var pending=null,asking=false;
+function tryLogin(p,pw){PASS=pw;cur=p;return api('login').then(function(r){try{if(pw&&pw!==p.code)localStorage.setItem('pw_'+p.code,pw)}catch(e){}enter(r.project,r.fields)}).catch(function(e){cur=null;PASS='';throw e})}
+function ask(c){if(asking)return;asking=true;pending=PROJECTS.filter(function(p){return p.code===c})[0];var l=[c],last=null;try{l.push(localStorage.getItem('pw_'+c))}catch(e){}
+ l=l.filter(function(x,i){return x&&l.indexOf(x)===i});$('sub').textContent='กำลังเข้าโครงการ...';
+ (function nx(i){if(i>=l.length){asking=false;
+   if(last&&/ไม่มีสัญญาณ|หมดเวลา|ผิดรูปแบบ/.test(last.message)){$('sub').textContent='เข้าโครงการไม่ได้: '+last.message;return}
+   $('sub').textContent='เลือกโครงการเพื่อเริ่มงาน';$('pwt').textContent=pending.code+' '+pending.name;$('pwi').value='';$('pwi').type='password';$('pws').checked=false;$('pwm').textContent=last&&last.message?last.message:'';$('pw').showModal();$('pwi').focus();return}
+  tryLogin(pending,l[i]).then(function(){asking=false}).catch(function(e){last=e;nx(i+1)})})(0)}
+$('pwf').onsubmit=function(e){e.preventDefault();var v=$('pwi').value;if(!v)return;var b=$('pwok');b.disabled=true;$('pwm').textContent='กำลังตรวจสอบ...';
+ tryLogin(pending,v).then(function(){$('pw').close()}).catch(function(err){$('pwm').textContent=err.message;$('pwi').select()}).then(function(){b.disabled=false})};
+$('pwx').onclick=function(){$('pw').close()};
+$('pws').onchange=function(){$('pwi').type=this.checked?'text':'password'};
+function enter(p,fields){cur=p;$('sub').innerHTML='<span class="pc">'+esc(p.code)+'</span><span class="pn">'+esc(p.name)+'</span>';$('nav').classList.remove('hide');$('chg').classList.remove('hide');
+ $('stype').innerHTML='<option value="">ไม่ระบุ</option>'+p.types.map(function(t){return'<option>'+esc(t)+'</option>'}).join('');
+ $('dyn').innerHTML=fields.map(function(f){var id='f_'+f.key,c;
+  if(f.type==='select')c='<select id="'+id+'"><option value="">เลือก</option>'+f.options.map(function(o){return'<option>'+esc(o)+'</option>'}).join('')+'</select>';
+  else c='<input id="'+id+'" type="'+(f.type==='number'?'number':'text')+'">';
+  return'<label for="'+id+'">'+esc(f.label)+(f.required?' *':'')+'</label>'+c}).join('');
+ cur.fields=fields;$('uproj').textContent=p.code+' '+p.name;if(map&&isFinite(p.lat)&&isFinite(p.lng))map.setView([p.lat,p.lng],9);
+ newSurvey();show('survey');loadSurveys()}
+function leave(forget){if(forget&&cur){try{localStorage.removeItem('pw_'+cur.code)}catch(e){}}
+ homeReset();cur=null;PASS='';S=[];fitDone=false;if(layer)layer.clearLayers();$('rows').innerHTML='';$('recent').innerHTML='';
+ $('nav').classList.add('hide');$('chg').classList.add('hide');$('sub').textContent='เลือกโครงการเพื่อเริ่มงาน';show('pick')}
+$('chg').onclick=function(){leave(false)};$('lock').onclick=function(){leave(true)};
+function loadSurveys(){if(!S.length){var k='<tr><td colspan="5"><span class="sk" style="height:16px"></span></td></tr>';$('recent').innerHTML=k+k+k;$('rows').innerHTML=k+k+k}return api('listSurveys').then(function(r){S=r.surveys.map(toRow);home();draw()}).catch(function(e){$('smsg').textContent='โหลดรายการไม่ได้: '+e.message;if(!S.length){home();draw()}})}
 
-/* ---------- WebGIS ---------- */
-async function mapV(){const D=await run('getWebGISData',S.proj.ProjectCode);
- $('#app').innerHTML=`<div class="row" style="margin-bottom:8px"><input id="mq" placeholder="ค้นหา SurveyID"><select id="mt"><option value="">ทุกประเภท</option>${S.proj.SurveyTypes.map(t=>`<option>${esc(t)}</option>`).join('')}</select><input id="md" type="date"></div><div id="map"></div><div class="row" style="margin-top:8px"><button class="s" onclick="exp('csv')">Export CSV</button><button class="s" onclick="exp('s')">GeoJSON จุดสำรวจ</button><button class="s" onclick="exp('p')">GeoJSON จุดภาพถ่าย</button></div><p class="muted">แสดงเฉพาะรายการที่ภาพอัปโหลดครบแล้ว · น้ำเงิน=จุดสำรวจ ส้ม=จุดถ่ายภาพ</p>`;
- const osm=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}),esri=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Esri'});
- const m=L.map('map',{layers:[osm]}).setView([13.75,100.5],6);L.control.layers({OpenStreetMap:osm,'Esri World Imagery':esri}).addTo(m);const grp=L.featureGroup().addTo(m);
- const draw=()=>{grp.clearLayers();const q=$('#mq').value.toUpperCase(),t=$('#mt').value,d=$('#md').value,ok=r=>(!q||r.SurveyID.includes(q))&&(!t||r.SurveyType===t)&&(!d||r.SurveyDate.startsWith(d));S.vs=D.surveys.filter(ok);const ids=new Set(S.vs.map(r=>r.SurveyID));S.vp=D.photos.filter(p=>ids.has(p.SurveyID));
-  S.vs.forEach(r=>L.circleMarker([+r.Latitude,+r.Longitude],{radius:9,color:'#1d4ed8',fillOpacity:.8}).bindPopup(`<b>${r.SurveyID}</b><br>${esc(r.SurveyType)}<br>${esc(r.Description)}<br><a href="#" onclick="detail('${r.SurveyID}');return false">ดูรายละเอียด/ภาพ</a>`).addTo(grp));
-  S.vp.forEach(p=>L.circleMarker([+p.Latitude,+p.Longitude],{radius:6,color:'#c2410c',fillOpacity:.9}).bindPopup(`<b>${p.PhotoID}</b><br>${esc(p.CoordinateSource)}<br><a target="_blank" href="${esc(p.DriveURL)}">เปิดภาพ</a>`).addTo(grp));
-  if(grp.getLayers().length)m.fitBounds(grp.getBounds().pad(.2))};
- ['mq','mt','md'].forEach(i=>$('#'+i).oninput=draw);draw();setTimeout(()=>m.invalidateSize(),200)}
-function dl(n,t,mime){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+t],{type:mime}));a.download=n;a.click()}
-function exp(k){const c=S.proj.ProjectCode;
- if(k==='csv'){const cols=['SurveyID','ProjectCode','SurveyDate','Surveyor','SurveyType','Description','Latitude','Longitude','GPSAccuracy','PhotoCount','PhotoStatus'];dl(c+'_surveys.csv',[cols.join(',')].concat(S.vs.map(r=>cols.map(k=>'"'+String(r[k]).replace(/"/g,'""')+'"').join(','))).join('\n'),'text/csv');return}
- const f=k==='s'?S.vs.map(r=>({type:'Feature',geometry:{type:'Point',coordinates:[+r.Longitude,+r.Latitude]},properties:{SurveyID:r.SurveyID,ProjectCode:r.ProjectCode,SurveyDate:r.SurveyDate,SurveyType:r.SurveyType,Description:r.Description,GPSAccuracy:r.GPSAccuracy}})):S.vp.map(p=>({type:'Feature',geometry:{type:'Point',coordinates:[+p.Longitude,+p.Latitude]},properties:{PhotoID:p.PhotoID,SurveyID:p.SurveyID,ProjectCode:p.ProjectCode,PhotoDateTime:p.PhotoDateTime,CoordinateSource:p.CoordinateSource,GPSAccuracy:p.GPSAccuracy,DriveURL:p.DriveURL}}));
- dl(c+(k==='s'?'_survey_points':'_photo_points')+'.geojson',JSON.stringify({type:'FeatureCollection',features:f}),'application/geo+json')}
-window.addEventListener('load',()=>TOKEN?init():login());
-</script></body></html>
+function home(){$('hname').textContent=cur?cur.name:'';var d=S.filter(function(r){return r[3]==='Completed'}).length;
+ countTo($('s-all'),S.length);countTo($('s-done'),d);countTo($('s-wait'),S.length-d);var pc=S.length?Math.round(d*100/S.length):0;countTo($('s-pct'),pc);
+ $('s-ring').querySelector('.rf').style.strokeDashoffset=RC*(1-pc/100);$('s-ring').classList.toggle('full',S.length>0&&pc===100);spark();
+ var rc=S.slice().sort(function(a,b){return(Date.parse(b[8])||0)-(Date.parse(a[8])||0)}).slice(0,5);
+ $('recent').innerHTML=rc.map(function(r){return'<tr class="r" data-i="'+S.indexOf(r)+'"><td>'+esc(r[0])+'<br><span class="hint">'+fmt(r[8])+'</span></td><td>'+esc(r[1])+'</td><td>'+esc(r[2])+'</td><td><span class="chip '+r[3]+'">'+st(r[3])+'</span></td></tr>'}).join('')||'<tr><td colspan="4">ยังไม่มีรายการ</td></tr>';
+ document.querySelectorAll('#recent tr.r').forEach(function(t){t.onclick=function(){detail(S[t.dataset.i])}})}
+
+function newSurvey(){$('sid').value='S-'+cur.code.replace(/[^A-Za-z0-9]/g,'')+'-'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+ $('sidv').textContent=$('sid').value;$('smsg').textContent='';$('sdesc').value='';PF=[];rp();$('lat').value=$('lng').value=$('acc').value='';accUI(NaN);
+ (cur.fields||[]).forEach(function(f){$('f_'+f.key).value=''})}
+var UN='';try{UN=localStorage.getItem('uname')||''}catch(e){}
+function unameUI(){var v=$('uname').value.trim(),ok=!!v&&v===UN;$('usave').disabled=!v||ok;$('usave').classList.toggle('saved',ok);$('usave').textContent=ok?'✓ บันทึกแล้ว':'บันทึกชื่อ';
+ $('umsg').className=ok?'okbox':'hint';$('umsg').textContent=ok?'✓ ใช้ชื่อ “'+UN+'” เป็นผู้สำรวจเริ่มต้น และจะเติมในหน้าสำรวจให้อัตโนมัติ':''}
+$('uname').oninput=unameUI;
+$('usave').onclick=function(){UN=$('uname').value.trim();try{localStorage.setItem('uname',UN)}catch(e){}$('sname').value=UN;unameUI()};
+$('uname').value=UN;$('sname').value=UN;unameUI();
+var gpsW=null,INAPP=/Line\/|FBAN|FBAV|Instagram|MicroMessenger|GSA\/|Messenger/i.test(navigator.userAgent);
+function tip(){return INAPP?' · ตอนนี้เปิดผ่านแอปอื่น ควรเปิดลิงก์ด้วย Safari เพื่อให้ได้พิกัดแม่นขึ้น':''}
+$('gps').onclick=function(){if(!navigator.geolocation){$('smsg').textContent='เครื่องนี้ไม่รองรับ GPS';return}
+ if(gpsW!=null){navigator.geolocation.clearWatch(gpsW);gpsW=null}
+ var best=null,tm,btn=$('gps'),fin=false;btn.disabled=true;btn.classList.add('scan');btn.textContent='กำลังหาพิกัด…';$('smsg').textContent='กำลังหาตำแหน่ง... (รอสูงสุด 30 วินาที)'+tip();
+ function setPos(p){$('lat').value=p.coords.latitude.toFixed(6);$('lng').value=p.coords.longitude.toFixed(6);$('acc').value=Math.round(p.coords.accuracy);accUI(p.coords.accuracy)}
+ function done(){if(fin)return;fin=true;clearTimeout(tm);if(gpsW!=null){navigator.geolocation.clearWatch(gpsW);gpsW=null}btn.disabled=false;btn.classList.remove('scan');btn.textContent='ดึงพิกัดปัจจุบัน';
+  if(!best){$('smsg').textContent='ดึงพิกัดไม่ได้ ตรวจสิทธิ์ตำแหน่ง หรือพิมพ์/ปักหมุดแทน';return}
+  setPos(best);var a=Math.round(best.coords.accuracy);if(a<=20){try{if(navigator.vibrate)navigator.vibrate(25)}catch(x){}}
+  $('smsg').textContent=a<=50?'ได้พิกัดแล้ว (ความแม่นยำ '+a+' ม.)':'ได้พิกัดแต่ความแม่นยำต่ำ ('+a+' ม.) ออกที่โล่งแล้วกดอีกครั้ง หรือปักหมุดบนแผนที่แทน'+tip()}
+ tm=setTimeout(done,30000);
+ gpsW=navigator.geolocation.watchPosition(function(p){if(!best||p.coords.accuracy<best.coords.accuracy){best=p;setPos(p)}
+  $('smsg').textContent='กำลังหาตำแหน่ง... ความแม่นยำตอนนี้ '+Math.round(best.coords.accuracy)+' ม.';if(best.coords.accuracy<=20)done()},
+  function(){done()},{enableHighAccuracy:true,maximumAge:0,timeout:30000})};
+$('pin').onclick=function(){show('map');pinMode(true);var la=parseFloat($('lat').value),lo=parseFloat($('lng').value);
+ setTimeout(function(){if(!map)return;if(vc(la,lo))map.setView([la,lo],Math.max(map.getZoom(),17));else if(me)map.setView(me.getLatLng(),Math.max(map.getZoom(),17))},120)};
+$('pinx').onclick=function(){pinMode(false)};
+$('pinok').onclick=function(){if(!map)return;var c=map.getCenter();$('lat').value=c.lat.toFixed(6);$('lng').value=c.lng.toFixed(6);$('acc').value='';accUI(NaN);pinMode(false);show('survey');$('smsg').textContent='ปักหมุดแล้ว'};
+$('lat').oninput=$('lng').oninput=function(){$('acc').value='';accUI(NaN)};
+
+var PF=[];
+function rp(){var h='';PF.forEach(function(x,i){var big=x.size>MAXF;
+ h+='<div class="ph"><i>ภาพ '+(i+1)+'</i><div style="flex:1"><div>'+esc(x.name)+' · '+(x.size/1048576).toFixed(1)+' MB '+(big?'<span class="chip Failed">ไฟล์ใหญ่เกินไป</span>':'<span class="chip Pending" id="st'+i+'">รอส่ง</span>')+'</div><div class="bar"><div id="b'+i+'"></div></div></div><button type="button" class="d" data-x="'+i+'" style="padding:6px 11px;min-width:44px;min-height:44px" aria-label="ลบภาพ">✕</button></div>'});
+ $('plistph').innerHTML=h;$('pcount').textContent=PF.length+'/5';
+ document.querySelectorAll('[data-x]').forEach(function(b){b.onclick=function(){PF.splice(+b.dataset.x,1);rp()}})}
+function addPF(inp){var n=0;[].slice.call(inp.files).forEach(function(f){if(PF.length<5)PF.push(f);else n++});inp.value='';rp();$('smsg').textContent=n?'เลือกได้สูงสุด 5 ภาพ ตัดออก '+n+' ภาพ':''}
+$('bcam').onclick=function(){$('cam').click()};$('bup').onclick=function(){$('files').click()};
+$('files').onchange=$('cam').onchange=function(){addPF(this)};
+function resize(file,name,stamp){return new Promise(function(ok,no){var im=new Image(),u=URL.createObjectURL(file);
+im.onload=function(){var s=Math.min(1,2000/Math.max(im.width,im.height)),c=document.createElement('canvas');
+ c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);var x=c.getContext('2d');x.drawImage(im,0,0,c.width,c.height);if(stamp)stampDraw(x,c.width,c.height,stamp);URL.revokeObjectURL(u);ok(c.toDataURL('image/jpeg',.85))};
+im.onerror=function(){no(new Error('อ่านภาพ '+name+' ไม่ได้ (รองรับ JPEG/PNG/HEIC)'))};im.src=u})}
+function mark(i,s,w){var e=$('st'+i),b=$('b'+i);if(e){e.className='chip '+s;e.textContent=st(s)}if(b&&w!=null)b.style.width=w+'%'}
+function sendAll(sid,list,ui){var fail=[],i=0;
+ return new Promise(function(done){(function next(){if(i>=list.length)return done(fail);
+  var it=list[i],k=i++;if(ui)mark(k,'Uploading',40);
+  api('uploadPhoto',{surveyId:sid,photoId:it.photoId,data:it.data,photoLat:it.lat,photoLng:it.lng,gpsSource:it.src}).then(function(){if(ui)mark(k,'Completed',100)})
+  .catch(function(e){it.err=String(e&&e.message||e);fail.push(it);if(ui)mark(k,'Failed',100)}).then(next)})()})}
+
+$('save').onclick=function(){
+ var la=$('lat').value.trim(),lo=$('lng').value.trim();
+ if(!la||!lo){$('smsg').textContent='ยังไม่มีพิกัดจุดสำรวจ';return}
+ if(!vc(la,lo)){$('smsg').textContent='พิกัดไม่ถูกต้อง (ละติจูด -90 ถึง 90, ลองจิจูด -180 ถึง 180)';return}
+ var miss=(cur.fields||[]).filter(function(f){return f.required&&!String($('f_'+f.key).value).trim()});
+ if(miss.length){$('smsg').textContent='กรุณากรอก: '+miss.map(function(f){return f.label}).join(', ');$('f_'+miss[0].key).focus();return}
+ var ac=parseFloat($('acc').value);if(ac>100&&!confirm('ความแม่นยำพิกัดต่ำ ('+Math.round(ac)+' ม.) บันทึกต่อหรือไม่?'))return;
+ var files=PF.slice();
+ if(files.some(function(f){return f.size>MAXF})){$('smsg').textContent='มีไฟล์ภาพใหญ่เกินไป กรุณาเลือกใหม่';return}
+ var custom={};(cur.fields||[]).forEach(function(f){custom[f.key]=$('f_'+f.key).value});
+ var sid=$('sid').value;$('save').disabled=true;$('smsg').textContent='กำลังเตรียมภาพ...';
+ Promise.all(files.map(function(f){return prep(f,la,lo)})).then(function(data){
+  if(data.some(function(d){return d.data.length*.75>10*1048576}))throw new Error('ภาพใหญ่เกิน 10 MB แม้ย่อแล้ว กรุณาเลือกภาพอื่น');
+  var list=files.map(function(f,i){return{photoId:'P'+sid.slice(2)+'-'+(i+1),name:f.name,data:data[i].data,lat:data[i].lat,lng:data[i].lng,src:data[i].src}});
+  $('smsg').textContent='กำลังบันทึกรายการ...';
+  return api('createSurvey',{surveyId:sid,type:$('stype').value,surveyor:$('sname').value.trim(),description:$('sdesc').value.trim(),
+   lat:la,lng:lo,accuracy:$('acc').value,custom:custom,photos:list.map(function(x){return{photoId:x.photoId,name:x.name}})})
+  .then(function(r){$('smsg').textContent='กำลังอัปโหลดภาพ...';
+   return sendAll(sid,list,true).then(function(fail){
+    if(fail.length){pend[sid]=fail;savePend()}
+    okSummary(list.length,fail.length);$('sdmsg').textContent='รหัสรายการ '+sid+(fail.length?' · ส่งภาพไม่ครบ '+fail.length+' ภาพ ('+fail[0].err+') กด Retry ได้ที่หน้าแผนที่ > แตะรายการ':'');
+    if(r.editCode){$('sdc').value=r.editCode;$('sdcode').classList.remove('hide')}else{$('sdc').value='';$('sdcode').classList.add('hide')}
+    $('sdone').showModal();newSurvey();return loadSurveys()})})
+ }).catch(function(e){$('smsg').textContent='ไม่สำเร็จ: '+e.message}).then(function(){$('save').disabled=false})};
+$('sdok').onclick=function(){$('sdc').value='';$('sdone').close()};
+$('sdone').oncancel=function(e){e.preventDefault()};
+$('sdcp').onclick=function(){var v=$('sdc');try{navigator.clipboard.writeText(v.value).then(function(){$('sdcp').textContent='คัดลอกแล้ว'})}catch(e){v.select();document.execCommand('copy');$('sdcp').textContent='คัดลอกแล้ว'}};
+
+var me=null,meAcc=null,meW=null,meFirst=true,fitDone=false;
+function stopLoc(){if(meW!=null){navigator.geolocation.clearWatch(meW);meW=null}}
+function startLoc(){if(!navigator.geolocation||!map||meW!=null)return;
+ meW=navigator.geolocation.watchPosition(function(p){var ll=[p.coords.latitude,p.coords.longitude];
+  if(!me){me=L.circleMarker(ll,{radius:8,color:'#fff',weight:3,fillColor:'#1b64b0',fillOpacity:1}).bindTooltip('ตำแหน่งของคุณ').addTo(map);meAcc=L.circle(ll,{radius:p.coords.accuracy,color:'#1b64b0',weight:1,fillOpacity:.1,interactive:false}).addTo(map)}
+  else{me.setLatLng(ll);meAcc.setLatLng(ll);meAcc.setRadius(p.coords.accuracy)}
+  if(meFirst){meFirst=false;map.setView(ll,p.coords.accuracy>500?13:16)}},function(){},{enableHighAccuracy:true,maximumAge:5000,timeout:30000})}
+function initMap(){if(map){setTimeout(function(){map.invalidateSize();draw()},50);startLoc();return}
+ map=L.map('map').setView(cur&&isFinite(cur.lat)&&isFinite(cur.lng)?[cur.lat,cur.lng]:[14.6,101.0],9);
+ tile.osm=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'});
+ tile.esri=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Esri World Imagery'});
+ tile.osm.addTo(map);layer=(L.markerClusterGroup?L.markerClusterGroup({maxClusterRadius:44,showCoverageOnHover:false}):L.layerGroup()).addTo(map);
+ map.on('move',pinXY);
+ meFirst=!S.length;startLoc();draw()}
+$('loc').onclick=function(){meFirst=true;if(me)map.setView(me.getLatLng(),Math.max(map.getZoom(),16));else startLoc()};
+$('base').onchange=function(){var v=$('base').value;$('map').classList.toggle('sat',v==='esri');map.removeLayer(tile[v==='osm'?'esri':'osm']);tile[v].addTo(map)};
+function vis(){var st=$('fst').value,q=$('fq').value.toLowerCase();return S.filter(function(r){return(!st||r[3]===st)&&(r[0]+r[7]).toLowerCase().indexOf(q)>-1})}
+function draw(){if(!layer)return;layer.clearLayers();var v=vis(),pts=[];
+ v.forEach(function(r){var la=parseFloat(r[5]),lo=parseFloat(r[6]);if(!vc(la,lo))return;pts.push([la,lo]);mk(r,la,lo).addTo(layer)});
+ if(!fitDone&&pts.length&&!$('p-map').classList.contains('hide')){fitDone=true;meFirst=false;map.fitBounds(L.latLngBounds(pts).pad(.2),{maxZoom:17})}
+ $('rows').innerHTML=v.map(function(r){return'<tr class="r" data-i="'+S.indexOf(r)+'"><td>'+esc(r[0])+'</td><td>'+esc(r[1])+'</td><td>'+fmt(r[8])+'</td><td>'+r[4]+'/'+r[9]+'</td><td><span class="chip '+r[3]+'">'+st(r[3])+'</span></td></tr>'}).join('')||'<tr><td colspan="5">ไม่พบรายการ</td></tr>';
+ document.querySelectorAll('tr.r').forEach(function(t){t.onclick=function(){detail(S[t.dataset.i])}})}
+$('fst').onchange=$('fq').oninput=draw;
+
+function b64url(b64){var s=atob(b64),a=new Uint8Array(s.length);for(var i=0;i<s.length;i++)a[i]=s.charCodeAt(i);return URL.createObjectURL(new Blob([a],{type:'image/jpeg'}))}
+function loadImgs(list,sid,k){k=k||0;if(k>=list.length||!det||det[0]!==sid)return;var p=list[k];
+ if(p.status!=='Completed')return loadImgs(list,sid,k+1);
+ api('getPhoto',{surveyId:sid,photoId:p.id}).then(function(x){var e=$('im'+k);if(e&&det&&det[0]===sid){var u=b64url(x.data);e.innerHTML='<a href="'+u+'" target="_blank"><img class="th" alt="'+esc(p.name)+'" src="'+u+'"></a>'}})
+ .catch(function(){}).then(function(){loadImgs(list,sid,k+1)})}
+function detail(r){det=r;det.photos=null;$('dt').textContent=r[0]+' · '+r[1];$('dm').textContent='';
+ var c=r[10]||{},extra=(cur.fields||[]).map(function(f){return c[f.key]?'<p class="hint">'+esc(f.label)+': '+esc(c[f.key])+'</p>':''}).join('');
+ $('db').innerHTML='<p><span class="chip '+r[3]+'">'+st(r[3])+'</span> ผู้สำรวจ: '+esc(r[2])+' · '+fmt(r[8])+'</p><p>'+esc(r[7])+'</p>'+extra+'<p class="hint">พิกัด '+r[5]+', '+r[6]+'</p><p><b>ภาพถ่าย '+r[4]+'/'+r[9]+' ภาพ</b></p><div id="dph"></div>'+
+  (r[3]!=='Completed'?'<button class="p" id="rt" style="margin-top:10px">Retry อัปโหลดภาพที่ค้าง</button>':'');
+ api('getSurvey',{surveyId:r[0]}).then(function(x){if(det!==r)return;det.photos=x.photos;
+  $('dph').innerHTML=x.photos.map(function(p,i){return'<div class="ph"><div id="im'+i+'" style="flex:none"><i>ภาพ '+(i+1)+'</i></div><span class="hint">'+esc(p.name)+' <span class="chip '+esc(p.status)+'">'+esc(st(p.status))+'</span>'+gb(p)+'</span></div>'}).join('');
+  loadImgs(x.photos,r[0])}).catch(function(){});
+ if($('rt'))$('rt').onclick=function(){var l=pend[r[0]];
+  if(!l){$('dm').textContent='ภาพที่ค้างไม่อยู่ในหน้านี้แล้ว (รีเฟรชหน้า) ให้ลบภาพที่ค้างแล้วเพิ่มภาพใหม่ในหน้าแก้ไข';return}
+  $('dm').textContent='กำลังส่งภาพที่ค้าง...';
+  sendAll(r[0],l,false).then(function(f){if(f.length)pend[r[0]]=f;else delete pend[r[0]];savePend();$('dm').textContent=f.length?'ยังส่งไม่ครบ '+f.length+' ภาพ: '+f[0].err:'ส่งครบแล้ว';loadSurveys()})};
+ $('det').showModal()}
+$('dcl').onclick=function(){$('det').close()};
+
+$('ded').onclick=function(){var r=det;if(!r.photos){$('dm').textContent='กำลังโหลดรายการภาพ รอสักครู่แล้วกดอีกครั้ง';return}
+ $('ecode').value='';$('efiles').value='';$('em').textContent='';
+ $('etype').innerHTML='<option value="">ไม่ระบุ</option>'+cur.types.map(function(t){return'<option'+(t===r[1]?' selected':'')+'>'+esc(t)+'</option>'}).join('');
+ $('esur').value=r[2]==='-'?'':r[2];$('edesc').value=r[7];$('elat').value=r[5];$('elng').value=r[6];
+ var c=r[10]||{};
+ $('edyn').innerHTML=(cur.fields||[]).map(function(f){var id='e_'+f.key,v=c[f.key]||'',x;
+  if(f.type==='select')x='<select id="'+id+'"><option value="">เลือก</option>'+f.options.map(function(o){return'<option'+(o===v?' selected':'')+'>'+esc(o)+'</option>'}).join('')+'</select>';
+  else x='<input id="'+id+'" type="'+(f.type==='number'?'number':'text')+'" value="'+esc(v)+'">';
+  return'<label for="'+id+'">'+esc(f.label)+'</label>'+x}).join('');
+ $('eph').innerHTML=r.photos.map(function(p){return'<label style="font-weight:400;margin:6px 0"><input type="checkbox" class="rm" value="'+esc(p.id)+'" style="width:auto"> '+esc(p.name)+'</label>'}).join('')||'<p class="hint">ยังไม่มีภาพ</p>';
+ $('ed').showModal()};
+$('ecl').onclick=function(){$('ed').close()};
+$('esv').onclick=function(){var code=$('ecode').value.trim();if(!code){$('em').textContent='กรอกรหัสแก้ไข';return}
+ var la=$('elat').value.trim(),lo=$('elng').value.trim();if(!vc(la,lo)){$('em').textContent='พิกัดไม่ถูกต้อง (ละติจูด -90 ถึง 90, ลองจิจูด -180 ถึง 180)';return}
+ var miss=(cur.fields||[]).filter(function(f){return f.required&&!String($('e_'+f.key).value).trim()});
+ if(miss.length){$('em').textContent='กรุณากรอก: '+miss.map(function(f){return f.label}).join(', ');$('e_'+miss[0].key).focus();return}
+ var rm=[].slice.call(document.querySelectorAll('.rm:checked')).map(function(x){return x.value}),files=[].slice.call($('efiles').files);
+ if(det.photos.length-rm.length+files.length>5){$('em').textContent='รวมภาพต้องไม่เกิน 5 ภาพ (เพิ่มได้อีก '+(5-det.photos.length+rm.length)+' ภาพ)';return}
+ if(files.some(function(f){return f.size>MAXF})){$('em').textContent='มีไฟล์ภาพใหญ่เกินไป';return}
+ var custom={};(cur.fields||[]).forEach(function(f){custom[f.key]=$('e_'+f.key).value});
+ var sid=det[0];$('esv').disabled=true;$('em').textContent='กำลังบันทึก...';
+ Promise.all(files.map(function(f){return prep(f,la,lo)})).then(function(data){
+  var add=files.map(function(f,i){return{photoId:'P'+sid.slice(2)+'-e'+Date.now().toString(36)+i,name:f.name,data:data[i].data,lat:data[i].lat,lng:data[i].lng,src:data[i].src}});
+  return api('updateSurvey',{surveyId:sid,editCode:code,type:$('etype').value,surveyor:$('esur').value.trim(),description:$('edesc').value.trim(),
+   lat:la,lng:lo,custom:custom,removePhotoIds:rm,addPhotos:add.map(function(x){return{photoId:x.photoId,name:x.name}})})
+  .then(function(){if(pend[sid]){pend[sid]=pend[sid].filter(function(x){return rm.indexOf(x.photoId)<0});if(!pend[sid].length)delete pend[sid];savePend()}return sendAll(sid,add,false)}).then(function(fail){
+   if(fail.length){pend[sid]=(pend[sid]||[]).concat(fail);savePend()}
+   $('em').textContent=fail.length?'บันทึกแล้ว แต่ส่งภาพไม่ครบ '+fail.length+' ภาพ ('+fail[0].err+') กด Retry ที่หน้ารายละเอียด':'บันทึกการแก้ไขแล้ว';
+   return loadSurveys().then(function(){setTimeout(function(){$('ed').close();$('det').close()},900)})})
+ }).catch(function(e){$('em').textContent=e.message}).then(function(){$('esv').disabled=false})};
+$('ddel').onclick=function(){var code=prompt('กรอกรหัสแก้ไขเพื่อยืนยันการลบ '+det[0]);if(!code||!code.trim())return;var b=$('ddel');b.disabled=true;$('dm').textContent='กำลังลบ...';
+ api('deleteSurvey',{surveyId:det[0],editCode:code.trim()}).then(function(){delete pend[det[0]];savePend();$('det').close();return loadSurveys()})
+ .catch(function(e){$('dm').textContent='ลบไม่สำเร็จ: '+e.message}).then(function(){b.disabled=false})};
+
+function dl(name,txt,mime){var u=URL.createObjectURL(new Blob(['\ufeff'+txt],{type:mime+';charset=utf-8'})),a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},4000)}
+$('csv').onclick=function(){var f=cur.fields||[];
+ dl('surveys.csv',[['id','type','surveyor','date','status','photos','lat','lng','description'].concat(f.map(function(x){return x.label})).map(csvT).join(',')].concat(vis().map(function(r){var c=r[10]||{};
+  return[csvT(r[0]),csvT(r[1]),csvT(r[2]),csvT(isoD(r[8])),csvT(r[3]),csvT(r[4]+'/'+r[9]),r[5],r[6],csvT(r[7])].concat(f.map(function(x){return csvT(c[x.key])})).join(',')})).join('\n'),'text/csv')};
+$('gj').onclick=function(){var f=cur.fields||[];dl('surveys.geojson',JSON.stringify({type:'FeatureCollection',features:vis().filter(function(r){return vc(r[5],r[6])}).map(function(r){
+  var c=r[10]||{},p={id:r[0],type:r[1],surveyor:r[2],status:r[3],photos:r[4]+'/'+r[9],date:isoD(r[8]),description:r[7]};
+  f.forEach(function(x){p[x.label]=c[x.key]==null?'':c[x.key]});
+  return{type:'Feature',geometry:{type:'Point',coordinates:[parseFloat(r[6]),parseFloat(r[5])]},properties:p}})}),'application/geo+json')};
+kv('get').then(function(v){if(v)for(var k in v)if(!pend[k])pend[k]=v[k]}).catch(function(){});
+/* ---------- v2 init ---------- */
+(function(){var hero=$('hero'),rq=0;
+ addEventListener('scroll',function(){if(RM||rq)return;rq=requestAnimationFrame(function(){rq=0;if(!$('p-pick').classList.contains('hide'))hero.style.setProperty('--py',Math.min(40,scrollY*.25)+'px')})},{passive:true});
+ var TV='light';try{TV=localStorage.getItem('theme')||'light'}catch(e){}
+ $('theme').value=TV;applyTheme(TV);
+ $('theme').onchange=function(){TV=this.value;try{localStorage.setItem('theme',TV)}catch(e){}applyTheme(TV)};
+ var mq=matchMedia('(prefers-color-scheme:dark)');if(mq.addEventListener)mq.addEventListener('change',function(){if(TV==='auto')applyTheme('auto')});
+ $('ustamp').checked=stampOn();
+ $('ustamp').onchange=function(){try{localStorage.setItem('stamp',this.checked?'1':'0')}catch(e){}};
+ var dip=null,sa=matchMedia('(display-mode: standalone)').matches||navigator.standalone;
+ addEventListener('beforeinstallprompt',function(e){e.preventDefault();dip=e;$('inst').classList.remove('hide');$('instb').classList.remove('hide')});
+ if(!sa&&/iphone|ipad|ipod/i.test(navigator.userAgent)){$('inst').classList.remove('hide');$('insth').textContent='iPhone/iPad: เปิดลิงก์ด้วย Safari แล้วแตะปุ่มแชร์ > “เพิ่มไปยังหน้าจอโฮม”'}
+ $('instb').onclick=function(){if(!dip)return;dip.prompt();dip.userChoice.then(function(){dip=null;$('inst').classList.add('hide')})};
+ addEventListener('appinstalled',function(){$('inst').classList.add('hide')});
+ if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})});
+})();
+$('yr').textContent=new Date().getFullYear();loadProjects();
+</script>
+</body>
+</html>
