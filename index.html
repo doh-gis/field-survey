@@ -236,18 +236,56 @@ html.sun .stat b{font-size:2.1rem}
 .tg button svg{width:22px;height:22px}
 .tg button.on{background:var(--g);color:#fff}
 html.dark .tg button.on{color:#0b1220}
-#mfs{position:absolute;top:10px;right:10px;z-index:1000;width:42px;height:42px;border:0;border-radius:10px;background:#fff;color:#14223a;box-shadow:0 1px 5px rgba(0,0,0,.4);display:grid;place-items:center;cursor:pointer;padding:0}
-#mfs svg{width:22px;height:22px}#mfs .fo{display:none}
-#mapw.mfs #mfs .fi{display:none}#mapw.mfs #mfs .fo{display:inline}
-html.dark #mfs{background:#121c30;color:#e8eef9}
-#mapw #pinbar{position:absolute;left:8px;right:8px;bottom:8px;z-index:1000;margin:0;box-shadow:0 4px 14px rgba(0,0,0,.35);background:var(--gl)}
-#mapw #pinbar.hide{display:none}
 #mapw.mfs{position:fixed;inset:0;z-index:2000;background:var(--paper)}
 #mapw.mfs #map,#mapw.mfs.pinning #map{height:100%!important;min-height:0;border-radius:0;border:0}
 #selbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;position:sticky;bottom:calc(70px + env(safe-area-inset-bottom,0px));z-index:900;margin:0 0 10px;box-shadow:0 4px 14px rgba(0,0,0,.25)}
 #selbar.hide{display:none}#selbar .pbb{display:flex;gap:8px;flex-wrap:wrap}#selbar button{padding:8px 14px}
 @media(min-width:760px){#selbar{bottom:12px}}
 tr.r.sel{background:var(--gl)}
+
+/* v4: ชั้นแผนที่/ปุ่มล่างบนแผนที่, นาฬิกาทราย, ตัวสลับโหมด, ฟุตเตอร์ */
+#mbot{position:absolute;left:8px;right:8px;bottom:calc(8px + env(safe-area-inset-bottom,0px));z-index:1000;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+#mbot>*{pointer-events:auto}
+#mapw:not(.mfs) #mbot{bottom:8px}
+#mapw #pinbar{position:static;margin:0;box-shadow:0 4px 14px rgba(0,0,0,.35);background:var(--gl)}
+#mapw #pinbar.hide{display:none}
+#mbar{display:flex;gap:4px;padding:4px;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 4px 14px rgba(0,0,0,.3)}
+#mbar .mb{flex:1;min-width:0;min-height:44px;border:0;border-radius:10px;background:none;color:var(--g);font:inherit;font-size:.85rem;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;padding:0 6px}
+#mbar .mb svg{width:20px;height:20px;flex:none}
+#mbar .mb:active,#mbar .mb.on{background:var(--gl)}
+#mfs .fo{display:none}#mapw.mfs #mfs .fi{display:none}#mapw.mfs #mfs .fo{display:inline}
+#msheet{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:8px;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 4px 14px rgba(0,0,0,.3);max-height:46vh;overflow:auto}
+#msheet.hide{display:none}
+#msheet button{display:flex;align-items:center;gap:8px;text-align:left;min-height:44px;padding:6px 10px;border:2px solid var(--line);border-radius:10px;background:none;color:var(--ink);font:inherit;font-size:.85rem;line-height:1.25;cursor:pointer}
+#msheet button i{flex:none;width:22px;height:22px;border-radius:6px;border:1px solid rgba(0,0,0,.25)}
+#msheet button.on{border-color:var(--g);background:var(--gl);font-weight:700}
+#mapw .leaflet-bottom{margin-bottom:58px}
+#mapw.mfs .leaflet-top{padding-top:env(safe-area-inset-top,0px)}
+#mapw.mfs .leaflet-bottom{margin-bottom:calc(58px + env(safe-area-inset-bottom,0px))}
+.tg{padding:2px;gap:1px}
+.tg button{width:34px;height:28px}
+.tg button svg{width:16px;height:16px}
+.seg{display:flex;gap:3px;padding:3px;margin:0 0 12px;background:var(--gl);border-radius:12px}
+.seg button{flex:1;min-width:0;min-height:44px;border:0;border-radius:10px;background:none;color:var(--mut);font:inherit;font-weight:600;font-size:.92rem;cursor:pointer;padding:6px}
+.seg button.on{background:var(--g);color:#fff}
+html.dark .seg button.on{color:#0b1220}
+#wait{position:fixed;inset:0;z-index:3000;display:grid;place-items:center;background:rgba(8,18,48,.55);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+#wait.hide{display:none}
+#wait .wb{background:var(--card);color:var(--ink);border-radius:20px;padding:26px 38px 22px;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.4);animation:dpop .2s ease-out}
+#wait .wb p{margin:10px 0 2px;font-size:1.25rem;font-weight:700}
+#wait .wb small{color:var(--mut);font-size:.88rem}
+.hg{display:block;width:64px;height:96px;margin:0 auto;color:var(--g)}
+.hgr{transform-origin:32px 48px;animation:hgflip 3.6s ease-in-out infinite}
+.sd1,.sd2{transform-box:fill-box;transform-origin:50% 100%}
+.sd1{animation:hgtop 3.6s linear infinite}.sd2{animation:hgbot 3.6s linear infinite}.hst{animation:hgst 3.6s linear infinite}
+@keyframes hgflip{0%,72%{transform:rotate(0)}100%{transform:rotate(180deg)}}
+@keyframes hgtop{0%{transform:scaleY(1)}70%,100%{transform:scaleY(0)}}
+@keyframes hgbot{0%{transform:scaleY(0)}70%,100%{transform:scaleY(1)}}
+@keyframes hgst{0%,66%{opacity:1}70%,100%{opacity:0}}
+footer .fw{display:flex;align-items:flex-start;gap:10px}
+footer .fw .logo{flex:none;display:grid;width:42px;height:42px;min-width:0;padding:3px;margin:0;border-radius:9px}
+footer .fw .logo img{width:100%;height:auto;max-height:34px;object-fit:contain}
+footer .fw p{flex:1;min-width:0;font-size:clamp(.56rem,2.55vw,.72rem);line-height:1.55}
 </style>
 </head>
 <body>
@@ -287,7 +325,7 @@ tr.r.sel{background:var(--gl)}
 
 <section id="p-survey" class="hide">
   <h2>บันทึกการสำรวจ</h2>
-  <button type="button" class="s" id="tobulk" style="width:100%;margin-bottom:12px">นำเข้าหลายรูปทีเดียว (เลือกทั้งโฟลเดอร์)</button>
+  <div class="seg" role="group" aria-label="วิธีบันทึก"><button type="button" id="tosingle" class="on" aria-pressed="true">ถ่ายรูปทีละรายการ</button><button type="button" id="tobulk" aria-pressed="false">นำเข้าหลายรูป</button></div>
   <div class="card">
     <h3 class="sh">ข้อมูลการสำรวจ</h3>
     <label for="stype">ประเภทการสำรวจ (ไม่บังคับ)</label><input id="stype" list="tlist" maxlength="100" autocomplete="off" placeholder="พิมพ์ประเภท หรือเลือกที่เคยใช้ในโครงการนี้">
@@ -315,6 +353,7 @@ tr.r.sel{background:var(--gl)}
 </section>
 
 <section id="p-bulk" class="hide">
+  <div class="seg" role="group" aria-label="วิธีบันทึก"><button type="button" id="tosingle2" aria-pressed="false">ถ่ายรูปทีละรายการ</button><button type="button" id="tobulk2" class="on" aria-pressed="true">นำเข้าหลายรูป</button></div>
   <h2>นำเข้าหลายรูปทีเดียว</h2>
   <div class="card">
     <p class="hint" style="margin-top:0">เลือกรูปหลายไฟล์หรือทั้งโฟลเดอร์ แอปอ่านพิกัดจากรูปแล้วสร้างรายการสำรวจให้ รูปละ 1 รายการ เลขรายการรันต่อกันตามเวลาถ่ายภาพ รูปที่ไม่มีพิกัดให้ปักหมุดบนแผนที่ก่อน ถ้าส่งไม่ครบกด “นำเข้า” ซ้ำได้ ระบบไม่สร้างรายการซ้ำ</p>
@@ -344,11 +383,11 @@ tr.r.sel{background:var(--gl)}
 <section id="p-map" class="hide">
   <h2>แผนที่และรายการสำรวจ</h2>
   <div class="row" style="margin-bottom:10px">
-    <select id="base" aria-label="ชั้นแผนที่"><option value="osm">OpenStreetMap</option><option value="esri">ภาพถ่ายดาวเทียม (Esri)</option></select>
+    <select id="base" aria-label="ชั้นแผนที่"><option value="osm">ถนน (OpenStreetMap)</option><option value="voyager">ถนน (Carto)</option><option value="esristreet">ถนน (Esri)</option><option value="topo">ภูมิประเทศ + เส้นชั้นความสูง</option><option value="esri">ดาวเทียม (ไม่มีชื่อ)</option><option value="hybrid">ดาวเทียม + ชื่อสถานที่/ถนน</option></select>
     <select id="fst" aria-label="กรองสถานะ"><option value="">ทุกสถานะ</option><option value="Completed">ครบ</option><option value="Uploading">กำลังส่ง</option><option value="Pending">รอส่ง</option><option value="Failed">ล้มเหลว</option></select>
     <input id="fq" placeholder="ค้นหารหัสหรือรายละเอียด" aria-label="ค้นหารายการ">
   </div>
-  <div id="mapw"><div id="map"></div><button type="button" id="mfs" aria-label="แผนที่เต็มจอ" title="เต็มจอ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="fi" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/><path class="fo" d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg></button><div id="pinbar" class="okbox hide" role="status"><span id="pinxy">ลากแผนที่ให้เป้ากลางจอตรงจุดสำรวจ</span><span class="pbb"><button type="button" class="s" id="pinx">ยกเลิก</button><button type="button" class="p" id="pinok">ยืนยันตำแหน่ง</button></span></div><div id="xh" aria-hidden="true"><svg viewBox="0 0 56 56"><g fill="none" stroke-linecap="round"><g stroke="#fff" stroke-width="5"><circle cx="28" cy="28" r="12"/><path d="M28 2v14M28 40v14M2 28h14M40 28h14"/></g><g stroke="#d4262b" stroke-width="2"><circle cx="28" cy="28" r="12"/><path d="M28 2v14M28 40v14M2 28h14M40 28h14"/></g></g><circle cx="28" cy="28" r="2.2" fill="#d4262b"/></svg></div></div>
+  <div id="mapw"><div id="map"></div><div id="xh" aria-hidden="true"><svg viewBox="0 0 56 56"><g fill="none" stroke-linecap="round"><g stroke="#fff" stroke-width="5"><circle cx="28" cy="28" r="12"/><path d="M28 2v14M28 40v14M2 28h14M40 28h14"/></g><g stroke="#d4262b" stroke-width="2"><circle cx="28" cy="28" r="12"/><path d="M28 2v14M28 40v14M2 28h14M40 28h14"/></g></g><circle cx="28" cy="28" r="2.2" fill="#d4262b"/></svg></div><div id="mbot"><div id="msheet" class="hide" role="group" aria-label="เลือกชั้นแผนที่"></div><div id="pinbar" class="okbox hide" role="status"><span id="pinxy">ลากแผนที่ให้เป้ากลางจอตรงจุดสำรวจ</span><span class="pbb"><button type="button" class="s" id="pinx">ยกเลิก</button><button type="button" class="p" id="pinok">ยืนยันตำแหน่ง</button></span></div><div id="mbar"><button type="button" class="mb" id="mlay" aria-label="ชั้นแผนที่"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></svg><span>ชั้นแผนที่</span></button><button type="button" class="mb" id="mme" aria-label="ไปยังตำแหน่งของฉัน"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg><span>ตำแหน่งฉัน</span></button><button type="button" class="mb" id="mfs" aria-label="แผนที่เต็มจอ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="fi" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/><path class="fo" d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg><span id="mfst">เต็มจอ</span></button></div></div></div>
   <div class="row" style="margin:12px 0"><button class="s" id="loc">ไปยังตำแหน่งของฉัน</button><button class="s" id="csv">Export CSV</button><button class="s" id="gj">Export GeoJSON</button><button class="s" id="selb">เลือกหลายรายการ</button></div>
   <div id="selbar" class="okbox hide" role="status"><span id="selcnt">เลือก 0 รายการ</span><span class="pbb"><button type="button" class="s" id="sela">เลือกทั้งหมด</button><button type="button" class="s" id="sele" disabled>แก้ไข</button><button type="button" class="d" id="seld" disabled>ลบ</button><button type="button" class="s" id="selx">เสร็จสิ้น</button></span></div>
   <div class="card tw"><table><thead><tr><th id="selth" class="hide"><input type="checkbox" id="selall" style="width:auto" aria-label="เลือกทั้งหมด"></th><th>รหัส</th><th>ประเภท</th><th>วันที่</th><th>ภาพ</th><th>สถานะ</th></tr></thead><tbody id="rows"></tbody></table></div>
@@ -359,7 +398,7 @@ tr.r.sel{background:var(--gl)}
   <div class="card">
     <p style="margin:0 0 4px"><b>โครงการปัจจุบัน</b></p><p id="uproj" style="margin:0 0 14px"></p>
     <label for="uname" style="margin-top:0">ชื่อผู้สำรวจที่ใช้เป็นค่าเริ่มต้น</label><input id="uname" placeholder="เช่น สมชาย ใจดี">
-    <p class="hint">ชื่อนี้กรอกเอง ไม่ได้ยืนยันตัวตน และจะเติมให้ในหน้าสำรวจอัตโนมัติ</p>
+    <p class="hint">ชื่อนี้กรอกเอง ไม่ได้ยืนยันตัวตน แอปจำชื่อไว้ในเครื่องนี้และเติมให้ในหน้าสำรวจอัตโนมัติ (ถ้ายังไม่เคยตั้งชื่อ แอปจะจำชื่อที่พิมพ์ในหน้าสำรวจให้เอง)</p>
     <div class="row" style="margin-top:14px"><button class="p" id="usave">บันทึกชื่อ</button><button class="d" id="lock">ออกจากโครงการ</button></div>
     <p class="hint" id="umsg" role="status"></p>
   </div>
@@ -372,9 +411,11 @@ tr.r.sel{background:var(--gl)}
 </section>
 </main>
 <footer>
-  <span class="logo"><img src="logo.png" alt="COT" onerror="this.parentNode.classList.add('nologo')"><b>COT</b></span>
-  <p><b>บริษัท คอนซัลแทนท์ ออฟ เทคโนโลยี จำกัด (COT)</b> · Consultants of Technology Co., Ltd. · © <span id="yr"></span> สงวนลิขสิทธิ์ All rights reserved · 39 Ladprao 124 Road, Phlapphla, Wang Thonglang, Bangkok 10310 · <a href="https://www.cot.co.th/" target="_blank" rel="noopener">www.cot.co.th</a></p>
+  <div class="fw"><span class="logo"><img src="logo.png" alt="COT" onerror="this.parentNode.classList.add('nologo')"><b>COT</b></span>
+  <p><b>บริษัท คอนซัลแทนท์ ออฟ เทคโนโลยี จำกัด (COT)</b> · Consultants of Technology Co., Ltd. · © <span id="yr"></span> สงวนลิขสิทธิ์ All rights reserved · 39 Ladprao 124 Road, Phlapphla, Wang Thonglang, Bangkok 10310 · <a href="https://www.cot.co.th/" target="_blank" rel="noopener">www.cot.co.th</a></p></div>
 </footer>
+
+<div id="wait" class="hide" role="status" aria-live="polite"><div class="wb"><svg class="hg" viewBox="0 0 64 96" aria-hidden="true"><defs><clipPath id="hgc"><path d="M16 8H48V20C48 34 36 40 32 48C36 56 48 62 48 76V88H16V76C16 62 28 56 32 48C28 40 16 34 16 20Z"/></clipPath></defs><g class="hgr"><g clip-path="url(#hgc)"><rect class="sd1" x="14" y="8" width="36" height="40" fill="#f2b705"/><rect class="sd2" x="14" y="48" width="36" height="40" fill="#f2b705"/></g><line class="hst" x1="32" y1="46" x2="32" y2="86" stroke="#f2b705" stroke-width="2"/><path d="M12 6H52M12 90H52" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><path d="M16 8V20C16 34 28 40 32 48C28 56 16 62 16 76V88M48 8V20C48 34 36 40 32 48C36 56 48 62 48 76V88" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></g></svg><p id="waitt">รอสักครู่…</p><small>กำลังเข้าสู่โครงการ</small></div></div>
 
 <dialog id="det"><h2 id="dt" style="margin-top:0"></h2><div id="db"></div>
   <div class="row" style="margin-top:14px"><button class="s" id="ded">แก้ไข</button><button class="d" id="ddel">ลบ</button><button class="s" id="dcl">ปิด</button></div>
@@ -537,8 +578,8 @@ var asking=false;
 function tryLogin(c){PASS=c;cur={code:c};return api('login').then(function(r){try{localStorage.setItem('last_code',r.project.code)}catch(e){}enter(r.project,r.fields)}).catch(function(e){cur=null;PASS='';throw e})}
 function enterCode(c,silent){c=String(c||'').trim();if(!c||asking)return;
  if(c.length>30||/[\s:\\\/?*\[\]'"<>|]/.test(c)){if(!silent)$('cm').textContent='รหัสโครงการต้องไม่เกิน 30 ตัวอักษร และห้ามมีช่องว่างหรืออักขระพิเศษ';return}
- asking=true;$('cm').textContent='';$('cgo').disabled=true;$('sub').textContent='กำลังเข้าโครงการ...';
- tryLogin(c).then(function(){asking=false;$('cgo').disabled=false}).catch(function(e){asking=false;$('cgo').disabled=false;$('sub').textContent='กรอกรหัสโครงการเพื่อเริ่มงาน';if(!silent)$('cm').textContent=(e&&e.message)||'เข้าโครงการไม่ได้'})}
+ asking=true;$('cm').textContent='';$('cgo').disabled=true;$('sub').textContent='กำลังเข้าโครงการ...';$('wait').classList.remove('hide');
+ tryLogin(c).then(function(){asking=false;$('cgo').disabled=false;$('wait').classList.add('hide')}).catch(function(e){asking=false;$('cgo').disabled=false;$('wait').classList.add('hide');$('sub').textContent='กรอกรหัสโครงการเพื่อเริ่มงาน';if(!silent)$('cm').textContent=(e&&e.message)||'เข้าโครงการไม่ได้'})}
 $('cf').onsubmit=function(e){e.preventDefault();enterCode($('q').value,false)};
 function enter(p,fields){cur=p;$('sub').innerHTML='<span class="pc">'+esc(p.code)+'</span><span class="pn">'+esc(p.name)+'</span>';$('nav').classList.remove('hide');$('chg').classList.remove('hide');
  $('stype').value='';typeOpts();
@@ -554,7 +595,7 @@ function enter(p,fields){cur=p;$('sub').innerHTML='<span class="pc">'+esc(p.code
   if(f.type==='select')c='<select id="'+id+'"><option value="">ไม่เปลี่ยน</option>'+f.options.map(function(o){return'<option>'+esc(o)+'</option>'}).join('')+'</select>';
   else c='<input id="'+id+'" type="'+(f.type==='number'?'number':'text')+'" placeholder="เว้นว่าง = ไม่เปลี่ยน">';
   return'<label for="'+id+'">'+esc(f.label)+'</label>'+c}).join('');
- $('bname').value=UN;bReset();
+ $('bname').value=UN;if(!$('sname').value)$('sname').value=UN;bReset();
  cur.fields=fields;$('uproj').textContent=(p.code+' '+(p.name||'')).trim();if(map&&isFinite(p.lat)&&isFinite(p.lng))map.setView([p.lat,p.lng],9);
  newSurvey();show('survey');loadSurveys()}
 function leave(forget){setSel(false);if(forget&&cur){try{localStorage.removeItem('pw_'+cur.code)}catch(e){}}try{localStorage.removeItem('last_code')}catch(e){}$('q').value='';$('cm').textContent='';
@@ -576,11 +617,16 @@ function newSurvey(){$('sid').value='K'+Date.now().toString(36)+Math.random().to
  $('sidv').textContent='ระบบรันเลขให้ตอนบันทึก';$('smsg').textContent='';$('sdesc').value='';PF=[];rp();$('lat').value=$('lng').value=$('acc').value='';accUI(NaN);
  (cur.fields||[]).forEach(function(f){$('f_'+f.key).value=''})}
 var UN='';try{UN=localStorage.getItem('uname')||''}catch(e){}
+if(!UN){var cm=document.cookie.match(/(?:^|; )cot_uname=([^;]*)/);if(cm){try{UN=decodeURIComponent(cm[1])}catch(e){}}}
+function keepName(v){v=String(v||'').trim();if(!v)return;UN=v;try{localStorage.setItem('uname',v)}catch(e){}try{document.cookie='cot_uname='+encodeURIComponent(v)+';max-age=31536000;path=/;SameSite=Lax'}catch(e){}}
+if(UN)keepName(UN);
+try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}catch(e){}
 function unameUI(){var v=$('uname').value.trim(),ok=!!v&&v===UN;$('usave').disabled=!v||ok;$('usave').classList.toggle('saved',ok);$('usave').textContent=ok?'✓ บันทึกแล้ว':'บันทึกชื่อ';
  $('umsg').className=ok?'okbox':'hint';$('umsg').textContent=ok?'✓ ใช้ชื่อ “'+UN+'” เป็นผู้สำรวจเริ่มต้น และจะเติมในหน้าสำรวจให้อัตโนมัติ':''}
 $('uname').oninput=unameUI;
-$('usave').onclick=function(){UN=$('uname').value.trim();try{localStorage.setItem('uname',UN)}catch(e){}$('sname').value=UN;unameUI()};
+$('usave').onclick=function(){UN=$('uname').value.trim();keepName(UN);$('sname').value=UN;unameUI()};
 $('uname').value=UN;$('sname').value=UN;unameUI();
+$('sname').onchange=$('bname').onchange=function(){var v=this.value.trim();if(v&&!UN){keepName(v);$('uname').value=UN;unameUI()}};
 var gpsW=null,INAPP=/Line\/|FBAN|FBAV|Instagram|MicroMessenger|GSA\/|Messenger/i.test(navigator.userAgent);
 function tip(){return INAPP?' · ตอนนี้เปิดผ่านแอปอื่น ควรเปิดลิงก์ด้วย Safari เพื่อให้ได้พิกัดแม่นขึ้น':''}
 $('gps').onclick=function(){if(!navigator.geolocation){$('smsg').textContent='เครื่องนี้ไม่รองรับ GPS';return}
@@ -723,7 +769,7 @@ $('bclr').onclick=function(){if(BI.length&&!confirm('ล้างรายกา
  if(bCodes.length&&!confirm('ยังไม่ได้ดาวน์โหลดรหัสแก้ไข ล้างต่อหรือไม่?'))return;bReset()};
 $('bpick').onclick=function(){$('bfiles').click()};$('bdir').onclick=function(){$('bdirin').click()};
 $('bfiles').onchange=$('bdirin').onchange=function(){var l=[].slice.call(this.files);this.value='';bAdd(l)};
-$('tobulk').onclick=function(){show('bulk')};
+$('tobulk').onclick=function(){show('bulk')};$('tosingle2').onclick=function(){show('survey')};
 $("blist").onclick=function(e){var b=e.target.closest('button');if(!b||bRun)return;
  if(b.dataset.bp!=null)pinFor([BI[+b.dataset.bp]]);
  else if(b.dataset.bx!=null){BI.splice(+b.dataset.bx,1);bRender()}};
@@ -740,15 +786,31 @@ function startLoc(){if(!navigator.geolocation||!map||meW!=null)return;
   if(!me){me=L.circleMarker(ll,{radius:8,color:'#fff',weight:3,fillColor:'#1b64b0',fillOpacity:1}).bindTooltip('ตำแหน่งของคุณ').addTo(map);meAcc=L.circle(ll,{radius:p.coords.accuracy,color:'#1b64b0',weight:1,fillOpacity:.1,interactive:false}).addTo(map)}
   else{me.setLatLng(ll);meAcc.setLatLng(ll);meAcc.setRadius(p.coords.accuracy)}
   if(meFirst){meFirst=false;map.setView(ll,p.coords.accuracy>500?13:16)}},function(){},{enableHighAccuracy:true,maximumAge:5000,timeout:30000})}
+var ESRI='https://server.arcgisonline.com/ArcGIS/rest/services/',EA='Tiles © Esri',BASES={
+ osm:{n:'ถนน OSM',c:'#e9e4d8',l:[['https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}]]},
+ voyager:{n:'ถนน Carto',c:'#f1ece4',l:[['https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{maxZoom:19,subdomains:'abcd',attribution:'© OpenStreetMap © CARTO'}]]},
+ esristreet:{n:'ถนน Esri',c:'#f3efe6',l:[[ESRI+'World_Street_Map/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:EA}]]},
+ topo:{n:'ภูมิประเทศ เส้นชั้นความสูง',c:'#c8d9a4',l:[['https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',{maxZoom:19,maxNativeZoom:17,subdomains:'abc',attribution:'© OpenStreetMap, SRTM · © OpenTopoMap'}]]},
+ esri:{n:'ดาวเทียม ไม่มีชื่อ',c:'#3d5a3a',sat:1,l:[[ESRI+'World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Esri World Imagery'}]]},
+ hybrid:{n:'ดาวเทียม + ชื่อ + ถนน',c:'linear-gradient(135deg,#3d5a3a 55%,#f2b705 55%)',sat:1,l:[[ESRI+'World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Esri World Imagery'}],[ESRI+'Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}],[ESRI+'Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}]]}},
+BV='osm',bl=[];
+try{BV=localStorage.getItem('base')||'osm'}catch(e){}
+function sheetUI(){$('msheet').innerHTML=Object.keys(BASES).map(function(k){return'<button type="button" data-b="'+k+'" class="'+(k===BV?'on':'')+'" aria-pressed="'+(k===BV)+'"><i style="background:'+BASES[k].c+'"></i><span>'+BASES[k].n+'</span></button>'}).join('')}
+function setBase(v){if(!BASES[v])v='osm';BV=v;try{localStorage.setItem('base',v)}catch(e){}
+ $('base').value=v;$('map').classList.toggle('sat',!!BASES[v].sat);sheetUI();if(!map)return;
+ bl.forEach(function(t){map.removeLayer(t)});
+ bl=BASES[v].l.map(function(a,i){var t=L.tileLayer(a[0],a[1]).addTo(map);if(i===0)t.bringToBack();return t})}
 function initMap(){if(map){setTimeout(function(){map.invalidateSize();draw()},50);startLoc();return}
  map=L.map('map').setView(cur&&isFinite(cur.lat)&&isFinite(cur.lng)?[cur.lat,cur.lng]:[14.6,101.0],9);
- tile.osm=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'});
- tile.esri=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Esri World Imagery'});
- tile.osm.addTo(map);layer=(L.markerClusterGroup?L.markerClusterGroup({maxClusterRadius:44,showCoverageOnHover:false}):L.layerGroup()).addTo(map);
- map.on('move',pinXY);
+ bl=[];setBase(BV);layer=(L.markerClusterGroup?L.markerClusterGroup({maxClusterRadius:44,showCoverageOnHover:false}):L.layerGroup()).addTo(map);
+ map.on('move',pinXY);map.on('click',function(){$('msheet').classList.add('hide');$('mlay').classList.remove('on')});
  meFirst=!S.length;startLoc();draw()}
 $('loc').onclick=function(){meFirst=true;if(me)map.setView(me.getLatLng(),Math.max(map.getZoom(),16));else startLoc()};
-$('base').onchange=function(){var v=$('base').value;$('map').classList.toggle('sat',v==='esri');map.removeLayer(tile[v==='osm'?'esri':'osm']);tile[v].addTo(map)};
+$('base').onchange=function(){setBase($('base').value)};
+$('mlay').onclick=function(){$('msheet').classList.toggle('hide');$('mlay').classList.toggle('on',!$('msheet').classList.contains('hide'))};
+$('msheet').onclick=function(e){var b=e.target.closest('button[data-b]');if(!b)return;setBase(b.dataset.b);$('msheet').classList.add('hide');$('mlay').classList.remove('on')};
+$('mme').onclick=function(){$('loc').click()};
+sheetUI();
 function vis(){var st=$('fst').value,q=$('fq').value.toLowerCase();return S.filter(function(r){return(!st||r[3]===st)&&(r[0]+r[7]).toLowerCase().indexOf(q)>-1})}
 function draw(){if(!layer)return;layer.clearLayers();var v=vis(),pts=[];
  v.forEach(function(r){var la=parseFloat(r[5]),lo=parseFloat(r[6]);if(!vc(la,lo))return;pts.push([la,lo]);mk(r,la,lo).addTo(layer)});
@@ -793,7 +855,9 @@ $('msv').onclick=function(){var ids=selIds(),x={type:$('mtype').value.trim(),sur
  .catch(function(e){$('mm').textContent='ไม่สำเร็จ (แก้ไปแล้ว '+(e.done||0)+' รายการ): '+e.message}).then(function(){$('msv').disabled=false})};
 
 /* ---------- แผนที่เต็มจอ ---------- */
-function mapFs(on){var w=$('mapw');if(on===w.classList.contains('mfs'))return;w.classList.toggle('mfs',on);document.body.style.overflow=on?'hidden':'';
+function fsBottom(){var w=$('mapw'),nv=$('nav');w.style.bottom=(w.classList.contains('mfs')&&!nv.classList.contains('hide')&&getComputedStyle(nv).position==='fixed')?nv.offsetHeight+'px':''}
+addEventListener('resize',function(){fsBottom();if(map)map.invalidateSize()});
+function mapFs(on){var w=$('mapw');if(on===w.classList.contains('mfs'))return;w.classList.toggle('mfs',on);document.body.style.overflow=on?'hidden':'';fsBottom();$('mfst').textContent=on?'ย่อ':'เต็มจอ';$('mfs').setAttribute('aria-label',on?'ออกจากเต็มจอ':'แผนที่เต็มจอ');$('msheet').classList.add('hide');$('mlay').classList.remove('on');
  try{var de=document.documentElement;if(on&&de.requestFullscreen)de.requestFullscreen().catch(function(){});else if(!on&&document.fullscreenElement)document.exitFullscreen().catch(function(){})}catch(e){}
  if(map)setTimeout(function(){map.invalidateSize()},150)}
 $('mfs').onclick=function(){mapFs(!$('mapw').classList.contains('mfs'))};
@@ -881,6 +945,9 @@ kv('get').then(function(v){if(v)for(var k in v)if(!pend[k])pend[k]=v[k]}).catch(
  if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})});
 })();
 $('yr').textContent=new Date().getFullYear();
+function fitFoot(){var p=document.querySelector('footer .fw p');if(!p)return;p.style.fontSize='';var fs=parseFloat(getComputedStyle(p).fontSize);
+ while(fs>8&&p.getBoundingClientRect().height>fs*1.55*3+1){fs-=.25;p.style.fontSize=fs+'px'}}
+fitFoot();addEventListener('resize',fitFoot);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitFoot);
 var LC='';try{LC=localStorage.getItem('last_code')||''}catch(e){}
 if(LC){$('q').value=LC;enterCode(LC,true)}
 </script>
