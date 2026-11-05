@@ -449,7 +449,7 @@ html.sun .qb{background:#fff;color:#06236a}html.sun .qb.bad{background:#9b1c15;c
     <div class="row"><button type="button" class="s" id="gps">ดึงพิกัดปัจจุบัน</button><button type="button" class="s" id="pin">ปักหมุดบนแผนที่</button></div>
     <div class="row" style="margin-top:10px"><input id="lat" inputmode="decimal" placeholder="ละติจูด" aria-label="ละติจูด"><input id="lng" inputmode="decimal" placeholder="ลองจิจูด" aria-label="ลองจิจูด"></div>
     <label for="acc">ความแม่นยำ GPS (ม.)</label><input id="acc" readonly placeholder="ได้จากปุ่มดึงพิกัดปัจจุบัน">
-    <div id="accq" class="accq hide" role="status"><span class="dot"></span><span id="accqt"></span></div>
+    <div id="accq" class="accq hide" role="status"><span class="dot"></span><span id="accqt"></span></div><label for="gtype">รูปทรง</label><select id="gtype"><option value="Point">จุด (ค่าเริ่มต้น)</option><option value="LineString">เส้น</option><option value="Polygon">พื้นที่ปิด</option></select><div class="row" style="margin-top:8px"><button type="button" class="s" id="gdraw">วาดบนแผนที่</button><button type="button" class="s" id="gundo" disabled>ย้อนจุดล่าสุด</button><button type="button" class="d" id="gclear" disabled>ล้าง</button><button type="button" class="p" id="gfinish">เสร็จ กลับไปบันทึก</button></div><p id="gmsg" class="hint" role="status">จุดสำรวจจะใช้พิกัดด้านบนตามปกติ</p>
     </div>
   <div class="card sec">
     <h3 class="sh">ภาพถ่าย <span class="hint" style="display:inline;font-weight:400">(<span id="pcount">0/5</span> · ระบบย่อภาพให้อัตโนมัติ)</span></h3>
@@ -565,7 +565,7 @@ html.sun .qb{background:#fff;color:#06236a}html.sun .qb.bad{background:#9b1c15;c
   <label for="etype" style="margin-top:0">ประเภทการสำรวจ (ไม่บังคับ)</label><input id="etype" list="tlist" maxlength="100" autocomplete="off" placeholder="พิมพ์ประเภท หรือเลือกที่เคยใช้ในโครงการนี้">
   <label for="esur">ชื่อผู้สำรวจ</label><input id="esur">
   <label for="edesc">รายละเอียด</label><textarea id="edesc"></textarea>
-  <div id="edyn"></div>
+  <div id="edyn"></div><p id="egeom" class="hint"></p><button type="button" class="s" id="eredraw">วาดรูปทรงใหม่บนแผนที่</button>
   <label>พิกัด</label><div class="row"><input id="elat" aria-label="ละติจูด"><input id="elng" aria-label="ลองจิจูด"></div><button type="button" class="s" id="epin" style="width:100%;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:8px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-10.5a6.5 6.5 0 0 1 13 0C18.5 15.4 12 21 12 21z"/><circle cx="12" cy="10.5" r="2.3"/></svg>เลือกจากแผนที่</button>
   <label>ภาพถ่าย (ติ๊กภาพที่ต้องการลบ)</label><div id="eph"></div>
   <label for="efiles">เพิ่มภาพ (รวมไม่เกิน 5 ภาพ)</label><input id="efiles" type="file" accept="image/*,.heic,.heif" multiple>
@@ -606,7 +606,7 @@ html.sun .qb{background:#fff;color:#06236a}html.sun .qb.bad{background:#9b1c15;c
 <script>
 var API_URL='https://script.google.com/macros/s/AKfycbwU1LRMxd44giEL_c4HyLVIuQJ6HNevwaP-bJtQGjlEgufpw8BRH0Lk1AdQS-AxMAL2/exec';
 var $=function(i){return document.getElementById(i)};
-var editPick=false,PROJECTS=[],S=[],cur=null,PASS='',map=null,layer=null,tile={},pin=null,pend={},det=null,pinTarget=null;
+var drawMode=false,drawPts=[],drawLayer=null,editGeomMode=false,editPick=false,PROJECTS=[],S=[],cur=null,PASS='',map=null,layer=null,tile={},pin=null,pend={},det=null,pinTarget=null;
 var col={Completed:'#0b6e4f',Uploading:'#1b64b0',Pending:'#8a6d00',Failed:'#b3261e'};
 var TH={Completed:'ครบ',Uploading:'กำลังส่ง',Pending:'รอส่ง',Failed:'ล้มเหลว'},MAXF=40*1048576;
 function st(x){return TH[x]||x}
@@ -688,7 +688,7 @@ function dtOf(file){var a=window.exifr?exifr.parse(file,['DateTimeOriginal']).ca
  return a.then(function(m){if(m&&m.DateTimeOriginal instanceof Date&&!isNaN(m.DateTimeOriginal))return m.DateTimeOriginal;
   return miniExif(file).then(function(x){return x&&x.dt||null}).catch(function(){return null})})}
 function csvT(v){v=String(v==null?'':v);if(/^[=+\-@\t\r]/.test(v))v="'"+v;return'"'+v.replace(/"/g,'""')+'"'}
-function toRow(o){return[o.id,o.type||'ไม่ระบุ',o.surveyor||'-',o.status,o.photoDone,o.lat,o.lng,o.desc||'',o.at,o.photoTotal,o.custom]}
+function toRow(o){return[o.id,o.type||'ไม่ระบุ',o.surveyor||'-',o.status,o.photoDone,o.lat,o.lng,o.desc||'',o.at,o.photoTotal,o.custom,o.geometry||null]}
 function fmt(t){var d=new Date(t);return isNaN(d)?'-':d.toLocaleDateString('th-TH')}
 
 function show(p){['pick','home','survey','bulk','map','user','queue'].forEach(function(x){$('p-'+x).classList.toggle('hide',x!==p)});
@@ -723,6 +723,10 @@ function okSummary(n,f){var e=$('sdsum');e.className='okbox '+(f?'am':'gr');
  e.textContent=f?'✓ บันทึกจุดสำรวจแล้ว · ส่งภาพสำเร็จ '+(n-f)+'/'+n+' (ค้าง '+f+' ภาพ)':'✓ บันทึกจุดสำรวจแล้ว'+(n?' · ส่งภาพครบ '+n+' ภาพ':' · ไม่มีภาพถ่าย');
  try{if(navigator.vibrate)navigator.vibrate(f?[60,40,60]:[18,50,30])}catch(x){}}
 function pinSvg(c){return'<svg viewBox="0 0 30 40" aria-hidden="true"><path d="M15 39C15 39 2 24.5 2 14.5a13 13 0 0 1 26 0C28 24.5 15 39 15 39z" fill="'+c+'" stroke="#fff" stroke-width="2"/><circle cx="15" cy="14.5" r="5" fill="#fff"/></svg>'}
+function geoCoords(g){if(!g)return null;try{return typeof g==='string'?JSON.parse(g):g}catch(e){return null}}
+function geomValid(g){return !g||g.type==='Point'||(g.type==='LineString'&&g.coordinates.length>=2)||(g.type==='Polygon'&&g.coordinates[0]&&g.coordinates[0].length>=4)}
+function geoMeasure(g){if(!g||g.type==='Point')return '';var c=g.type==='Polygon'?g.coordinates[0]:g.coordinates,meters=0;for(var i=1;i<c.length;i++)meters+=map.distance([c[i-1][1],c[i-1][0]],[c[i][1],c[i][0]]);if(g.type==='LineString')return meters>=1000?(meters/1000).toFixed(2)+' กม.':Math.round(meters)+' ม.';var m2=Math.abs(c.reduce(function(a,p,i){var q=c[(i+1)%c.length];return a+p[0]*q[1]-q[0]*p[1]},0))*111320*111320*Math.cos(c[0][1]*Math.PI/180)/2;return Math.round(m2).toLocaleString('th-TH')+' ตร.ม. · '+(m2/1600).toFixed(2)+' ไร่'}
+function geoLayer(g){g=geoCoords(g);if(!g||!g.type||g.type==='Point')return null;try{return L.geoJSON(g,{style:{color:'#dc2626',weight:4,fillColor:'#f97316',fillOpacity:.18}})}catch(e){return null}}
 function mk(r,la,lo){var m=L.marker([la,lo],{icon:L.divIcon({className:'pinic',html:pinSvg(col[r[3]]||'#1d4ba3'),iconSize:[30,40],iconAnchor:[15,38],popupAnchor:[0,-34]}),title:r[0]});
  m.bindPopup('<div class="pu"><b>'+esc(r[0])+'</b><div class="r1"><span class="chip '+esc(r[3])+'">'+st(r[3])+'</span></div><div class="r2">'+esc(r[1])+' · '+fmt(r[8])+'<br>ภาพ '+r[4]+'/'+r[9]+' · '+esc(r[2])+'</div><button type="button" class="pu-go">ดูรายละเอียด</button></div>');
  m.on('popupopen',function(e){var b=e.popup.getElement().querySelector('.pu-go');if(b)b.onclick=function(){m.closePopup();detail(r)}});return m}
@@ -789,7 +793,7 @@ function home(){$('hname').textContent=cur?(cur.name||cur.code):'';$('dk').textC
  $('recent').innerHTML=rc.map(function(r){return'<button type="button" class="ri" data-s="'+r[3]+'" data-i="'+S.indexOf(r)+'"><span class="rid">'+esc(String(r[0]).slice(-4))+'</span><span class="rb"><b>'+esc(r[1])+'</b><small>'+esc(r[2])+' · '+fmt(r[8])+'</small></span><span class="chip '+r[3]+'">'+st(r[3])+'</span></button>'}).join('')||'<p class="hint" style="padding:6px 2px">ยังไม่มีรายการ</p>';
  thumbsHome();document.querySelectorAll('#recent .ri').forEach(function(t){t.onclick=function(){detail(S[t.dataset.i])}})}
 
-function newSurvey(){$('sid').value='K'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+function newSurvey(){drawPts=[];drawMode=false;editGeomMode=false;if(drawLayer&&map)map.removeLayer(drawLayer);drawLayer=null;$('gtype').value='Point';$('sid').value='K'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);
  $('sidv').textContent='ระบบรันเลขให้ตอนบันทึก';$('smsg').textContent='';$('sdesc').value='';PF=[];rp();$('lat').value=$('lng').value=$('acc').value='';accUI(NaN);
  (cur.fields||[]).forEach(function(f){$('f_'+f.key).value=''})}
 var UN='';try{UN=localStorage.getItem('uname')||''}catch(e){}
@@ -845,7 +849,8 @@ function sendAll(sid,list,ui){var fail=[],i=0;
   .catch(function(e){it.err=String(e&&e.message||e);fail.push(it);if(ui)mark(k,'Failed',100)}).then(next)})()})}
 
 $('save').onclick=function(){
- var la=$('lat').value.trim(),lo=$('lng').value.trim();
+ var la=$('lat').value.trim(),lo=$('lng').value.trim(),geometry=geometryValue();
+ if($('gtype').value!=='Point'&&!geometry){$('smsg').textContent='รูปทรงยังไม่ครบ: เส้นต้องมี 2 จุด พื้นที่ต้องมี 3 จุด';return}
  if(!la||!lo){$('smsg').textContent='ยังไม่มีพิกัดจุดสำรวจ';return}
  if(!vc(la,lo)){$('smsg').textContent='พิกัดไม่ถูกต้อง (ละติจูด -90 ถึง 90, ลองจิจูด -180 ถึง 180)';return}
  var miss=(cur.fields||[]).filter(function(f){return f.required&&!String($('f_'+f.key).value).trim()});
@@ -860,7 +865,7 @@ $('save').onclick=function(){
   var photos=files.map(function(f,i){return{photoId:'P'+sid+'-'+(i+1),name:f.name,lat:data[i].lat,lng:data[i].lng,src:data[i].src}});
   var blobs=files.map(function(f,i){return{id:photos[i].photoId,ab:b642ab(data[i].data)}});
   var rec={id:sid,project:proj,createdAt:Date.now(),surveyedAt:at,sid:null,done:[],state:'wait',err:'',photos:photos,
-   d:{type:$('stype').value,surveyor:$('sname').value.trim(),description:$('sdesc').value.trim(),lat:la,lng:lo,accuracy:$('acc').value,custom:custom}};
+   d:{type:$('stype').value,surveyor:$('sname').value.trim(),description:$('sdesc').value.trim(),lat:la,lng:lo,accuracy:$('acc').value,custom:custom,geometry:geometry}};
   $('smsg').textContent='กำลังบันทึกลงเครื่อง...';
   return qAdd(rec,blobs).catch(function(e){throw new Error(qErr(e))}).then(function(){
    try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}catch(x){}
@@ -988,8 +993,11 @@ function setBase(v){if(!BASES[v])v='osm';BV=v;try{localStorage.setItem('base',v)
 function initMap(){if(map){setTimeout(function(){map.invalidateSize();draw()},50);startLoc();return}
  map=L.map('map').setView(cur&&isFinite(cur.lat)&&isFinite(cur.lng)?[cur.lat,cur.lng]:[14.6,101.0],9);
  bl=[];setBase(BV);layer=(L.markerClusterGroup?L.markerClusterGroup({maxClusterRadius:44,showCoverageOnHover:false}):L.layerGroup()).addTo(map);
- map.on('move',pinXY);map.on('click',function(){$('msheet').classList.add('hide');$('mlay').classList.remove('on')});
+ map.on('move',pinXY);map.on('click',function(e){$('msheet').classList.add('hide');$('mlay').classList.remove('on');if(drawMode){if(!drawPts.length){$('lat').value=e.latlng.lat.toFixed(6);$('lng').value=e.latlng.lng.toFixed(6)}drawPts.push([e.latlng.lng,e.latlng.lat]);renderDraw();}});
  meFirst=!S.length;startLoc();draw()}
+function renderDraw(){if(drawLayer&&map)map.removeLayer(drawLayer);drawLayer=L.featureGroup().addTo(map);var t=$('gtype').value,c=drawPts.slice();if(t==='Polygon'&&c.length>=3)c.push(c[0]);if(c.length>1){var shape=t==='Polygon'&&drawPts.length>=3?L.polygon(c.map(function(x){return[x[1],x[0]]}),{color:'#dc2626',weight:4,fillOpacity:.15}):L.polyline(c.map(function(x){return[x[1],x[0]]}),{color:'#dc2626',weight:4});drawLayer.addLayer(shape)}drawPts.forEach(function(x){L.circleMarker([x[1],x[0]],{radius:5,color:'#fff',weight:2,fillColor:'#dc2626',fillOpacity:1}).addTo(drawLayer)});$('gundo').disabled=!drawPts.length;$('gclear').disabled=!drawPts.length;var g=t==='Polygon'?{type:t,coordinates:[drawPts.concat(drawPts.length>=3?[drawPts[0]]:[])]}:{type:t,coordinates:drawPts};$('gmsg').textContent=drawPts.length+' จุด · '+(drawPts.length<(t==='Polygon'?3:2)?'เพิ่มอีก '+((t==='Polygon'?3:2)-drawPts.length)+' จุด':geoMeasure(g))}
+$('gdraw').onclick=function(){if($('gtype').value==='Point'){toast('เลือกเส้นหรือพื้นที่ก่อนวาด');return}editGeomMode=false;drawPts=[];renderDraw();drawMode=true;show('map');toast('แตะแผนที่เพื่อเพิ่มจุด')};$('gfinish').onclick=function(){var g=geometryValue();if($('gtype').value!=='Point'&&!g){toast('รูปทรงยังไม่ครบ');return}drawMode=false;if(drawLayer&&map)map.removeLayer(drawLayer);drawLayer=null;if(editGeomMode&&det){det[11]=g;editGeomMode=false;$('ed').showModal();$('em').textContent='อัปเดตรูปทรงแล้ว · '+(g?geoMeasure(g):'จุด')}else show('survey')};$('gundo').onclick=function(){drawPts.pop();renderDraw()};$('gclear').onclick=function(){drawPts=[];if(drawLayer&&map)map.removeLayer(drawLayer);drawLayer=null;renderDraw()};
+function geometryValue(){if($('gtype').value==='Point')return null;var c=drawPts.slice();if($('gtype').value==='Polygon'&&c.length>=3)c.push(c[0]);var g={type:$('gtype').value,coordinates:$('gtype').value==='Polygon'?[c]:c};return geomValid(g)?g:null}
 $('loc').onclick=function(){meFirst=true;if(me)map.setView(me.getLatLng(),Math.max(map.getZoom(),16));else startLoc()};
 $('base').onchange=function(){setBase($('base').value)};
 $('mlay').onclick=function(){$('msheet').classList.toggle('hide');var o=!$('msheet').classList.contains('hide');$('mlay').classList.toggle('on',o);$('mlay').setAttribute('aria-expanded',o)};
@@ -999,7 +1007,7 @@ $('mall').onclick=function(){if(!map)return;var pts=[];vis().forEach(function(r)
 sheetUI();
 function vis(){var st=$('fst').value,q=$('fq').value.toLowerCase();return S.filter(function(r){return(!st||r[3]===st)&&(r[0]+r[7]).toLowerCase().indexOf(q)>-1})}
 function draw(){if(!layer)return;layer.clearLayers();var v=vis(),pts=[];
- v.forEach(function(r){var la=parseFloat(r[5]),lo=parseFloat(r[6]);if(!vc(la,lo))return;pts.push([la,lo]);mk(r,la,lo).addTo(layer)});
+ v.forEach(function(r){var la=parseFloat(r[5]),lo=parseFloat(r[6]);if(!vc(la,lo))return;pts.push([la,lo]);var gl=geoLayer(r[11]);if(gl)gl.addTo(layer);else mk(r,la,lo).addTo(layer)});
  if(!fitDone&&pts.length&&!$('p-map').classList.contains('hide')){fitDone=true;meFirst=false;map.fitBounds(L.latLngBounds(pts).pad(.2),{maxZoom:17})}
  drawRows(v)}
 $('fst').onchange=$('fq').oninput=draw;
@@ -1058,7 +1066,7 @@ function loadImgs(list,sid,k){k=k||0;if(k>=list.length||!det||det[0]!==sid)retur
  .catch(function(){}).then(function(){loadImgs(list,sid,k+1)})}
 function detail(r){det=r;det.photos=null;$('dt').textContent=r[0]+' · '+r[1];$('dm').textContent='';
  var c=r[10]||{},extra=(cur.fields||[]).map(function(f){return c[f.key]?'<p class="hint">'+esc(f.label)+': '+esc(c[f.key])+'</p>':''}).join('');
- $('db').innerHTML='<p><span class="chip '+r[3]+'">'+st(r[3])+'</span> ผู้สำรวจ: '+esc(r[2])+' · '+fmt(r[8])+'</p><p>'+esc(r[7])+'</p>'+extra+'<p class="hint">พิกัด '+r[5]+', '+r[6]+'</p><p><b>ภาพถ่าย '+r[4]+'/'+r[9]+' ภาพ</b></p><div id="dph"></div>'+
+ $('db').innerHTML='<p><span class="chip '+r[3]+'">'+st(r[3])+'</span> ผู้สำรวจ: '+esc(r[2])+' · '+fmt(r[8])+'</p><p>'+esc(r[7])+'</p>'+extra+'<p class="hint">พิกัดตัวแทน '+r[5]+', '+r[6]+'</p>'+(r[11]&&r[11].type!=='Point'?'<p><b>'+esc(r[11].type==='LineString'?'ความยาว':'พื้นที่')+': '+esc(geoMeasure(r[11]))+'</b></p>':'')+'<p><b>ภาพถ่าย '+r[4]+'/'+r[9]+' ภาพ</b></p><div id="dph"></div>'+
   (r[3]!=='Completed'?'<button class="p" id="rt" style="margin-top:10px">Retry อัปโหลดภาพที่ค้าง</button>':'');
  api('getSurvey',{surveyId:r[0]}).then(function(x){if(det!==r)return;det.photos=x.photos;
   $('dph').innerHTML=x.photos.map(function(p,i){return'<div class="ph"><div id="im'+i+'" style="flex:none"><i>ภาพ '+(i+1)+'</i></div><span class="hint">'+esc(p.name)+' <span class="chip '+esc(p.status)+'">'+esc(st(p.status))+'</span>'+gb(p)+'</span></div>'}).join('');
@@ -1080,7 +1088,8 @@ $('ded').onclick=function(){var r=det;if(!r.photos){$('dm').textContent='กำ�
   else x='<input id="'+id+'" type="'+(f.type==='number'?'number':'text')+'" value="'+esc(v)+'">';
   return'<label for="'+id+'">'+esc(f.label)+'</label>'+x}).join('');
  $('eph').innerHTML=r.photos.map(function(p){return'<label style="font-weight:400;margin:6px 0"><input type="checkbox" class="rm" value="'+esc(p.id)+'" style="width:auto"> '+esc(p.name)+'</label>'}).join('')||'<p class="hint">ยังไม่มีภาพ</p>';
- $('ed').showModal()};
+ $('egeom').textContent=r[11]&&r[11].type!=='Point'?'รูปทรงปัจจุบัน: '+r[11].type+' · '+geoMeasure(r[11]):'รูปทรงปัจจุบัน: จุด';$('ed').showModal()};
+$('eredraw').onclick=function(){if(!det)return;editGeomMode=true;var g=geoCoords(det[11]);$('gtype').value=g&&g.type!=='Point'?g.type:'LineString';drawPts=g?(g.type==='Polygon'?g.coordinates[0].slice(0,-1):g.coordinates).map(function(c){return[c[0],c[1]]}):[];$('ed').close();show('map');setTimeout(function(){renderDraw();drawMode=true;var b=drawLayer&&drawLayer.getBounds();if(b&&b.isValid())map.fitBounds(b.pad(.2),{maxZoom:17})},100)};
 $('ecl').onclick=function(){$('ed').close()};
 $('epin').onclick=function(){var la=parseFloat($('elat').value),lo=parseFloat($('elng').value);editPick=true;$('ed').close();$('det').close();show('map');pinMode(true);
  setTimeout(function(){if(!map)return;if(vc(la,lo))map.setView([la,lo],Math.max(map.getZoom(),17));else if(me)map.setView(me.getLatLng(),Math.max(map.getZoom(),17));pinXY()},150)};
@@ -1096,7 +1105,7 @@ $('esv').onclick=function(){
  Promise.all(files.map(function(f){return prep(f,la,lo)})).then(function(data){
   var add=files.map(function(f,i){return{photoId:'P'+sid+'-e'+Date.now().toString(36)+i,name:f.name,data:data[i].data,lat:data[i].lat,lng:data[i].lng,src:data[i].src}});
   return api('updateSurvey',{surveyId:sid,type:$('etype').value,surveyor:$('esur').value.trim(),description:$('edesc').value.trim(),
-   lat:la,lng:lo,custom:custom,removePhotoIds:rm,addPhotos:add.map(function(x){return{photoId:x.photoId,name:x.name}})})
+   lat:la,lng:lo,custom:custom,geometry:det[11]||null,removePhotoIds:rm,addPhotos:add.map(function(x){return{photoId:x.photoId,name:x.name}})})
   .then(function(){if(pend[sid]){pend[sid]=pend[sid].filter(function(x){return rm.indexOf(x.photoId)<0});if(!pend[sid].length)delete pend[sid];savePend()}return sendAll(sid,add,false)}).then(function(fail){
    if(fail.length){pend[sid]=(pend[sid]||[]).concat(fail);savePend()}
    $('em').textContent=fail.length?'บันทึกแล้ว แต่ส่งภาพไม่ครบ '+fail.length+' ภาพ ('+fail[0].err+') กด Retry ที่หน้ารายละเอียด':'บันทึกการแก้ไขแล้ว';
@@ -1108,12 +1117,12 @@ $('ddel').onclick=function(){if(!confirm('ลบรายการ '+det[0]+' ?\
 
 function dl(name,txt,mime){var u=URL.createObjectURL(new Blob(['\ufeff'+txt],{type:mime+';charset=utf-8'})),a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},4000)}
 $('csv').onclick=function(){var f=cur.fields||[];
- dl('surveys.csv',[['id','type','surveyor','date','status','photos','lat','lng','description'].concat(f.map(function(x){return x.label})).map(csvT).join(',')].concat(vis().map(function(r){var c=r[10]||{};
-  return[csvT(r[0]),csvT(r[1]),csvT(r[2]),csvT(isoD(r[8])),csvT(r[3]),csvT(r[4]+'/'+r[9]),r[5],r[6],csvT(r[7])].concat(f.map(function(x){return csvT(c[x.key])})).join(',')})).join('\n'),'text/csv')};
+ dl('surveys.csv',[['id','type','surveyor','date','status','photos','lat','lng','description','geometry'].concat(f.map(function(x){return x.label})).map(csvT).join(',')].concat(vis().map(function(r){var c=r[10]||{};
+  return[csvT(r[0]),csvT(r[1]),csvT(r[2]),csvT(isoD(r[8])),csvT(r[3]),csvT(r[4]+'/'+r[9]),r[5],r[6],csvT(r[7]),csvT(JSON.stringify(r[11]||{type:'Point',coordinates:[r[6],r[5]]}))].concat(f.map(function(x){return csvT(c[x.key])})).join(',')})).join('\n'),'text/csv')};
 $('gj').onclick=function(){var f=cur.fields||[];dl('surveys.geojson',JSON.stringify({type:'FeatureCollection',features:vis().filter(function(r){return vc(r[5],r[6])}).map(function(r){
   var c=r[10]||{},p={id:r[0],type:r[1],surveyor:r[2],status:r[3],photos:r[4]+'/'+r[9],date:isoD(r[8]),description:r[7]};
   f.forEach(function(x){p[x.label]=c[x.key]==null?'':c[x.key]});
-  return{type:'Feature',geometry:{type:'Point',coordinates:[parseFloat(r[6]),parseFloat(r[5])]},properties:p}})}),'application/geo+json')};
+  return{type:'Feature',geometry:(geoCoords(r[11])||{type:'Point',coordinates:[parseFloat(r[6]),parseFloat(r[5])]}),properties:p}})}),'application/geo+json')};
 /* ---------- คิวรายการรอส่ง (ใช้งานออฟไลน์) ---------- */
 var QL=[],QRUN=null,QAG=false,QMAN=false,QCUR='',QDONE={},QPG=null,QD=0,QT=0,QFAIL=false,QSENT=0,QREL=false,QQUIET=false,QSAVE='',QPREV='home',QED=null,QGONE={gone:1};
 var QBACK=[5,15,45,120,300];
@@ -1141,7 +1150,7 @@ function qFind(id){return QL.filter(function(i){return i.id===id})[0]}
 /* ส่งทีละรายการ: สร้างรายการ (clientKey เดิมเสมอ) -> ส่งรูปทีละรูป -> ลบออกจากคิว จดความคืบหน้าทุกขั้น เปิดแอปใหม่แล้วทำต่อได้ */
 function qSend(it){QCUR=it.id;qUI();var photos=it.photos,n=photos.length;
  var p=it.sid?Promise.resolve():api('createSurvey',{clientKey:it.id,surveyedAt:it.surveyedAt,type:it.d.type,surveyor:it.d.surveyor,description:it.d.description,
-   lat:it.d.lat,lng:it.d.lng,accuracy:it.d.accuracy,custom:it.d.custom,photos:photos.map(function(x){return{photoId:x.photoId,name:x.name}})},it.project)
+   lat:it.d.lat,lng:it.d.lng,accuracy:it.d.accuracy,custom:it.d.custom,geometry:it.d.geometry,photos:photos.map(function(x){return{photoId:x.photoId,name:x.name}})},it.project)
   .then(function(r){it.sid=r.surveyId;if(r.replayed&&r.status==='Completed')it.done=photos.map(function(x){return x.photoId});
    return qPut(it).then(function(ok){if(!ok)throw QGONE})});
  return p.then(function(){return photos.reduce(function(chain,x){return chain.then(function(){
