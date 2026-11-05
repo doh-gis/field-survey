@@ -3,7 +3,7 @@
    - ไลบรารีจาก CDN/ฟอนต์: ใช้ที่เก็บไว้ก่อน เพื่อเปิดเร็วและประหยัดสัญญาณ
    - ไม่แตะ API (Apps Script) และไม่เก็บไทล์แผนที่
    - v11: เก็บ Leaflet / heic2any / ฟอนต์ไว้ล่วงหน้า เพื่อเปิดแอปและบันทึกรายการได้ตอนออฟไลน์ */
-var V = 'cot-survey-v11';
+var V = 'cot-survey-v12';
 var SHELL = ['./', 'index.html', 'manifest.json', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png', 'favicon.png', 'logo.png', 'exifr.full.umd.js', 'piexif.js'];
 var CDN = ['cdnjs.cloudflare.com', 'fonts.googleapis.com', 'fonts.gstatic.com'];
 /* ไลบรารีจาก CDN ที่ต้องมีให้แอปเปิดและบันทึกได้ตอนออฟไลน์ (ต้องตรงกับ URL ใน index.html เป๊ะ) */
