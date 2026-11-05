@@ -459,7 +459,7 @@ html.sun .qb{background:#fff;color:#06236a}html.sun .qb.bad{background:#9b1c15;c
     <div class="row"><button type="button" class="pb" id="bcam"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>ถ่ายภาพ</button><button type="button" class="pb" id="bup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="M21 16l-5-5-8 8"/></svg>อัปโหลดภาพ</button></div>
     <input id="cam" type="file" accept="image/*" capture="environment" class="hide">
     <input id="files" type="file" accept="image/*,.heic,.heif" multiple class="hide">
-    <div id="plistph"></div>
+    <div id="plistph"></div><div id="media-panel"></div>
     <input id="sid" type="hidden"><p class="hint" style="margin-top:14px">รหัสรายการ: <b id="sidv"></b></p>
     <button class="p" id="save" style="margin-top:18px;width:100%">บันทึกข้อมูล</button>
     <p class="hint" id="smsg" role="status"></p>
@@ -503,7 +503,7 @@ html.sun .qb{background:#fff;color:#06236a}html.sun .qb.bad{background:#9b1c15;c
   </div>
   <p class="hint hide" id="moff" role="status" style="margin:0 0 8px">ออฟไลน์: แผนที่แสดงเฉพาะส่วนที่เคยเปิดดูตอนมีเน็ต ปักหมุดและบันทึกรายการได้ตามปกติ</p>
   <div id="mapw"><div id="map"></div><div id="xh" aria-hidden="true"><svg viewBox="0 0 56 56"><g fill="none" stroke-linecap="round"><g stroke="#fff" stroke-width="5"><circle cx="28" cy="28" r="12"/><path d="M28 2v14M28 40v14M2 28h14M40 28h14"/></g><g stroke="#d4262b" stroke-width="2"><circle cx="28" cy="28" r="12"/><path d="M28 2v14M28 40v14M2 28h14M40 28h14"/></g></g><circle cx="28" cy="28" r="2.2" fill="#d4262b"/></svg></div><div id="pinbar" class="okbox hide" role="status"><span id="pinxy">ลากแผนที่ให้เป้ากลางจอตรงจุดสำรวจ</span><span class="pbb"><button type="button" class="s" id="pinx">ยกเลิก</button><button type="button" class="p" id="pinok">ยืนยันตำแหน่ง</button></span></div><div id="mtop"><button type="button" id="mlay" aria-haspopup="listbox" aria-expanded="false" aria-label="ชั้นแผนที่"><svg  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></svg><span id="mlayt">ถนน</span><svg class="cv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button><div id="msheet" class="hide" role="listbox" aria-label="เลือกชั้นแผนที่"></div></div><div id="mbot"><div id="mtools"><button type="button" class="mi" id="mall" aria-label="ซูมไปจุดสำรวจทั้งหมด" title="ซูมไปจุดสำรวจทั้งหมด"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-10.5a6.5 6.5 0 0 1 13 0C18.5 15.4 12 21 12 21z"/><circle cx="12" cy="10.5" r="2.3"/></svg></button><button type="button" class="mi" id="mme" aria-label="ไปยังตำแหน่งของฉัน" title="ตำแหน่งของฉัน"><svg  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg></button><button type="button" class="mi" id="mfs" aria-label="แผนที่เต็มจอ" title="เต็มจอ / ย่อ"><svg  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="fi" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/><path class="fo" d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg></button></div></div></div>
-  <div class="row" style="margin:12px 0"><button class="s" id="loc">ไปยังตำแหน่งของฉัน</button><button class="s" id="csv">Export CSV</button><button class="s" id="gj">Export GeoJSON</button><button class="s" id="selb">เลือกหลายรายการ</button></div>
+  <div class="row" style="margin:12px 0"><button class="s" id="loc">ไปยังตำแหน่งของฉัน</button><button class="s" id="csv">Export CSV</button><button class="s" id="gj">Export GeoJSON</button><button class="p" id="reports">รายงาน PDF / Excel</button><button class="s" id="selb">เลือกหลายรายการ</button></div>
   <div id="selbar" class="okbox hide" role="status"><span id="selcnt">เลือก 0 รายการ</span><span class="pbb"><button type="button" class="s" id="sela">เลือกทั้งหมด</button><button type="button" class="s" id="sele" disabled>แก้ไข</button><button type="button" class="d" id="seld" disabled>ลบ</button><button type="button" class="s" id="selx">เสร็จสิ้น</button></span></div>
   <div class="card tw"><table><thead><tr><th id="selth" class="hide"><input type="checkbox" id="selall" style="width:auto" aria-label="เลือกทั้งหมด"></th><th>รหัส</th><th>ประเภท</th><th>วันที่</th><th>ภาพ</th><th>สถานะ</th></tr></thead><tbody id="rows"></tbody></table></div>
 </section>
@@ -796,7 +796,7 @@ function home(){$('hname').textContent=cur?(cur.name||cur.code):'';$('dk').textC
  $('recent').innerHTML=rc.map(function(r){return'<button type="button" class="ri" data-s="'+r[3]+'" data-i="'+S.indexOf(r)+'"><span class="rid">'+esc(String(r[0]).slice(-4))+'</span><span class="rb"><b>'+esc(r[1])+'</b><small>'+esc(r[2])+' · '+fmt(r[8])+'</small></span><span class="chip '+r[3]+'">'+st(r[3])+'</span></button>'}).join('')||'<p class="hint" style="padding:6px 2px">ยังไม่มีรายการ</p>';
  thumbsHome();document.querySelectorAll('#recent .ri').forEach(function(t){t.onclick=function(){detail(S[t.dataset.i])}})}
 
-function newSurvey(){GFORM=null;EGEOM=null;$('gtype').value='Point';if(window.geometryFormRefresh)geometryFormRefresh();$('gdraw').disabled=true;$('gmsg').textContent='จุดสำรวจจะใช้พิกัดด้านบนตามปกติ';$('sid').value='K'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+function newSurvey(){if(window.attachmentsReset)attachmentsReset();GFORM=null;EGEOM=null;$('gtype').value='Point';if(window.geometryFormRefresh)geometryFormRefresh();$('gdraw').disabled=true;$('gmsg').textContent='จุดสำรวจจะใช้พิกัดด้านบนตามปกติ';$('sid').value='K'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);
  $('sidv').textContent='ระบบรันเลขให้ตอนบันทึก';$('smsg').textContent='';$('sdesc').value='';PF=[];rp();$('lat').value=$('lng').value=$('acc').value='';accUI(NaN);
  (cur.fields||[]).forEach(function(f){$('f_'+f.key).value=''})}
 var UN='';try{UN=localStorage.getItem('uname')||''}catch(e){}
@@ -852,6 +852,8 @@ function sendAll(sid,list,ui){var fail=[],i=0;
   .catch(function(e){it.err=String(e&&e.message||e);fail.push(it);if(ui)mark(k,'Failed',100)}).then(next)})()})}
 
 $('save').onclick=function(){
+ if(window.attachmentsReady&&!attachmentsReady()){$('smsg').textContent='หยุดบันทึกเสียง/วิดีโอและรอเตรียมไฟล์ให้เสร็จก่อน';return}
+ var mediaSnapshot=window.attachmentsSnapshot?attachmentsSnapshot():[];
  var la=$('lat').value.trim(),lo=$('lng').value.trim(),geometry=geometryValue();
  if($('gtype').value!=='Point'&&!geometry){$('smsg').textContent='รูปทรงยังไม่ครบ: เส้นต้องมี 2 จุด พื้นที่ต้องมี 3 จุด';return}
  if(!la||!lo){$('smsg').textContent='ยังไม่มีพิกัดจุดสำรวจ';return}
@@ -870,7 +872,7 @@ $('save').onclick=function(){
   var rec={id:sid,project:proj,createdAt:Date.now(),surveyedAt:at,sid:null,done:[],state:'wait',err:'',photos:photos,
    d:{type:$('stype').value,surveyor:$('sname').value.trim(),description:$('sdesc').value.trim(),lat:la,lng:lo,accuracy:$('acc').value,custom:custom,geometry:geometry}};
   $('smsg').textContent='กำลังบันทึกลงเครื่อง...';
-  return qAdd(rec,blobs).catch(function(e){throw new Error(qErr(e))}).then(function(){
+  return attachmentsPersist(rec,blobs,mediaSnapshot).then(function(){return qAdd(rec,blobs)}).catch(function(e){throw new Error(qErr(e))}).then(function(){
    try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}catch(x){}
    newSurvey();var off=navigator.onLine===false;QSAVE=sid;QQUIET=true;
    $('smsg').textContent=off?'':'กำลังส่งรายการ...';
@@ -1076,7 +1078,7 @@ function detail(r){det=r;det.photos=null;$('dt').textContent=r[0]+' · '+r[1];$(
   if(!l){$('dm').textContent='ภาพที่ค้างไม่อยู่ในหน้านี้แล้ว (รีเฟรชหน้า) ให้ลบภาพที่ค้างแล้วเพิ่มภาพใหม่ในหน้าแก้ไข';return}
   $('dm').textContent='กำลังส่งภาพที่ค้าง...';
   sendAll(r[0],l,false).then(function(f){if(f.length)pend[r[0]]=f;else delete pend[r[0]];savePend();$('dm').textContent=f.length?'ยังส่งไม่ครบ '+f.length+' ภาพ: '+f[0].err:'ส่งครบแล้ว';loadSurveys()})};
- $('det').showModal()}
+ $('det').showModal();if(window.attachmentsDetails)attachmentsDetails(r[0])}
 $('dcl').onclick=function(){$('det').close()};
 
 $('ded').onclick=function(){var r=det;if(!r.photos){$('dm').textContent='กำลังโหลดรายการภาพ รอสักครู่แล้วกดอีกครั้ง';return}
@@ -1136,7 +1138,7 @@ function qGet(id){return qtx(['q'],'readonly',function(q,o){var r=q.get(id);r.on
 function qBlob(id){return qtx(['qb'],'readonly',function(b,o){var r=b.get(id);r.onsuccess=function(){o.v=r.result}})}
 function qAdd(rec,blobs){return qtx(['q','qb'],'readwrite',function(q,b){blobs.forEach(function(x){b.put({ab:x.ab},x.id)});q.put(rec,rec.id)})}
 function qPut(rec){return qtx(['q'],'readwrite',function(q,o){var g=q.get(rec.id);g.onsuccess=function(){if(g.result){q.put(rec,rec.id);o.v=true}else o.v=false}})}
-function qDel(rec){return qtx(['q','qb'],'readwrite',function(q,b){q.delete(rec.id);rec.photos.forEach(function(x){b.delete(x.photoId)})})}
+function qDel(rec){return qtx(['q','qb'],'readwrite',function(q,b){q.delete(rec.id);rec.photos.forEach(function(x){b.delete(x.photoId)});(rec.attachments||[]).forEach(function(x){b.delete(x.id)})})}
 function ab2b64(ab){var u=new Uint8Array(ab),s='',i,n=u.length;for(i=0;i<n;i+=32768)s+=String.fromCharCode.apply(null,u.subarray(i,i+32768));return btoa(s)}
 function b642ab(b){var s=atob(b),u=new Uint8Array(s.length),i;for(i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return u.buffer}
 function qLock(fn){
@@ -1151,7 +1153,7 @@ function qFind(id){return QL.filter(function(i){return i.id===id})[0]}
 /* ส่งทีละรายการ: สร้างรายการ (clientKey เดิมเสมอ) -> ส่งรูปทีละรูป -> ลบออกจากคิว จดความคืบหน้าทุกขั้น เปิดแอปใหม่แล้วทำต่อได้ */
 function qSend(it){QCUR=it.id;qUI();var photos=it.photos,n=photos.length;
  var p=it.sid?Promise.resolve():api('createSurvey',{clientKey:it.id,surveyedAt:it.surveyedAt,type:it.d.type,surveyor:it.d.surveyor,description:it.d.description,
-   lat:it.d.lat,lng:it.d.lng,accuracy:it.d.accuracy,custom:it.d.custom,geometry:it.d.geometry,photos:photos.map(function(x){return{photoId:x.photoId,name:x.name}})},it.project)
+   lat:it.d.lat,lng:it.d.lng,accuracy:it.d.accuracy,custom:it.d.custom,geometry:it.d.geometry,attachments:it.attachments||[],photos:photos.map(function(x){return{photoId:x.photoId,name:x.name}})},it.project)
   .then(function(r){it.sid=r.surveyId;if(r.replayed&&r.status==='Completed')it.done=photos.map(function(x){return x.photoId});
    return qPut(it).then(function(ok){if(!ok)throw QGONE})});
  return p.then(function(){return photos.reduce(function(chain,x){return chain.then(function(){
@@ -1161,7 +1163,7 @@ function qSend(it){QCUR=it.id;qUI();var photos=it.photos,n=photos.length;
     var b64=ab2b64(b.ab);QPG={id:it.id,k:it.done.length+1,n:n};qProg();
     return api('uploadPhoto',{surveyId:it.sid,photoId:x.photoId,data:b64,photoLat:x.lat,photoLng:x.lng,gpsSource:x.src},it.project).then(function(){
      it.done.push(x.photoId);thumbSave(it.sid,b64,it.project);return qPut(it).then(function(ok){if(!ok)throw QGONE})})})})},Promise.resolve())})
- .then(function(){return qDel(it)}).then(function(){QDONE[it.id]=it.sid;QSENT++;if(cur&&cur.code===it.project)QREL=true})}
+ .then(function(){return attachmentsSend(it)}).then(function(){return qDel(it)}).then(function(){QDONE[it.id]=it.sid;QSENT++;if(cur&&cur.code===it.project)QREL=true})}
 function qPass(){QFAIL=false;return qAll().then(function(list){var i=0,stop=false;
  return new Promise(function(done){(function next(){if(stop||i>=list.length)return done();var it=list[i++];
   if(it.state==='err'&&!QMAN)return next();
@@ -1194,7 +1196,7 @@ function qRender(){var off=navigator.onLine===false,n=QL.length;
   var ch=sending?['Uploading','กำลังส่ง']:err?['Failed','มีปัญหา']:it.sid?['Uploading','ส่งค้าง']:['Pending','รอส่ง'];
   var ttl=(it.sid?'เลข '+it.sid+' · ':'')+(it.d.type||'ไม่ระบุประเภท');
   return'<div class="card qi" data-id="'+esc(it.id)+'"><div class="qih"><b>'+esc(ttl)+'</b><span class="chip '+ch[0]+'">'+ch[1]+'</span></div>'+
-   '<p class="hint">'+esc(it.project)+' · '+esc(new Date(it.createdAt).toLocaleString('th-TH'))+' · ภาพ '+cnt+'</p>'+
+   '<p class="hint">'+esc(it.project)+' · '+esc(new Date(it.createdAt).toLocaleString('th-TH'))+' · ภาพ '+cnt+' · เสียง/วิดีโอ '+(it.attachments||[]).length+' ไฟล์</p>'+
    (it.d.description?'<p style="margin:6px 0 0;overflow-wrap:anywhere">'+esc(String(it.d.description).slice(0,120))+'</p>':'')+
    (err?'<p class="qe">'+esc(it.err)+'</p>':'')+
    '<div class="row" style="margin-top:10px">'+(err?'<button type="button" class="p" data-a="retry">ลองส่งใหม่</button>':'')+
@@ -1260,7 +1262,7 @@ function qEdit(id){qGet(id).then(function(it){if(!it)return qRefresh();if(it.sid
    else x='<input id="'+i+'" type="'+(fl.type==='number'?'number':'text')+'" value="'+esc(v)+'">';
    return'<label for="'+i+'">'+esc(fl.label)+(fl.required?' *':'')+'</label>'+x}).join('');
   $('qeph').innerHTML=it.photos.map(function(p){return'<label style="font-weight:400;margin:6px 0"><input type="checkbox" class="qrm" value="'+esc(p.photoId)+'" style="width:auto"> '+esc(p.name)+'</label>'}).join('')||'<p class="hint">ยังไม่มีภาพ</p>';
-  $('qefiles').value='';$('qem').textContent='';$('qe').showModal()})})}
+  $('qefiles').value='';$('qem').textContent='';$('qe').showModal();if(window.attachmentsQueuePanel)attachmentsQueuePanel(it.id)})})}
 $('qecl').onclick=function(){QED=null;$('qe').close()};
 $('qesv').onclick=function(){var q=QED;if(!q)return;var la=$('qelat').value.trim(),lo=$('qelng').value.trim();
  if(!vc(la,lo)){$('qem').textContent='พิกัดไม่ถูกต้อง (ละติจูด -90 ถึง 90, ลองจิจูด -180 ถึง 180)';return}
@@ -1323,5 +1325,9 @@ var LC='';try{LC=localStorage.getItem('last_code')||''}catch(e){}
 if(LC){$('q').value=LC;if(navigator.onLine===false)setTimeout(function(){enterCode(LC,true)},60)}
 </script>
 <script src="geometry-editor.js"></script>
+<script src="media-attachments.js"></script>
+<script src="jszip.min.js"></script>
+<script src="pdf-lib.min.js"></script>
+<script src="survey-reports.js"></script>
 </body>
 </html>

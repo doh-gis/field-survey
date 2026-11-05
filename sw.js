@@ -4,8 +4,8 @@
    - ไม่แตะ API (Apps Script)
    - v13: เก็บกระเบื้องแผนที่เฉพาะที่ผู้ใช้เลื่อนดูจริง (ไม่โหลดล่วงหน้า ตามนโยบาย OSM) จำกัดจำนวน เก็บ 7 วันก่อนขอใหม่
    - v11: เก็บ Leaflet / heic2any / ฟอนต์ไว้ล่วงหน้า เพื่อเปิดแอปและบันทึกรายการได้ตอนออฟไลน์ */
-var V = 'cot-survey-v17';
-var SHELL = ['./', 'index.html', 'manifest.json', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png', 'favicon.png', 'logo.png', 'exifr.full.umd.js', 'piexif.js', 'geometry-editor.js'];
+var V = 'cot-survey-v18';
+var SHELL = ['./', 'index.html', 'manifest.json', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png', 'favicon.png', 'logo.png', 'exifr.full.umd.js', 'piexif.js', 'geometry-editor.js', 'media-attachments.js', 'survey-reports.js', 'jszip.min.js', 'pdf-lib.min.js'];
 /* ===== กระเบื้องแผนที่ =====
    เก็บเฉพาะกระเบื้องที่ผู้ใช้เลื่อนดูจริง (ไม่มีการโหลดล่วงหน้า) ตามนโยบายของ OSM: ใช้ซ้ำจากเครื่องได้ แต่ห้ามดึงเป็นกลุ่ม
    - เก็บแยกจากแคชแอป (ชื่อไม่เปลี่ยนตามเวอร์ชัน) เพื่อให้อัปเดตแอปแล้วแผนที่ที่เก็บไว้ไม่หาย
