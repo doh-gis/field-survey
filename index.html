@@ -498,6 +498,7 @@ html.sun .qb{background:#fff;color:#06236a}html.sun .qb.bad{background:#9b1c15;c
     <select id="fst" aria-label="กรองสถานะ"><option value="">ทุกสถานะ</option><option value="Completed">ครบ</option><option value="Uploading">กำลังส่ง</option><option value="Pending">รอส่ง</option><option value="Failed">ล้มเหลว</option></select>
     <input id="fq" placeholder="ค้นหารหัสหรือรายละเอียด" aria-label="ค้นหารายการ">
   </div>
+  <p class="hint hide" id="moff" role="status" style="margin:0 0 8px">ออฟไลน์: แผนที่แสดงเฉพาะส่วนที่เคยเปิดดูตอนมีเน็ต ปักหมุดและบันทึกรายการได้ตามปกติ</p>
   <div id="mapw"><div id="map"></div><div id="xh" aria-hidden="true"><svg viewBox="0 0 56 56"><g fill="none" stroke-linecap="round"><g stroke="#fff" stroke-width="5"><circle cx="28" cy="28" r="12"/><path d="M28 2v14M28 40v14M2 28h14M40 28h14"/></g><g stroke="#d4262b" stroke-width="2"><circle cx="28" cy="28" r="12"/><path d="M28 2v14M28 40v14M2 28h14M40 28h14"/></g></g><circle cx="28" cy="28" r="2.2" fill="#d4262b"/></svg></div><div id="pinbar" class="okbox hide" role="status"><span id="pinxy">ลากแผนที่ให้เป้ากลางจอตรงจุดสำรวจ</span><span class="pbb"><button type="button" class="s" id="pinx">ยกเลิก</button><button type="button" class="p" id="pinok">ยืนยันตำแหน่ง</button></span></div><div id="mtop"><button type="button" id="mlay" aria-haspopup="listbox" aria-expanded="false" aria-label="ชั้นแผนที่"><svg  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></svg><span id="mlayt">ถนน</span><svg class="cv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button><div id="msheet" class="hide" role="listbox" aria-label="เลือกชั้นแผนที่"></div></div><div id="mbot"><div id="mtools"><button type="button" class="mi" id="mall" aria-label="ซูมไปจุดสำรวจทั้งหมด" title="ซูมไปจุดสำรวจทั้งหมด"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-10.5a6.5 6.5 0 0 1 13 0C18.5 15.4 12 21 12 21z"/><circle cx="12" cy="10.5" r="2.3"/></svg></button><button type="button" class="mi" id="mme" aria-label="ไปยังตำแหน่งของฉัน" title="ตำแหน่งของฉัน"><svg  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg></button><button type="button" class="mi" id="mfs" aria-label="แผนที่เต็มจอ" title="เต็มจอ / ย่อ"><svg  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="fi" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/><path class="fo" d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg></button></div></div></div>
   <div class="row" style="margin:12px 0"><button class="s" id="loc">ไปยังตำแหน่งของฉัน</button><button class="s" id="csv">Export CSV</button><button class="s" id="gj">Export GeoJSON</button><button class="s" id="selb">เลือกหลายรายการ</button></div>
   <div id="selbar" class="okbox hide" role="status"><span id="selcnt">เลือก 0 รายการ</span><span class="pbb"><button type="button" class="s" id="sela">เลือกทั้งหมด</button><button type="button" class="s" id="sele" disabled>แก้ไข</button><button type="button" class="d" id="seld" disabled>ลบ</button><button type="button" class="s" id="selx">เสร็จสิ้น</button></span></div>
@@ -532,6 +533,14 @@ html.sun .qb{background:#fff;color:#06236a}html.sun .qb.bad{background:#9b1c15;c
     <button type="button" class="s" id="uhelp" style="margin-top:16px;width:100%">วิธีใช้งานแอป (3 ขั้นตอน)</button>
     <div id="inst" class="hide" style="margin-top:16px"><h3 class="sh">ติดตั้งเป็นแอป</h3><p class="hint" id="insth">เพิ่มไอคอนไว้บนหน้าจอ เปิดเต็มจอ ไม่มีแถบเบราว์เซอร์</p><button type="button" class="p hide" id="instb" style="margin-top:8px">ติดตั้งแอป</button></div>
   </div>
+  <div class="card sec">
+    <h3 class="sh">แผนที่ออฟไลน์</h3>
+    <p class="hint" style="margin-top:0">แอปเก็บแผนที่ส่วนที่คุณเลื่อนดูไว้ในเครื่องให้อัตโนมัติ เพื่อใช้ตอนไม่มีสัญญาณ แอปไม่โหลดแผนที่ล่วงหน้าให้ เพราะผู้ให้บริการแผนที่ฟรีไม่อนุญาต ก่อนออกไปพื้นที่ที่สัญญาณอ่อน ให้เปิดหน้าแผนที่ตอนมีเน็ต แล้วเลื่อนและซูมดูพื้นที่ที่จะใช้ โดยเลือกชั้นแผนที่ที่จะใช้ด้วย</p>
+    <p id="tst" role="status" style="font-weight:600;margin:12px 0 0">กำลังตรวจสอบ...</p>
+    <div class="bar"><div id="tbar"></div></div>
+    <button type="button" class="d" id="tclr" style="margin-top:12px;width:100%;min-height:44px">ลบแผนที่ที่เก็บไว้</button>
+  </div>
+  
 </section>
 </main>
 <footer>
@@ -541,6 +550,13 @@ html.sun .qb{background:#fff;color:#06236a}html.sun .qb.bad{background:#9b1c15;c
 
 <div id="wait" class="hide" role="status" aria-live="polite"><div class="wb"><svg class="hg" viewBox="0 0 64 96" aria-hidden="true"><defs><clipPath id="hgc"><path d="M16 8H48V20C48 34 36 40 32 48C36 56 48 62 48 76V88H16V76C16 62 28 56 32 48C28 40 16 34 16 20Z"/></clipPath></defs><g class="hgr"><g clip-path="url(#hgc)"><rect class="sd1" x="14" y="8" width="36" height="40" fill="#f2b705"/><rect class="sd2" x="14" y="48" width="36" height="40" fill="#f2b705"/></g><line class="hst" x1="32" y1="46" x2="32" y2="86" stroke="#f2b705" stroke-width="2"/><path d="M12 6H52M12 90H52" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><path d="M16 8V20C16 34 28 40 32 48C28 56 16 62 16 76V88M48 8V20C48 34 36 40 32 48C36 56 48 62 48 76V88" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></g></svg><p id="waitt">รอสักครู่…</p><small>กำลังเข้าสู่โครงการ</small></div></div>
 
+<dialog id="accd" aria-labelledby="accdt"><h2 id="accdt" style="margin-top:0">ความแม่นยำพิกัดต่ำ</h2>
+  <p id="accdm" style="margin:0 0 12px"></p>
+  <p id="accds" role="status" class="hide" style="margin:0 0 12px;font-weight:600"></p>
+  <div id="accdb"><button type="button" class="p" id="accw" style="width:100%;min-height:44px"></button>
+   <div class="row" style="margin-top:10px"><button type="button" class="s" id="accgo" style="min-height:44px">บันทึกตามนี้</button><button type="button" class="s" id="accno" style="min-height:44px">ยกเลิก</button></div></div>
+  <button type="button" class="s hide" id="accstop" style="width:100%;min-height:44px">หยุดรอ</button>
+</dialog>
 <dialog id="det"><h2 id="dt" style="margin-top:0"></h2><div id="db"></div>
   <div class="row" style="margin-top:14px"><button class="s" id="ded">แก้ไข</button><button class="d" id="ddel">ลบ</button><button class="s" id="dcl">ปิด</button></div>
   <p class="hint" id="dm" role="status"></p></dialog>
@@ -678,7 +694,7 @@ function fmt(t){var d=new Date(t);return isNaN(d)?'-':d.toLocaleDateString('th-T
 function show(p){['pick','home','survey','bulk','map','user','queue'].forEach(function(x){$('p-'+x).classList.toggle('hide',x!==p)});
  var np=p==='bulk'?'survey':p;
  document.querySelectorAll('nav button').forEach(function(b){b.classList.toggle('on',b.dataset.p===np);b.setAttribute('aria-current',b.dataset.p===np?'page':'false')});
- if(p!=='map'){mapFs(false);stopLoc();pinMode(false);pinTarget=null;editPick=false}if(p==='map')initMap(); if(p==='home')home();if(p==='queue')qRender(); window.scrollTo(0,0)}
+ if(p!=='map'){mapFs(false);stopLoc();pinMode(false);pinTarget=null;editPick=false}if(p==='map')initMap(); if(p==='home')home();if(p==='queue')qRender();if(p==='user')tileUI();if(p==='map')mapOff(); window.scrollTo(0,0)}
 document.querySelectorAll('nav button').forEach(function(b){b.onclick=function(){show(b.dataset.p)}});
 
 /* ---------- v2 helpers ---------- */
@@ -698,8 +714,10 @@ function spark(){var n=7,day=864e5,t0=new Date();t0.setHours(0,0,0,0);var base=t
   pts.map(function(p,i){return'<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="'+(i===n-1?4:2.4)+'"/>'}).join('');
  $('sptx').textContent='รวม '+tot+' รายการ';$('dtoday').textContent=c[n-1];$('dweek').textContent=tot;
  var wd=['อา','จ','อ','พ','พฤ','ศ','ส'];$('sdays').innerHTML=c.map(function(v,i){var l=wd[new Date(base+i*day).getDay()];return i===n-1?'<b>วันนี้</b>':'<span>'+l+'</span>'}).join('')}
+/* เกณฑ์ความแม่นยำ GPS ต่อโครงการ (คอลัมน์ MaxAccuracyM ใน Project Master) ถ้าไม่ตั้งใช้ 50 ม. */
+function accThr(){var m=cur?parseFloat(cur.maxAcc):NaN;return m>0?m:50}
 function accUI(a){var e=$('accq');a=parseFloat(a);if(!isFinite(a)){e.className='accq hide';return}
- var k=a<=20?'g':a<=50?'y':'r',t=a<=20?'แม่นยำดี':a<=50?'พอใช้':'แม่นยำต่ำ ควรออกที่โล่ง';
+ var th=accThr(),k=a<=th*.4?'g':a<=th?'y':'r',t=a<=th*.4?'แม่นยำดี':a<=th?'พอใช้ (เกณฑ์โครงการ ไม่เกิน '+Math.round(th)+' ม.)':'แม่นยำต่ำ เกินเกณฑ์ '+Math.round(th)+' ม. ควรออกที่โล่ง';
  e.className='accq '+k;$('accqt').textContent='±'+Math.round(a)+' ม. · '+t}
 function okSummary(n,f){var e=$('sdsum');e.className='okbox '+(f?'am':'gr');
  e.textContent=f?'✓ บันทึกจุดสำรวจแล้ว · ส่งภาพสำเร็จ '+(n-f)+'/'+n+' (ค้าง '+f+' ภาพ)':'✓ บันทึกจุดสำรวจแล้ว'+(n?' · ส่งภาพครบ '+n+' ภาพ':' · ไม่มีภาพถ่าย');
@@ -794,10 +812,10 @@ $('gps').onclick=function(){if(!navigator.geolocation){$('smsg').textContent='�
  function done(){if(fin)return;fin=true;clearTimeout(tm);if(gpsW!=null){navigator.geolocation.clearWatch(gpsW);gpsW=null}btn.disabled=false;btn.classList.remove('scan');btn.textContent='ดึงพิกัดปัจจุบัน';
   if(!best){$('smsg').textContent='ดึงพิกัดไม่ได้ ตรวจสิทธิ์ตำแหน่ง หรือพิมพ์/ปักหมุดแทน';return}
   setPos(best);var a=Math.round(best.coords.accuracy);if(a<=20){try{if(navigator.vibrate)navigator.vibrate(25)}catch(x){}}
-  $('smsg').textContent=a<=50?'ได้พิกัดแล้ว (ความแม่นยำ '+a+' ม.)':'ได้พิกัดแต่ความแม่นยำต่ำ ('+a+' ม.) ออกที่โล่งแล้วกดอีกครั้ง หรือปักหมุดบนแผนที่แทน'+tip()}
+  $('smsg').textContent=a<=accThr()?'ได้พิกัดแล้ว (ความแม่นยำ '+a+' ม.)':'ได้พิกัดแต่ความแม่นยำต่ำ ('+a+' ม.) ออกที่โล่งแล้วกดอีกครั้ง หรือปักหมุดบนแผนที่แทน'+tip()}
  tm=setTimeout(done,30000);
  gpsW=navigator.geolocation.watchPosition(function(p){if(!best||p.coords.accuracy<best.coords.accuracy){best=p;setPos(p)}
-  $('smsg').textContent='กำลังหาตำแหน่ง... ความแม่นยำตอนนี้ '+Math.round(best.coords.accuracy)+' ม.';if(best.coords.accuracy<=20)done()},
+  $('smsg').textContent='กำลังหาตำแหน่ง... ความแม่นยำตอนนี้ '+Math.round(best.coords.accuracy)+' ม.';if(best.coords.accuracy<=Math.min(20,accThr()))done()},
   function(){done()},{enableHighAccuracy:true,maximumAge:0,timeout:30000})};
 $('pin').onclick=function(){show('map');pinMode(true);var la=parseFloat($('lat').value),lo=parseFloat($('lng').value);
  setTimeout(function(){if(!map)return;if(vc(la,lo))map.setView([la,lo],Math.max(map.getZoom(),17));else if(me)map.setView(me.getLatLng(),Math.max(map.getZoom(),17))},120)};
@@ -832,7 +850,7 @@ $('save').onclick=function(){
  if(!vc(la,lo)){$('smsg').textContent='พิกัดไม่ถูกต้อง (ละติจูด -90 ถึง 90, ลองจิจูด -180 ถึง 180)';return}
  var miss=(cur.fields||[]).filter(function(f){return f.required&&!String($('f_'+f.key).value).trim()});
  if(miss.length){$('smsg').textContent='กรุณากรอก: '+miss.map(function(f){return f.label}).join(', ');$('f_'+miss[0].key).focus();return}
- var ac=parseFloat($('acc').value);if(ac>100&&!confirm('ความแม่นยำพิกัดต่ำ ('+Math.round(ac)+' ม.) บันทึกต่อหรือไม่?'))return;
+ var ac=parseFloat($('acc').value);if(isFinite(ac)&&ac>accThr()&&!ACC_OK){accAsk(ac);return}ACC_OK=false;
  var files=PF.slice();
  if(files.some(function(f){return f.size>MAXF})){$('smsg').textContent='มีไฟล์ภาพใหญ่เกินไป กรุณาเลือกใหม่';return}
  var custom={};(cur.fields||[]).forEach(function(f){custom[f.key]=$('f_'+f.key).value});
@@ -1178,6 +1196,44 @@ function qOpen(){var cur2=['pick','home','survey','bulk','map','user','queue'].f
 $('qb').onclick=qOpen;
 $('qback').onclick=function(){var t=QPREV;if(t!=='pick'&&!cur)t='pick';show(t)};
 $('qnow').onclick=function(){QD=0;qRun(true);qRender()};
+/* ===== เตือนความแม่นยำ GPS ก่อนบันทึก (ข้อ 6) ===== */
+var ACC_OK=false,ACC_WAIT_S=20,accW=null,accT=null;
+function accStop(){if(accW!=null){try{navigator.geolocation.clearWatch(accW)}catch(e){}accW=null}if(accT){clearInterval(accT);accT=null}}
+function accAsk(ac){var th=accThr();accStop();
+ $('accdm').textContent='ความแม่นยำพิกัดตอนนี้ ±'+Math.round(ac)+' ม. เกินเกณฑ์ของโครงการนี้ (ไม่เกิน '+Math.round(th)+' ม.) จุดที่บันทึกอาจคลาดเคลื่อนจากตำแหน่งจริง';
+ $('accw').textContent='รอให้แม่นขึ้น (สูงสุด '+ACC_WAIT_S+' วินาที)';$('accw').disabled=!navigator.geolocation;
+ $('accds').classList.add('hide');$('accstop').classList.add('hide');$('accdb').classList.remove('hide');$('accd').showModal()}
+$('accno').onclick=function(){$('accd').close()};
+$('accgo').onclick=function(){ACC_OK=true;$('accd').close();$('save').click()};
+$('accd').addEventListener('close',accStop);
+$('accstop').onclick=function(){accFin()};
+var accBest=Infinity;
+function accFin(){accStop();var a=accBest;$('accd').close();
+ if(!isFinite(a)){$('smsg').textContent='รอแล้วแต่ยังไม่ได้ค่าใหม่ ออกที่โล่งแล้วกดดึงพิกัดปัจจุบันอีกครั้ง';return}
+ $('smsg').textContent=a<=accThr()?'ได้ความแม่นยำ ±'+Math.round(a)+' ม. ผ่านเกณฑ์แล้ว กดบันทึกได้เลย':'ความแม่นยำยังเกินเกณฑ์ (±'+Math.round(a)+' ม.) ออกที่โล่งแล้วลองอีกครั้ง หรือกดบันทึกแล้วเลือก "บันทึกตามนี้"'}
+$('accw').onclick=function(){if(!navigator.geolocation)return;accStop();
+ var c0=parseFloat($('acc').value);accBest=isFinite(c0)?c0:Infinity;var left=ACC_WAIT_S,th=accThr();
+ $('accdb').classList.add('hide');$('accstop').classList.remove('hide');$('accds').classList.remove('hide');
+ function tick(){$('accds').textContent='กำลังรอสัญญาณที่แม่นขึ้น... เหลือ '+left+' วินาที · ดีที่สุดตอนนี้ '+(isFinite(accBest)?'±'+Math.round(accBest)+' ม.':'-')}
+ tick();
+ accT=setInterval(function(){left--;if(left<=0){accFin();return}tick()},1000);
+ accW=navigator.geolocation.watchPosition(function(p){var a=p.coords.accuracy;
+   if(a<accBest){accBest=a;$('lat').value=p.coords.latitude.toFixed(6);$('lng').value=p.coords.longitude.toFixed(6);$('acc').value=Math.round(a);accUI(a)}
+   tick();if(accBest<=th)accFin()},
+  function(er){if(er&&er.code===1)accFin()},{enableHighAccuracy:true,maximumAge:0,timeout:ACC_WAIT_S*1000})};   // สัญญาณหลุดชั่วคราวไม่ต้องหยุด รอจนหมดเวลา มีแค่ไม่อนุญาตตำแหน่งที่หยุดทันที
+/* ===== แผนที่ออฟไลน์ (ข้อ 2): service worker เก็บกระเบื้องที่ดูแล้ว หน้านี้แค่แสดงสถานะและลบ ===== */
+function swAsk(t){return new Promise(function(ok){var c=navigator.serviceWorker&&navigator.serviceWorker.controller;if(!c){ok(null);return}
+ var ch=new MessageChannel(),done=false;ch.port1.onmessage=function(e){done=true;ok(e.data)};try{c.postMessage({type:t},[ch.port2])}catch(x){ok(null);return}
+ setTimeout(function(){if(!done)ok(null)},5000)})}
+function tileUI(){var e=$('tst');if(!e)return;swAsk('tileStats').then(function(r){
+ if(!r){e.textContent='ยังไม่พร้อม: เปิดแอปผ่านเว็บ (https) แล้วรีเฟรชหนึ่งครั้ง จึงจะเริ่มเก็บแผนที่';$('tbar').style.width='0';$('tclr').disabled=true;return}
+ $('tclr').disabled=!r.count;
+ e.textContent='เก็บไว้แล้ว '+r.count.toLocaleString('th-TH')+' กระเบื้อง (ประมาณ '+(r.bytes/1048576).toFixed(1)+' MB) จากสูงสุด '+r.max.toLocaleString('th-TH');
+ $('tbar').style.width=Math.min(100,Math.round(r.count/r.max*100))+'%'})}
+$('tclr').onclick=function(){if(!confirm('ลบแผนที่ที่เก็บไว้ในเครื่องทั้งหมดหรือไม่? (ข้อมูลรายการสำรวจไม่ถูกลบ)'))return;
+ swAsk('tileClear').then(function(r){toast(r&&r.ok?'ลบแผนที่ที่เก็บไว้แล้ว':'ลบไม่สำเร็จ');tileUI()})};
+function mapOff(){var e=$('moff');if(e)e.classList.toggle('hide',navigator.onLine!==false)}
+addEventListener('online',mapOff);addEventListener('offline',mapOff);
 addEventListener('online',function(){QD=0;qUI();qRun()});addEventListener('offline',function(){qUI();if(!$('p-queue').classList.contains('hide'))qRender()});
 document.addEventListener('visibilitychange',function(){if(!document.hidden)qRefresh().then(function(l){if(l.length)qRun()})});
 
