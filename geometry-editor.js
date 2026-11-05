@@ -1,4 +1,4 @@
-/* COT Field Survey v14: viewport-aware dialog, shape buttons and GPS recenter. */
+/* COT Field Survey v15: floating map controls for fit and GPS recenter. */
 (function () {
   'use strict';
   var GE = { map:null, tiles:[], nodes:null, shape:null, points:[], type:'LineString',
@@ -19,7 +19,14 @@
   .ge-tools{margin-top:8px}.ge-tools button{min-height:40px;padding:6px 10px;font-size:13px;width:auto}
   .ge-tools button[aria-pressed=true]{background:#153c83;color:white}
   #ge-help{font-size:12px;line-height:1.5;margin:8px 0 0;color:inherit;overflow-wrap:anywhere}
-  #ge-map{flex:1;min-height:70px;min-width:0;width:100%;overflow:hidden;background:#e6eaf0;touch-action:none}
+  #ge-map-wrap{position:relative;isolation:isolate;flex:1;min-height:70px;min-width:0;width:100%;overflow:hidden;background:#e6eaf0}
+  #ge-map{position:absolute;inset:0;width:100%;height:100%;overflow:hidden;touch-action:none}
+  #ge-map-controls{position:absolute;right:12px;bottom:28px;z-index:1000;display:flex;flex-direction:column;gap:8px}
+  #ge-map-controls .mi{flex:none;min-width:44px;min-height:44px}
+  #ge-map-controls svg{width:22px;height:22px;display:block}
+  #ge-locate[aria-busy=true] svg{animation:ge-locating .8s ease-in-out infinite alternate}
+  @keyframes ge-locating{to{opacity:.3}}
+  @media(prefers-reduced-motion:reduce){#ge-locate[aria-busy=true] svg{animation:none;opacity:.5}}
   #ge-gps-status:empty{display:none}#ge-gps-status{overflow-wrap:anywhere}
   .ge-foot{border-top:1px solid #ccd3df}.ge-foot p{font-size:13px;line-height:1.5;margin:0 0 8px}
   .ge-actions button{flex:1;min-height:44px}#ge-error{color:#b3261e}
@@ -42,10 +49,12 @@
         <button type="button" class="s" id="ge-undo">ย้อนกลับ</button>
         <button type="button" class="d" id="ge-delete" disabled>ลบจุดที่เลือก</button>
         <button type="button" class="s" id="ge-clear">ล้างรูป</button>
-        <button type="button" class="s" id="ge-fit">ดูทั้งรูป</button>
-        <button type="button" class="s" id="ge-locate">◎ ตำแหน่งของฉัน</button>
       </div><p id="ge-help">แตะแผนที่เพื่อเพิ่มจุด · ลากวงกลมหมายเลขเพื่อย้ายจุด · แตะ + ระหว่างจุดเพื่อแทรกจุด</p>
-    </div><div id="ge-map" aria-label="แผนที่วาดเส้นและพื้นที่"></div>
+    </div><div id="ge-map-wrap"><div id="ge-map" aria-label="แผนที่วาดเส้นและพื้นที่"></div>
+      <div id="ge-map-controls" role="group" aria-label="ควบคุมมุมมองแผนที่">
+        <button type="button" class="mi" id="ge-fit" aria-label="ดูรูปทรงทั้งหมด" title="ดูทั้งรูป"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-10.5a6.5 6.5 0 0 1 13 0C18.5 15.4 12 21 12 21z"/><circle cx="12" cy="10.5" r="2.3"/></svg></button>
+        <button type="button" class="mi" id="ge-locate" aria-label="ไปยังตำแหน่งของฉัน" title="ตำแหน่งของฉัน" aria-busy="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg></button>
+      </div></div>
     <div class="ge-foot"><p id="ge-status" role="status"></p><p id="ge-gps-status" role="status"></p><p id="ge-error" role="alert"></p>
       <div class="ge-actions"><button type="button" class="s" id="ge-cancel">ยกเลิก</button><button type="button" class="p" id="ge-apply">ใช้รูปทรงนี้</button></div>
     </div></dialog>`);
@@ -66,7 +75,7 @@
   }
   dialog.addEventListener('close',function(){
     if(scrollLock){document.documentElement.style.overflow=scrollLock.html;document.body.style.overflow=scrollLock.body;scrollLock=null}
-    $('ge-locate').disabled=false;$('ge-locate').textContent='◎ ตำแหน่งของฉัน';
+    setLocateBusy(false);
   });
   function copy(v){return JSON.parse(JSON.stringify(v))}
   function geometry(){
@@ -141,7 +150,7 @@
     GE.session++;GE.target=target;GE.type=type==='Polygon'?'Polygon':'LineString';GE.selected=-1;GE.history=[];GE.busy=false;
     GE.points=g&&g.type!=='Point'?copy(g.type==='Polygon'?g.coordinates[0].slice(0,-1):g.coordinates):[];
     refreshEditorType();setMode(GE.points.length?'edit':'add');
-    $('ge-gps-status').textContent='';$('ge-locate').disabled=false;$('ge-locate').textContent='◎ ตำแหน่งของฉัน';
+    $('ge-gps-status').textContent='';setLocateBusy(false);
     if(GE.location)GE.location.clearLayers();
     $('ge-base').innerHTML=Object.keys(BASES).map(function(k){return '<option value="'+k+'">'+esc(BASES[k].n)+'</option>'}).join('');
     $('ge-base').value=BASES[BV]?BV:'osm';
@@ -170,9 +179,10 @@
   $('ge-delete').onclick=function(){if(GE.selected<0)return;checkpoint();GE.points.splice(GE.selected,1);GE.selected=-1;render()};
   $('ge-clear').onclick=function(){if(!GE.points.length)return;checkpoint();GE.points=[];GE.selected=-1;setMode('add');render()};
   $('ge-fit').onclick=fit;
+  function setLocateBusy(busy){var b=$('ge-locate');b.disabled=busy;b.setAttribute('aria-busy',String(busy));b.title=busy?'กำลังค้นหาตำแหน่ง…':'ตำแหน่งของฉัน'}
   $('ge-locate').onclick=function(){
     if(!navigator.geolocation){$('ge-gps-status').textContent='อุปกรณ์นี้ไม่รองรับการหาตำแหน่ง';return}
-    var session=GE.session,button=this;button.disabled=true;button.textContent='กำลังค้นหา…';$('ge-gps-status').textContent='กำลังหาตำแหน่งปัจจุบัน…';
+    var session=GE.session;setLocateBusy(true);$('ge-gps-status').textContent='กำลังหาตำแหน่งปัจจุบัน…';
     navigator.geolocation.getCurrentPosition(function(p){
       if(session!==GE.session||!dialog.open)return;
       var lat=p.coords.latitude,lng=p.coords.longitude,accuracy=p.coords.accuracy;
@@ -186,7 +196,7 @@
       if(session!==GE.session||!dialog.open)return;
       finish(e.code===1?'ไม่ได้รับอนุญาตให้ใช้ตำแหน่ง กรุณาเปิดสิทธิ์ตำแหน่งในเบราว์เซอร์':e.code===3?'หาตำแหน่งไม่ทันเวลา กรุณาลองอีกครั้ง':'ยังหาตำแหน่งไม่ได้ กรุณาลองในที่โล่ง');
     },{enableHighAccuracy:true,maximumAge:5000,timeout:15000});
-    function finish(message){button.disabled=false;button.textContent='◎ ตำแหน่งของฉัน';$('ge-gps-status').textContent=message}
+    function finish(message){setLocateBusy(false);$('ge-gps-status').textContent=message}
   };
   function cancel(){closeEditor();if(GE.target==='form')refreshForm()}
   $('ge-cancel').onclick=cancel;
