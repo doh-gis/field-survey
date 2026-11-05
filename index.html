@@ -503,7 +503,7 @@ html.sun .qb{background:#fff;color:#06236a}html.sun .qb.bad{background:#9b1c15;c
   </div>
   <p class="hint hide" id="moff" role="status" style="margin:0 0 8px">ออฟไลน์: แผนที่แสดงเฉพาะส่วนที่เคยเปิดดูตอนมีเน็ต ปักหมุดและบันทึกรายการได้ตามปกติ</p>
   <div id="mapw"><div id="map"></div><div id="xh" aria-hidden="true"><svg viewBox="0 0 56 56"><g fill="none" stroke-linecap="round"><g stroke="#fff" stroke-width="5"><circle cx="28" cy="28" r="12"/><path d="M28 2v14M28 40v14M2 28h14M40 28h14"/></g><g stroke="#d4262b" stroke-width="2"><circle cx="28" cy="28" r="12"/><path d="M28 2v14M28 40v14M2 28h14M40 28h14"/></g></g><circle cx="28" cy="28" r="2.2" fill="#d4262b"/></svg></div><div id="pinbar" class="okbox hide" role="status"><span id="pinxy">ลากแผนที่ให้เป้ากลางจอตรงจุดสำรวจ</span><span class="pbb"><button type="button" class="s" id="pinx">ยกเลิก</button><button type="button" class="p" id="pinok">ยืนยันตำแหน่ง</button></span></div><div id="mtop"><button type="button" id="mlay" aria-haspopup="listbox" aria-expanded="false" aria-label="ชั้นแผนที่"><svg  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></svg><span id="mlayt">ถนน</span><svg class="cv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button><div id="msheet" class="hide" role="listbox" aria-label="เลือกชั้นแผนที่"></div></div><div id="mbot"><div id="mtools"><button type="button" class="mi" id="mall" aria-label="ซูมไปจุดสำรวจทั้งหมด" title="ซูมไปจุดสำรวจทั้งหมด"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-10.5a6.5 6.5 0 0 1 13 0C18.5 15.4 12 21 12 21z"/><circle cx="12" cy="10.5" r="2.3"/></svg></button><button type="button" class="mi" id="mme" aria-label="ไปยังตำแหน่งของฉัน" title="ตำแหน่งของฉัน"><svg  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg></button><button type="button" class="mi" id="mfs" aria-label="แผนที่เต็มจอ" title="เต็มจอ / ย่อ"><svg  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="fi" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/><path class="fo" d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg></button></div></div></div>
-  <div class="row" style="margin:12px 0"><button class="s" id="loc">ไปยังตำแหน่งของฉัน</button><button class="s" id="csv">Export CSV</button><button class="s" id="gj">Export GeoJSON</button><button class="p" id="reports">รายงาน PDF / Excel</button><button class="s" id="selb">เลือกหลายรายการ</button></div>
+  <div class="row" style="margin:12px 0"><button class="s" id="kml-export">Export KML / KMZ</button><button class="s" id="csv">Export CSV</button><button class="s" id="gj">Export GeoJSON</button><button class="p" id="reports">รายงาน PDF / Excel</button><button class="s" id="selb">เลือกหลายรายการ</button></div>
   <div id="selbar" class="okbox hide" role="status"><span id="selcnt">เลือก 0 รายการ</span><span class="pbb"><button type="button" class="s" id="sela">เลือกทั้งหมด</button><button type="button" class="s" id="sele" disabled>แก้ไข</button><button type="button" class="d" id="seld" disabled>ลบ</button><button type="button" class="s" id="selx">เสร็จสิ้น</button></span></div>
   <div class="card tw"><table><thead><tr><th id="selth" class="hide"><input type="checkbox" id="selall" style="width:auto" aria-label="เลือกทั้งหมด"></th><th>รหัส</th><th>ประเภท</th><th>วันที่</th><th>ภาพ</th><th>สถานะ</th></tr></thead><tbody id="rows"></tbody></table></div>
 </section>
@@ -1001,11 +1001,11 @@ function initMap(){if(map){setTimeout(function(){map.invalidateSize();draw()},50
  map.on('move',pinXY);map.on('click',function(){$('msheet').classList.add('hide');$('mlay').classList.remove('on')});
  meFirst=!S.length;startLoc();draw()}
 function geometryValue(){return GFORM}
-$('loc').onclick=function(){meFirst=true;if(me)map.setView(me.getLatLng(),Math.max(map.getZoom(),16));else startLoc()};
+function locateMap(){meFirst=true;if(me)map.setView(me.getLatLng(),Math.max(map.getZoom(),16));else startLoc()}
 $('base').onchange=function(){setBase($('base').value)};
 $('mlay').onclick=function(){$('msheet').classList.toggle('hide');var o=!$('msheet').classList.contains('hide');$('mlay').classList.toggle('on',o);$('mlay').setAttribute('aria-expanded',o)};
 $('msheet').onclick=function(e){var b=e.target.closest('button[data-b]');if(!b)return;setBase(b.dataset.b);$('msheet').classList.add('hide');$('mlay').classList.remove('on')};
-$('mme').onclick=function(){$('loc').click()};
+$('mme').onclick=locateMap;
 $('mall').onclick=function(){if(!map)return;var pts=[];vis().forEach(function(r){var la=parseFloat(r[5]),lo=parseFloat(r[6]);if(vc(la,lo))pts.push([la,lo])});if(!pts.length)return;meFirst=false;map.fitBounds(L.latLngBounds(pts).pad(.2),{maxZoom:17})};
 sheetUI();
 function vis(){var st=$('fst').value,q=$('fq').value.toLowerCase();return S.filter(function(r){return(!st||r[3]===st)&&(r[0]+r[7]).toLowerCase().indexOf(q)>-1})}
@@ -1329,5 +1329,6 @@ if(LC){$('q').value=LC;if(navigator.onLine===false)setTimeout(function(){enterCo
 <script src="jszip.min.js"></script>
 <script src="pdf-lib.min.js"></script>
 <script src="survey-reports.js"></script>
+<script src="geo-export.js"></script>
 </body>
 </html>
