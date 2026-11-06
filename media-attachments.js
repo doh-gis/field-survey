@@ -11,7 +11,8 @@
  function id(){return'A'+(crypto.randomUUID?crypto.randomUUID().replace(/-/g,''):Date.now().toString(36)+Math.random().toString(36).slice(2))}
  function say(t){$('media-status').textContent=t}
  function releaseItems(){M.items.forEach(function(x){if(x.url)URL.revokeObjectURL(x.url)})}
- function render(){
+ window.attachmentsRestore=function(items){attachmentsReset();M.items=items.map(function(x){return Object.assign({},x,{url:URL.createObjectURL(x.file)})});render()};
+ function render(){if(window.draftChanged)draftChanged();
   $('media-count').textContent=M.items.length+'/3 ไฟล์';
   ['media-audio','media-video','media-pick'].forEach(function(i){$(i).disabled=M.starting||!!M.rec||M.loading>0||M.items.length>=3});
   $('media-list').innerHTML=M.items.map(function(x,i){return'<div class="media-item"><b>'+esc(x.name)+'</b><small>'+esc(x.kind==='audio'?'เสียง':'วิดีโอ')+' · '+Math.ceil(x.duration)+' วินาที · '+size(x.size)+'</small><'+x.kind+' controls preload="metadata" '+(x.kind==='video'?'playsinline':'')+' src="'+x.url+'"></'+x.kind+'><button type="button" class="d" data-media-remove="'+i+'">ลบไฟล์นี้</button></div>'}).join('');
@@ -73,20 +74,20 @@
  window.attachmentsSend=async function(it){
   var items=it.attachments||[];it.attachmentProgress=it.attachmentProgress||{};
   for(var a of items){
-   var begin=await api('attachmentBegin',{surveyId:it.sid,attachmentId:a.id},it.project);
+   if(window.uploadStage)uploadStage(it,'กำลังส่ง '+a.name);var begin=await api('attachmentBegin',{surveyId:it.sid,attachmentId:a.id},it.project);
    if(!begin.completed){
     var b=await qBlob(a.id);if(!b)throw new Error('ไม่พบเสียง/วิดีโอในเครื่อง กรุณาลบรายการคิวนี้แล้วแนบใหม่');
     var total=Math.ceil(a.size/CHUNK),got=new Set(begin.received||[]);
     for(var i=0;i<total;i++){
      if(!got.has(i))await api('attachmentChunk',{surveyId:it.sid,attachmentId:a.id,index:i,data:ab2b64(b.ab.slice(i*CHUNK,(i+1)*CHUNK))},it.project);
-     it.attachmentProgress[a.id]=i+1;if(!await qPut(it))throw QGONE;
+     it.attachmentProgress[a.id]=i+1;if(window.uploadStage)uploadStage(it,'กำลังส่ง '+a.name);if(!await qPut(it))throw QGONE;
      var text='กำลังส่ง '+a.name+' '+Math.round((i+1)/total*100)+'%';if(QSAVE===it.id)$('smsg').textContent=text;if($('qst'))$('qst').textContent=text;
     }
     await api('attachmentFinish',{surveyId:it.sid,attachmentId:a.id},it.project);
     // Best-effort playback cache; upload success never depends on spare cache quota.
     await kvk('put','media:'+it.project+':'+a.id,new Blob([b.ab],{type:a.mime})).catch(function(){});
    }
-   it.attachmentProgress[a.id]='done';if(!await qPut(it))throw QGONE;
+   it.attachmentProgress[a.id]='done';if(window.uploadStage)uploadStage(it,'ตรวจสอบไฟล์แล้ว');if(!await qPut(it))throw QGONE;
   }
   if(items.length){var fresh=await api('listAttachments',{surveyId:it.sid},it.project);await kvk('put','media-meta:'+it.project+':'+it.sid,fresh.attachments).catch(function(){})}
  };

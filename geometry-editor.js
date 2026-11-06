@@ -110,9 +110,9 @@
     GE.points.forEach(function(p,i){
       var marker=L.marker([p[1],p[0]],{icon:nodeIcon(i),draggable:true,autoPan:true,bubblingMouseEvents:false,title:'จุด '+(i+1)+' — ลากเพื่อย้าย หรือแตะเพื่อเลือก',alt:'จุด '+(i+1)}).addTo(GE.nodes);
       marker.on('click',function(){GE.selected=i;render()});
-      marker.on('dragstart',function(){GE.busy=true;GE.selected=i;checkpoint()});
-      marker.on('drag',function(){var ll=marker.getLatLng();GE.points[i]=[ll.lng,ll.lat];shape();updateStatus()});
-      marker.on('dragend',function(){render();setTimeout(function(){GE.busy=false},0)});
+      marker.on('dragstart',function(){GE.busy=true;GE.selected=i;checkpoint();if(window.qualityMagnify)qualityMagnify(marker.getLatLng(),GE.map,$('ge-base').value)});
+      marker.on('drag',function(){var ll=marker.getLatLng();GE.points[i]=[ll.lng,ll.lat];if(window.qualityMagnify)qualityMagnify(ll,GE.map,$('ge-base').value);shape();updateStatus()});
+      marker.on('dragend',function(){if(window.qualityMagnifyHide)qualityMagnifyHide();render();setTimeout(function(){GE.busy=false},0)});
     });
     var count=GE.type==='Polygon'&&GE.points.length>=3?GE.points.length:GE.points.length-1;
     for(var i=0;i<count;i++) midpoint(i,(i+1)%GE.points.length);
@@ -123,9 +123,9 @@
     var p=GE.map.project([GE.points[a][1],GE.points[a][0]]),q=GE.map.project([GE.points[b][1],GE.points[b][0]]),mid=GE.map.unproject(p.add(q).divideBy(2));
     var m=L.marker(mid,{icon:L.divIcon({className:'ge-mid-icon',html:'<span>+</span>',iconSize:[22,22],iconAnchor:[11,11]}),draggable:true,autoPan:true,bubblingMouseEvents:false,title:'แทรกจุดระหว่าง '+(a+1)+' และ '+(b+1),alt:'เพิ่มจุดระหว่างเส้น'}).addTo(GE.nodes);
     m.on('click',function(){checkpoint();var ll=m.getLatLng();GE.points.splice(a+1,0,[ll.lng,ll.lat]);GE.selected=a+1;render()});
-    m.on('dragstart',function(){GE.busy=true;checkpoint();var ll=m.getLatLng();GE.points.splice(a+1,0,[ll.lng,ll.lat]);GE.selected=a+1});
-    m.on('drag',function(){var ll=m.getLatLng();GE.points[a+1]=[ll.lng,ll.lat];shape();updateStatus()});
-    m.on('dragend',function(){render();setTimeout(function(){GE.busy=false},0)});
+    m.on('dragstart',function(){GE.busy=true;checkpoint();var ll=m.getLatLng();GE.points.splice(a+1,0,[ll.lng,ll.lat]);GE.selected=a+1;if(window.qualityMagnify)qualityMagnify(ll,GE.map,$('ge-base').value)});
+    m.on('drag',function(){var ll=m.getLatLng();GE.points[a+1]=[ll.lng,ll.lat];if(window.qualityMagnify)qualityMagnify(ll,GE.map,$('ge-base').value);shape();updateStatus()});
+    m.on('dragend',function(){if(window.qualityMagnifyHide)qualityMagnifyHide();render();setTimeout(function(){GE.busy=false},0)});
   }
   function setMode(mode){GE.mode=mode;$('ge-add').setAttribute('aria-pressed',String(mode==='add'));$('ge-edit').setAttribute('aria-pressed',String(mode==='edit'))}
   function setBase(){
@@ -134,7 +134,7 @@
     base.l.forEach(function(config){GE.tiles.push(L.tileLayer(config[0],config[1]).addTo(GE.map))});
   }
   function fit(){if(!GE.points.length)return;GE.map.fitBounds(L.latLngBounds(GE.points.map(function(p){return[p[1],p[0]]})).pad(.2),{maxZoom:18,animate:false})}
-  function refreshForm(){
+  function refreshForm(){if(window.draftChanged)draftChanged();
     $('gtype').value=GFORM?GFORM.type:'Point';$('gdraw').disabled=!GFORM;
     document.querySelectorAll('[data-geometry-type]').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.geometryType===$('gtype').value))});
     $('gmsg').textContent=GFORM?'บันทึกรูปทรงในแบบฟอร์มแล้ว · '+geoMeasure(GFORM)+' · กดเปิดหน้าต่างเพื่อแก้ไข':'จุดสำรวจจะใช้พิกัดด้านบนตามปกติ';
@@ -162,7 +162,7 @@
     dialog.showModal();
     if(!GE.map){
       GE.map=L.map('ge-map',{doubleClickZoom:false,zoomAnimation:false,fadeAnimation:false,markerZoomAnimation:false}).setView([cur&&isFinite(cur.lat)?cur.lat:14.6,cur&&isFinite(cur.lng)?cur.lng:101],15);
-      GE.nodes=L.layerGroup().addTo(GE.map);
+      L.control.scale({imperial:false,position:'bottomleft'}).addTo(GE.map);if(window.qualityEditorMap)qualityEditorMap(GE.map);GE.nodes=L.layerGroup().addTo(GE.map);
       GE.location=L.layerGroup().addTo(GE.map);
       GE.map.on('click',function(e){if(GE.mode!=='add'||GE.busy)return;if(GE.points.length>=5000){$('ge-error').textContent='รูปทรงรองรับไม่เกิน 5,000 จุด';return}checkpoint();GE.points.push([e.latlng.lng,e.latlng.lat]);GE.selected=GE.points.length-1;render()});
       GE.map.on('zoomend',function(){if(!GE.busy)render()});
@@ -202,7 +202,7 @@
   $('ge-cancel').onclick=cancel;
   dialog.addEventListener('cancel',function(e){e.preventDefault();cancel()});
   $('ge-apply').onclick=function(){
-    if(!valid())return;
+    if(!valid())return;if(window.qualityGeometry){var issue=qualityGeometry(geometry());if(issue){$('ge-error').textContent=issue;return}}
     var g=geometry(),p=GE.points[0];
     if(GE.target==='edit'){
       EGEOM=g;$('elat').value=p[1].toFixed(6);$('elng').value=p[0].toFixed(6);

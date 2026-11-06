@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
+<meta name="cot-build" content="v25">
 <meta charset="utf-8">
 <base target="_top">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -778,8 +779,8 @@ function enter(p,fields){cur=p;$('sub').innerHTML='<span class="pc">'+esc(p.code
   return'<label for="'+id+'">'+esc(f.label)+'</label>'+c}).join('');
  $('bname').value=UN;if(!$('sname').value)$('sname').value=UN;bReset();
  cur.fields=fields;$('uproj').textContent=(p.code+' '+(p.name||'')).trim();if(map&&isFinite(p.lat)&&isFinite(p.lng))map.setView([p.lat,p.lng],9);
- newSurvey();show('survey');loadSurveys()}
-function leave(forget){setSel(false);if(forget&&cur){try{localStorage.removeItem('pw_'+cur.code)}catch(e){}}try{localStorage.removeItem('last_code')}catch(e){}$('q').value='';$('cm').textContent='';
+ newSurvey();show('survey');loadSurveys();if(window.draftEnter)draftEnter()}
+function leave(forget){if($('save').disabled){toast('กำลังบันทึกรายการ กรุณารอให้เสร็จก่อนเปลี่ยนโครงการ');return}if(window.draftLeave)draftLeave();setSel(false);if(forget&&cur){try{localStorage.removeItem('pw_'+cur.code)}catch(e){}}try{localStorage.removeItem('last_code')}catch(e){}$('q').value='';$('cm').textContent='';
  homeReset();bRun=false;bReset();cur=null;PASS='';S=[];fitDone=false;if(layer)layer.clearLayers();$('rows').innerHTML='';$('recent').innerHTML='';
  $('nav').classList.add('hide');$('chg').classList.add('hide');$('sub').textContent='กรอกรหัสโครงการเพื่อเริ่มงาน';show('pick')}
 $('chg').onclick=function(){leave(false)};$('lock').onclick=function(){leave(true)};
@@ -796,7 +797,7 @@ function home(){$('hname').textContent=cur?(cur.name||cur.code):'';$('dk').textC
  $('recent').innerHTML=rc.map(function(r){return'<button type="button" class="ri" data-s="'+r[3]+'" data-i="'+S.indexOf(r)+'"><span class="rid">'+esc(String(r[0]).slice(-4))+'</span><span class="rb"><b>'+esc(r[1])+'</b><small>'+esc(r[2])+' · '+fmt(r[8])+'</small></span><span class="chip '+r[3]+'">'+st(r[3])+'</span></button>'}).join('')||'<p class="hint" style="padding:6px 2px">ยังไม่มีรายการ</p>';
  thumbsHome();document.querySelectorAll('#recent .ri').forEach(function(t){t.onclick=function(){detail(S[t.dataset.i])}})}
 
-function newSurvey(){if(window.attachmentsReset)attachmentsReset();GFORM=null;EGEOM=null;$('gtype').value='Point';if(window.geometryFormRefresh)geometryFormRefresh();$('gdraw').disabled=true;$('gmsg').textContent='จุดสำรวจจะใช้พิกัดด้านบนตามปกติ';$('sid').value='K'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+function newSurvey(){if(window.draftReset)draftReset();if(window.attachmentsReset)attachmentsReset();GFORM=null;EGEOM=null;$('gtype').value='Point';if(window.geometryFormRefresh)geometryFormRefresh();$('gdraw').disabled=true;$('gmsg').textContent='จุดสำรวจจะใช้พิกัดด้านบนตามปกติ';$('sid').value='K'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);
  $('sidv').textContent='ระบบรันเลขให้ตอนบันทึก';$('smsg').textContent='';$('sdesc').value='';PF=[];rp();$('lat').value=$('lng').value=$('acc').value='';accUI(NaN);
  (cur.fields||[]).forEach(function(f){$('f_'+f.key).value=''})}
 var UN='';try{UN=localStorage.getItem('uname')||''}catch(e){}
@@ -815,7 +816,7 @@ function tip(){return INAPP?' · ตอนนี้เปิดผ่านแ�
 $('gps').onclick=function(){if(!navigator.geolocation){$('smsg').textContent='เครื่องนี้ไม่รองรับ GPS';return}
  if(gpsW!=null){navigator.geolocation.clearWatch(gpsW);gpsW=null}
  var best=null,tm,btn=$('gps'),fin=false;btn.disabled=true;btn.classList.add('scan');btn.textContent='กำลังหาพิกัด…';$('smsg').textContent='กำลังหาตำแหน่ง... (รอสูงสุด 30 วินาที)'+tip();
- function setPos(p){$('lat').value=p.coords.latitude.toFixed(6);$('lng').value=p.coords.longitude.toFixed(6);$('acc').value=Math.round(p.coords.accuracy);accUI(p.coords.accuracy)}
+ function setPos(p){if(window.draftChanged)draftChanged();$('lat').value=p.coords.latitude.toFixed(6);$('lng').value=p.coords.longitude.toFixed(6);$('acc').value=Math.round(p.coords.accuracy);accUI(p.coords.accuracy)}
  function done(){if(fin)return;fin=true;clearTimeout(tm);if(gpsW!=null){navigator.geolocation.clearWatch(gpsW);gpsW=null}btn.disabled=false;btn.classList.remove('scan');btn.textContent='ดึงพิกัดปัจจุบัน';
   if(!best){$('smsg').textContent='ดึงพิกัดไม่ได้ ตรวจสิทธิ์ตำแหน่ง หรือพิมพ์/ปักหมุดแทน';return}
   setPos(best);var a=Math.round(best.coords.accuracy);if(a<=20){try{if(navigator.vibrate)navigator.vibrate(25)}catch(x){}}
@@ -829,13 +830,13 @@ $('pin').onclick=function(){show('map');pinMode(true);var la=parseFloat($('lat')
 $('pinx').onclick=function(){if(editPick){editPick=false;pinMode(false);$('ed').showModal();return}if(pinTarget){pinTarget=null;show('bulk');return}pinMode(false)};
 $('pinok').onclick=function(){if(!map)return;var c=map.getCenter();
  if(editPick){editPick=false;$('elat').value=c.lat.toFixed(6);$('elng').value=c.lng.toFixed(6);pinMode(false);$('ed').showModal();return}
- if(pinTarget){var t=pinTarget;pinTarget=null;t.forEach(function(it){it.lat=c.lat;it.lng=c.lng;it.pinned=true});pinMode(false);show('bulk');bRender();return}$('lat').value=c.lat.toFixed(6);$('lng').value=c.lng.toFixed(6);$('acc').value='';accUI(NaN);pinMode(false);show('survey');$('smsg').textContent='ปักหมุดแล้ว'};
+ if(pinTarget){var t=pinTarget;pinTarget=null;t.forEach(function(it){it.lat=c.lat;it.lng=c.lng;it.pinned=true});pinMode(false);show('bulk');bRender();return}$('lat').value=c.lat.toFixed(6);$('lng').value=c.lng.toFixed(6);$('acc').value='';accUI(NaN);pinMode(false);show('survey');if(window.draftChanged)draftChanged();$('smsg').textContent='ปักหมุดแล้ว'};
 $('lat').oninput=$('lng').oninput=function(){$('acc').value='';accUI(NaN)};
 
 var PF=[];
 function rp(){var h='';PF.forEach(function(x,i){var big=x.size>MAXF;
  h+='<div class="ph"><i>ภาพ '+(i+1)+'</i><div style="flex:1"><div>'+esc(x.name)+' · '+(x.size/1048576).toFixed(1)+' MB '+(big?'<span class="chip Failed">ไฟล์ใหญ่เกินไป</span>':'<span class="chip Pending" id="st'+i+'">รอส่ง</span>')+'</div><div class="bar"><div id="b'+i+'"></div></div></div><button type="button" class="d" data-x="'+i+'" style="padding:6px 11px;min-width:44px;min-height:44px" aria-label="ลบภาพ">✕</button></div>'});
- $('plistph').innerHTML=h;$('pcount').textContent=PF.length+'/5';
+ if(window.draftChanged)draftChanged();$('plistph').innerHTML=h;$('pcount').textContent=PF.length+'/5';
  document.querySelectorAll('[data-x]').forEach(function(b){b.onclick=function(){PF.splice(+b.dataset.x,1);rp()}})}
 function addPF(inp){var n=0;[].slice.call(inp.files).forEach(function(f){if(PF.length<5)PF.push(f);else n++});inp.value='';rp();$('smsg').textContent=n?'เลือกได้สูงสุด 5 ภาพ ตัดออก '+n+' ภาพ':''}
 $('bcam').onclick=function(){$('cam').click()};$('bup').onclick=function(){$('files').click()};
@@ -852,6 +853,7 @@ function sendAll(sid,list,ui){var fail=[],i=0;
   .catch(function(e){it.err=String(e&&e.message||e);fail.push(it);if(ui)mark(k,'Failed',100)}).then(next)})()})}
 
 $('save').onclick=function(){
+ if(window.draftReady&&!draftReady()){$('smsg').textContent='กรุณาตรวจฉบับร่างให้เสร็จก่อนบันทึก';return}
  if(window.attachmentsReady&&!attachmentsReady()){$('smsg').textContent='หยุดบันทึกเสียง/วิดีโอและรอเตรียมไฟล์ให้เสร็จก่อน';return}
  var mediaSnapshot=window.attachmentsSnapshot?attachmentsSnapshot():[];
  var la=$('lat').value.trim(),lo=$('lng').value.trim(),geometry=geometryValue();
@@ -864,17 +866,18 @@ $('save').onclick=function(){
  var files=PF.slice();
  if(files.some(function(f){return f.size>MAXF})){$('smsg').textContent='มีไฟล์ภาพใหญ่เกินไป กรุณาเลือกใหม่';return}
  var custom={};(cur.fields||[]).forEach(function(f){custom[f.key]=$('f_'+f.key).value});
- var sid=$('sid').value,proj=cur.code,at=new Date().toISOString();$('save').disabled=true;$('smsg').textContent='กำลังเตรียมภาพ...';
+ var saveData={type:$('stype').value,surveyor:$('sname').value.trim(),description:window.surveyDescriptionForSave?surveyDescriptionForSave():$('sdesc').value.trim(),accuracy:$('acc').value};var sid=$('sid').value,proj=cur.code,at=new Date().toISOString();$('save').disabled=true;$('p-survey').inert=true;$('smsg').textContent='กำลังเตรียมภาพ...';
  Promise.all(files.map(function(f){return prep(f,la,lo)})).then(function(data){
   if(data.some(function(d){return d.data.length*.75>10*1048576}))throw new Error('ภาพใหญ่เกิน 10 MB แม้ย่อแล้ว กรุณาเลือกภาพอื่น');
   var photos=files.map(function(f,i){return{photoId:'P'+sid+'-'+(i+1),name:f.name,lat:data[i].lat,lng:data[i].lng,src:data[i].src}});
   var blobs=files.map(function(f,i){return{id:photos[i].photoId,ab:b642ab(data[i].data)}});
   var rec={id:sid,project:proj,createdAt:Date.now(),surveyedAt:at,sid:null,done:[],state:'wait',err:'',photos:photos,
-   d:{type:$('stype').value,surveyor:$('sname').value.trim(),description:$('sdesc').value.trim(),lat:la,lng:lo,accuracy:$('acc').value,custom:custom,geometry:geometry}};
+   d:{type:saveData.type,surveyor:saveData.surveyor,description:saveData.description,lat:la,lng:lo,accuracy:saveData.accuracy,custom:custom,geometry:geometry}};
   $('smsg').textContent='กำลังบันทึกลงเครื่อง...';
   return attachmentsPersist(rec,blobs,mediaSnapshot).then(function(){return qAdd(rec,blobs)}).catch(function(e){throw new Error(qErr(e))}).then(function(){
    try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}catch(x){}
-   newSurvey();var off=navigator.onLine===false;QSAVE=sid;QQUIET=true;
+   if(window.uploadStored)uploadStored(rec);newSurvey();$('p-survey').inert=false;var off=navigator.onLine===false;QSAVE=sid;QQUIET=true;
+   if(window.surveyAfterQueued&&surveyAfterQueued(rec)){QQUIET=false;QSAVE='';qRefresh().then(function(){if(!off)qRun()});return}
    $('smsg').textContent=off?'':'กำลังส่งรายการ...';
    return qRefresh().then(function(){return off?null:qRun()}).then(function(){
     QQUIET=false;QSAVE='';var rid=QDONE[sid],left=qFind(sid),n=photos.length;
@@ -884,7 +887,7 @@ $('save').onclick=function(){
       off?'ตอนนี้ไม่มีสัญญาณ แอปจะส่งให้เองเมื่อกลับมาออนไลน์ ต้องเปิดแอปไว้ตอนมีสัญญาณ (iPhone ส่งขณะปิดแอปไม่ได้)':
       'ยังส่งไม่สำเร็จ แอปจะลองใหม่เอง หรือกดป้าย “รอส่ง” มุมบนจอแล้วเลือก “ส่งตอนนี้”'}
     $('smsg').textContent='';$('sdc').value='';$('sdcode').classList.add('hide');buzz();$('sdone').showModal()})})
- }).catch(function(e){QQUIET=false;QSAVE='';$('smsg').textContent='ไม่สำเร็จ: '+e.message}).then(function(){$('save').disabled=false})};
+ }).catch(function(e){QQUIET=false;QSAVE='';$('smsg').textContent='ไม่สำเร็จ: '+e.message}).then(function(){$('p-survey').inert=false;$('save').disabled=false;if(window.surveyFlowDone)surveyFlowDone()})};
 $('sdok').onclick=function(){$('sdc').value='';$('sdone').close()};
 $('sdone').oncancel=function(e){e.preventDefault()};
 $('sdcp').onclick=function(){var v=$('sdc');try{navigator.clipboard.writeText(v.value).then(function(){$('sdcp').textContent='คัดลอกแล้ว'})}catch(e){v.select();document.execCommand('copy');$('sdcp').textContent='คัดลอกแล้ว'}};
@@ -1136,7 +1139,7 @@ function qErr(e){var n=e&&e.name||'';if(/Quota/i.test(n)||/quota/i.test(String(e
 function qAll(){return qtx(['q'],'readonly',function(q,o){var r=q.getAll();r.onsuccess=function(){o.v=r.result||[]}}).then(function(l){return l.sort(function(a,b){return a.createdAt-b.createdAt})})}
 function qGet(id){return qtx(['q'],'readonly',function(q,o){var r=q.get(id);r.onsuccess=function(){o.v=r.result}})}
 function qBlob(id){return qtx(['qb'],'readonly',function(b,o){var r=b.get(id);r.onsuccess=function(){o.v=r.result}})}
-function qAdd(rec,blobs){return qtx(['q','qb'],'readwrite',function(q,b){blobs.forEach(function(x){b.put({ab:x.ab},x.id)});q.put(rec,rec.id)})}
+function qAdd(rec,blobs){return qtx(['q','qb','kv'],'readwrite',function(q,b,k){blobs.forEach(function(x){b.put({ab:x.ab},x.id)});q.put(rec,rec.id);var project=String(rec.project).toUpperCase(),key='draft:'+project,r=k.get(key);k.put(rec.id,'draft-saved:'+project);r.onsuccess=function(){if(r.result&&r.result.sid===rec.id)k.delete(key)}})}
 function qPut(rec){return qtx(['q'],'readwrite',function(q,o){var g=q.get(rec.id);g.onsuccess=function(){if(g.result){q.put(rec,rec.id);o.v=true}else o.v=false}})}
 function qDel(rec){return qtx(['q','qb'],'readwrite',function(q,b){q.delete(rec.id);rec.photos.forEach(function(x){b.delete(x.photoId)});(rec.attachments||[]).forEach(function(x){b.delete(x.id)})})}
 function ab2b64(ab){var u=new Uint8Array(ab),s='',i,n=u.length;for(i=0;i<n;i+=32768)s+=String.fromCharCode.apply(null,u.subarray(i,i+32768));return btoa(s)}
@@ -1151,7 +1154,7 @@ function qLock(fn){
 function qFind(id){return QL.filter(function(i){return i.id===id})[0]}
 
 /* ส่งทีละรายการ: สร้างรายการ (clientKey เดิมเสมอ) -> ส่งรูปทีละรูป -> ลบออกจากคิว จดความคืบหน้าทุกขั้น เปิดแอปใหม่แล้วทำต่อได้ */
-function qSend(it){QCUR=it.id;qUI();var photos=it.photos,n=photos.length;
+function qSend(it){QCUR=it.id;if(window.uploadStage)uploadStage(it,'กำลังสร้างรายการ');qUI();var photos=it.photos,n=photos.length;
  var p=it.sid?Promise.resolve():api('createSurvey',{clientKey:it.id,surveyedAt:it.surveyedAt,type:it.d.type,surveyor:it.d.surveyor,description:it.d.description,
    lat:it.d.lat,lng:it.d.lng,accuracy:it.d.accuracy,custom:it.d.custom,geometry:it.d.geometry,attachments:it.attachments||[],photos:photos.map(function(x){return{photoId:x.photoId,name:x.name}})},it.project)
   .then(function(r){it.sid=r.surveyId;if(r.replayed&&r.status==='Completed')it.done=photos.map(function(x){return x.photoId});
@@ -1162,15 +1165,15 @@ function qSend(it){QCUR=it.id;qUI();var photos=it.photos,n=photos.length;
     if(!b){var e=new Error('ไม่พบไฟล์ภาพในเครื่อง (ถูกล้างโดยระบบ) ลบรายการนี้แล้วถ่ายใหม่');e.perm=true;throw e}
     var b64=ab2b64(b.ab);QPG={id:it.id,k:it.done.length+1,n:n};qProg();
     return api('uploadPhoto',{surveyId:it.sid,photoId:x.photoId,data:b64,photoLat:x.lat,photoLng:x.lng,gpsSource:x.src},it.project).then(function(){
-     it.done.push(x.photoId);thumbSave(it.sid,b64,it.project);return qPut(it).then(function(ok){if(!ok)throw QGONE})})})})},Promise.resolve())})
- .then(function(){return attachmentsSend(it)}).then(function(){return qDel(it)}).then(function(){QDONE[it.id]=it.sid;QSENT++;if(cur&&cur.code===it.project)QREL=true})}
+     it.done.push(x.photoId);if(window.uploadStage)uploadStage(it,'กำลังส่งภาพ');thumbSave(it.sid,b64,it.project);return qPut(it).then(function(ok){if(!ok)throw QGONE})})})})},Promise.resolve())})
+ .then(function(){return attachmentsSend(it)}).then(function(){return qDel(it)}).then(function(){if(window.uploadCompleted)uploadCompleted(it);QDONE[it.id]=it.sid;QSENT++;if(cur&&cur.code===it.project)QREL=true})}
 function qPass(){QFAIL=false;return qAll().then(function(list){var i=0,stop=false;
  return new Promise(function(done){(function next(){if(stop||i>=list.length)return done();var it=list[i++];
   if(it.state==='err'&&!QMAN)return next();
   if(it.state==='err'){it.state='wait';it.err=''}
   qSend(it).catch(function(e){
    if(e===QGONE)return;
-   if(e&&(e.net||e.perm===false)){stop=true;QFAIL=true;QL=list;return}
+   if(window.uploadFailed)uploadFailed(it,e);if(e&&(e.net||e.perm===false)){stop=true;QFAIL=true;QL=list;return}
    it.state='err';it.err=qErr(e);return qPut(it).catch(function(){})
   }).then(function(){QCUR='';QPG=null;next()})})()})})}
 function qRun(manual){if(manual)QMAN=true;if(QRUN){QAG=true;return QRUN}
@@ -1196,7 +1199,7 @@ function qRender(){var off=navigator.onLine===false,n=QL.length;
   var ch=sending?['Uploading','กำลังส่ง']:err?['Failed','มีปัญหา']:it.sid?['Uploading','ส่งค้าง']:['Pending','รอส่ง'];
   var ttl=(it.sid?'เลข '+it.sid+' · ':'')+(it.d.type||'ไม่ระบุประเภท');
   return'<div class="card qi" data-id="'+esc(it.id)+'"><div class="qih"><b>'+esc(ttl)+'</b><span class="chip '+ch[0]+'">'+ch[1]+'</span></div>'+
-   '<p class="hint">'+esc(it.project)+' · '+esc(new Date(it.createdAt).toLocaleString('th-TH'))+' · ภาพ '+cnt+' · เสียง/วิดีโอ '+(it.attachments||[]).length+' ไฟล์</p>'+
+   '<div data-upload="'+esc(it.id)+'" class="upload-files">'+(window.queueFileSummary?queueFileSummary(it):'')+'</div><p class="hint">'+esc(it.project)+' · '+esc(new Date(it.createdAt).toLocaleString('th-TH'))+' · ภาพ '+cnt+' · เสียง/วิดีโอ '+(it.attachments||[]).length+' ไฟล์</p>'+
    (it.d.description?'<p style="margin:6px 0 0;overflow-wrap:anywhere">'+esc(String(it.d.description).slice(0,120))+'</p>':'')+
    (err?'<p class="qe">'+esc(it.err)+'</p>':'')+
    '<div class="row" style="margin-top:10px">'+(err?'<button type="button" class="p" data-a="retry">ลองส่งใหม่</button>':'')+
@@ -1329,7 +1332,14 @@ if(LC){$('q').value=LC;if(navigator.onLine===false)setTimeout(function(){enterCo
 <script src="jszip.min.js"></script>
 <script src="pdf-lib.min.js"></script>
 <script src="report-map.js"></script>
+<script src="report-options.js"></script>
 <script src="survey-reports.js"></script>
 <script src="geo-export.js"></script>
+<script src="survey-draft.js"></script>
+<script src="upload-status.js"></script>
+<script src="workspace-ui.js"></script>
+<script src="survey-flow.js"></script>
+<script src="survey-filters.js"></script>
+<script src="survey-quality.js"></script>
 </body>
 </html>
